@@ -21,7 +21,7 @@ jobs:
           cache: 'maven'
 
       # SONAR_HOST_URL : 소나큐브 주소
-      # SONAR_TOKEN : 소나큐브 토큰
+      # SONAR_TOKEN : 소나큐브 토큰넣기
       - name: Execute SonarQube Analysis
         run: |
           mvn clean verify sonar:sonar \
