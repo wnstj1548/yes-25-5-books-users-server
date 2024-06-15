@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://133.186.241.167:3306/nhn_academy_12
-    username: nhn_academy_12
-    password: jcR59.XEQFn[ES6o
+    url: jdbc:mysql://133.186.241.167:3306/be6_yes255
+    username: be6_yes255
+    password: ${YES25_5_MYSQL_PASSWORD}
   jpa:
     open-in-view: false
     show-sql: true
