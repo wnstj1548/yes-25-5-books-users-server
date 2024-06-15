@@ -1,4 +1,4 @@
-package com.nhnacademy.booksapi;
+package com.yes255.yes255booksusersserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.nhnacademy.booksapi;
+package com.yes255.yes255booksusersserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

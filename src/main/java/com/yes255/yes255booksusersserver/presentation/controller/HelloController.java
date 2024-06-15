@@ -1,4 +1,4 @@
-package com.nhnacademy.booksapi.presentation.controller;
+package com.yes255.yes255booksusersserver.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
