@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://133.186.241.167:3306/be6_yes255
-    username: be6_yes255
-    password: ${YES25_5_MYSQL_PASSWORD}
+    url: jdbc:mysql://127.0.0.1:3306/Modules02
+    username: root
+    password: didgur12
   jpa:
     open-in-view: false
     show-sql: true
@@ -15,7 +15,7 @@ spring:
         auto_quote_keyword: true
     database: mysql
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     defer-datasource-initialization: true
   sql:
     init:
