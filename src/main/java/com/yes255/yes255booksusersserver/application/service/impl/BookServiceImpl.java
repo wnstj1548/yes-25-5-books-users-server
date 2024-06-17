@@ -9,6 +9,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequ
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public class BookServiceImpl implements BookService {
                 .build();
     }
 
+    @Transactional
     @Override
     public BookResponse createBook(CreateBookRequest createBookRequest) {
 
@@ -50,6 +52,7 @@ public class BookServiceImpl implements BookService {
         return toResponse(book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BookResponse findByBookId(long bookId) {
 
@@ -61,11 +64,13 @@ public class BookServiceImpl implements BookService {
         return toResponse(book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookResponse> findAllBooks() {
         return jpaBookRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
@@ -80,6 +85,7 @@ public class BookServiceImpl implements BookService {
         return toResponse(jpaBookRepository.save(updateBookRequest.toEntity()));
     }
 
+    @Transactional
     @Override
     public void deleteByBookId(long bookId) {
 
