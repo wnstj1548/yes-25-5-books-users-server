@@ -1,9 +1,17 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/Modules02
-    username: root
-    password: didgur12
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;MODE=MYSQL
+    username: sa
+    password: 1234
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://133.186.241.167:3306/be6_yes255
+#    username: be6_yes255
+#    password: ${YES25_5_MYSQL_PASSWORD}
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   jpa:
     open-in-view: false
     show-sql: true
@@ -13,10 +21,11 @@ spring:
         use_sql_comments: true
         highlight_sql: true
         auto_quote_keyword: true
-    database: mysql
+    database: h2
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     defer-datasource-initialization: true
+    generate-ddl: true
   sql:
     init:
       mode: always
@@ -26,3 +35,6 @@ logging:
     org.springframework.transaction.interceptor: trace
 server:
   port: 8061
+
+  application:
+    name: book-user-server

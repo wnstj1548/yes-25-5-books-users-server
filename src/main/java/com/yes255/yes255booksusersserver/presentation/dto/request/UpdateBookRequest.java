@@ -5,13 +5,13 @@ import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public record CreateBookRequest(String bookIsbn, String bookName, String bookDescription,
+public record UpdateBookRequest(long bookId, String bookIsbn, String bookName, String bookDescription,
                                 String bookAuthor, String bookPublisher, Date bookPublishDate,
                                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
                                 Integer bookQuantity) {
     public Book toEntity() {
         return Book.builder()
-                .bookId(null)
+                .bookId(bookId)
                 .bookIsbn(bookIsbn)
                 .bookName(bookName)
                 .bookDescription(bookDescription)
