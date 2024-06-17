@@ -1,6 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.UserServices;
+import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServicesImpl implements UserServices {
+public class UserServiceImpl implements UserService {
 
     private final JpaUserRepository userRepository;
 
@@ -23,7 +23,7 @@ public class UserServicesImpl implements UserServices {
 
 
     @Override
-    public Users getCurrentUser(Long userId) {
+    public User getCurrentUser(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
@@ -31,27 +31,27 @@ public class UserServicesImpl implements UserServices {
     @Override
     public CreateUserResponse createUser(CreateUserRequest userRequest) {
 
-        Customers customers = new Customers("Member");
-        Providers providers = new Providers("Provider");
+        Customer customer = new Customer("Member");
+        Provider provider = new Provider("Provider");
         UserState userState = new UserState("활성");
 
-        customerRepository.save(customers);
-        providerRepository.save(providers);
+        customerRepository.save(customer);
+        providerRepository.save(provider);
         stateRepository.save(userState);
 
-        Users users = Users.builder()
-                        .customers(customers)
+        User user = User.builder()
+                        .customer(customer)
                         .userName(userRequest.getUserName())
                         .userBirth(userRequest.getUserBirth())
                         .userEmail(userRequest.getUserEmail())
                         .userPhone(userRequest.getUserPhone())
                         .userPassword(userRequest.getUserPassword())
-                        .providers(providers)
+                        .provider(provider)
                         .userState(userState)
                         .build();
 
-        userRepository.save(users);
-        log.info("User : {}", users);
+        userRepository.save(user);
+        log.info("User : {}", user);
 
         return CreateUserResponse.builder()
                     .userName(userRequest.getUserName())
