@@ -1,4 +1,4 @@
-### 생성
+### 책 생성
 POST localhost:8061/books
 Content-Type: application/json
 
@@ -16,16 +16,16 @@ Content-Type: application/json
 
 }
 
-### 불러오기
+### 책 불러오기
 GET localhost:8061/books/1
 Content-Type: application/json
 
-### 전체 불러오기
+### 책 전체 불러오기
 GET localhost:8061/books
 Content-Type: application/json
 
-### 수정하기
-PATCH localhost:8061/books
+### 책 수정하기
+PUT localhost:8061/books
 Content-Type: application/json
 
 {
@@ -47,6 +47,6 @@ Content-Type: application/json
   "hitsCount": 0
 }
 
-### 삭제하기
+### 책 삭제하기
 DELETE localhost:8061/books/1
 Content-Type: application/json

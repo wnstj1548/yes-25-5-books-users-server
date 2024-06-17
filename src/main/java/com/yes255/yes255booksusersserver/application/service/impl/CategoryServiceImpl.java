@@ -73,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategoryById(long categoryId) {
+    public void deleteByCategoryId(long categoryId) {
 
         if(!jpaCategoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("category not found");

@@ -16,7 +16,7 @@ public interface CategoryService {
 
     CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest);
 
-    void deleteCategoryById(long categoryId);
+    void deleteByCategoryId(long categoryId);
 
     List<CategoryResponse> findFirstStepCategories();
 
