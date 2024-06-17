@@ -31,9 +31,9 @@ public class BookServiceImpl implements BookService {
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
-                .bookQuantity(book.getBookQuantity())
+                .bookQuantity(book.getQuantity())
                 .reviewCount(book.getReviewCount())
-                .viewCount(book.getViewCount())
+                .viewCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .build();
     }
@@ -51,7 +51,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse findById(long bookId) {
+    public BookResponse findByBookId(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElse(null);
         if(Objects.isNull(book)) {
@@ -62,7 +62,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> findAll() {
+    public List<BookResponse> findAllBooks() {
         return jpaBookRepository.findAll().stream().map(this::toResponse).toList();
     }
 
@@ -81,7 +81,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteById(long bookId) {
+    public void deleteByBookId(long bookId) {
 
         if(!jpaBookRepository.existsById(bookId)) {
             throw new IllegalArgumentException("Book does not exist");

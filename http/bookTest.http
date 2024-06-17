@@ -1,0 +1,52 @@
+### 생성
+POST localhost:8061/books
+Content-Type: application/json
+
+{
+  "bookIsbn": "bookIsbn",
+  "bookName": "bookName",
+  "bookDescription": "email@gmail.com",
+  "bookAuthor" : "test1234",
+  "bookPublisher" : "publisher",
+  "bookPublishDate" : "2024-06-15",
+  "bookPrice": 25.99,
+  "bookSellingPrice": 19.99,
+  "bookImage": "book-image-url.jpg",
+  "quantity": 100
+
+}
+
+### 불러오기
+GET localhost:8061/books/1
+Content-Type: application/json
+
+### 전체 불러오기
+GET localhost:8061/books
+Content-Type: application/json
+
+### 수정하기
+PATCH localhost:8061/books
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "bookIsbn": "bookIsbn",
+  "bookName": "bookName2",
+  "bookDescription": "email@gmail.com",
+  "bookAuthor": "test1234",
+  "bookPublisher": "publisher",
+  "bookPublishDate": "2024-06-15T00:00:00.000+00:00",
+  "bookPrice": 25.99,
+  "bookSellingPrice": 19.99,
+  "bookImage": "book-image-url.jpg",
+  "bookQuantity": 100,
+  "reviewCount": 0,
+  "viewCount": 0,
+  "searchCount": 0,
+  "quantity": 0,
+  "hitsCount": 0
+}
+
+### 삭제하기
+DELETE localhost:8061/books/1
+Content-Type: application/json
