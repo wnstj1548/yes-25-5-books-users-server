@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.User;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,15 +23,15 @@ public class Likes {
     @ManyToOne
     private Book book;
 
-    @ManyToOne
-    private User user;
+//    @ManyToOne
+//    private User user;
 
     @Builder
 
-    public Likes(Long likesId, boolean likesStatus, Book book, User user) {
+    public Likes(Long likesId, boolean likesStatus, Book book) {
         LikesId = likesId;
         this.likesStatus = likesStatus;
         this.book = book;
-        this.user = user;
+//        this.user = user;
     }
 }
