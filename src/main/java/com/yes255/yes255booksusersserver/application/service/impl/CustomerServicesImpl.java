@@ -1,17 +1,13 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.CustomerService;
-import com.yes255.yes255booksusersserver.persistance.domain.Customer;
-import com.yes255.yes255booksusersserver.persistance.domain.Provider;
+import com.yes255.yes255booksusersserver.application.service.CustomerServices;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateProviderRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateProviderResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class CustomerServiceImpl implements CustomerService {
+public class CustomerServicesImpl implements CustomerServices {
 
     private final JpaCustomerRepository customerRepository;
 

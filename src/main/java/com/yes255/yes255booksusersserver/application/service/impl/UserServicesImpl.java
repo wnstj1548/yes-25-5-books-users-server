@@ -1,6 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.UserService;
+import com.yes255.yes255booksusersserver.application.service.UserServices;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
@@ -10,12 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServicesImpl implements UserServices {
 
     private final JpaUserRepository userRepository;
 
@@ -25,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User getCurrentUser(Long userId) {
+    public Users getCurrentUser(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
@@ -33,27 +31,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public CreateUserResponse createUser(CreateUserRequest userRequest) {
 
-        Customer customer = new Customer("Member");
-        Provider provider = new Provider("Provider");
+        Customers customers = new Customers("Member");
+        Providers providers = new Providers("Provider");
         UserState userState = new UserState("활성");
 
-        customerRepository.save(customer);
-        providerRepository.save(provider);
+        customerRepository.save(customers);
+        providerRepository.save(providers);
         stateRepository.save(userState);
 
-        User user = User.builder()
-                        .customer(customer)
+        Users users = Users.builder()
+                        .customers(customers)
                         .userName(userRequest.getUserName())
                         .userBirth(userRequest.getUserBirth())
                         .userEmail(userRequest.getUserEmail())
                         .userPhone(userRequest.getUserPhone())
                         .userPassword(userRequest.getUserPassword())
-                        .provider(provider)
+                        .providers(providers)
                         .userState(userState)
                         .build();
 
-        userRepository.save(user);
-        log.info("User : {}", user);
+        userRepository.save(users);
+        log.info("User : {}", users);
 
         return CreateUserResponse.builder()
                     .userName(userRequest.getUserName())

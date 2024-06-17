@@ -14,7 +14,7 @@ import java.util.Objects;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class Users {
 
     @Id
     private Long userId;
@@ -22,7 +22,7 @@ public class User {
     @MapsId
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    private Customer customer;
+    private Customers customers;
 
     @NotNull(message = "유저 이름은 필수입니다.")
     @Column(nullable = false, length = 50)
@@ -45,7 +45,7 @@ public class User {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "provider_id")
-    private Provider provider;
+    private Providers providers;
 
     @ManyToOne
     @JoinColumn(name = "user_grade_id")
@@ -61,16 +61,16 @@ public class User {
 
     // 회원 등록 생성자 (전부)
     @Builder
-    public User(Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
-                Provider provider, UserGrade userGrade, UserState userState, String userPassword) {
+    public Users(Customers customers, String userName, String userPhone, String userEmail, LocalDate userBirth,
+                 Providers providers, UserGrade userGrade, UserState userState, String userPassword) {
 
-        this.customer = customer;
+        this.customers = customers;
         this.userName = userName;
         this.userPhone = Objects.nonNull(userPhone) ? userPhone : null;
         this.userEmail = userEmail;
         this.userBirth = userBirth;
         this.userRegisterDate = LocalDateTime.now();
-        this.provider = provider;
+        this.providers = providers;
         this.userGrade = userGrade;
         this.userState = userState;
         this.userPassword = userPassword;
@@ -78,15 +78,15 @@ public class User {
 
     // 회원 등록 생성자 (선택)
     @Builder
-    public User(Customer customer, String userName, String userPhone, String userEmail,
-                Provider provider, UserState userState) {
+    public Users(Customers customers, String userName, String userPhone, String userEmail,
+                 Providers providers, UserState userState) {
 
-        this.customer = customer;
+        this.customers = customers;
         this.userName = userName;
         this.userPhone = userPhone;
         this.userEmail = userEmail;
         this.userRegisterDate = LocalDateTime.now();
-        this.provider = provider;
+        this.providers = providers;
         this.userState = userState;
     }
 
@@ -98,7 +98,7 @@ public class User {
     @Override
     public String toString() {
         return userName + ", " + userPhone + ", " + userEmail + ", " + userBirth + ", "
-                + userRegisterDate + ", " + userLastLoginDate + ", " + provider + ", "
+                + userRegisterDate + ", " + userLastLoginDate + ", " + providers + ", "
                 + userGrade + ", " + userState + ", " + userPassword;
     }
 }
