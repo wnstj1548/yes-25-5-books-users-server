@@ -1,9 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.dto.response;
 
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-public class CreateCustomerResponse {
-
-    private String userRole;
+@Builder
+public record CreateCustomerResponse(String userRole) {
 }
+

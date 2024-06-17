@@ -1,9 +1,7 @@
 package com.yes255.yes255booksusersserver.presentation.dto.response;
 
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-public class CreateProviderResponse {
-
-    private String providerName;
+@Builder
+public record CreateProviderResponse(String providerName) {
 }
