@@ -21,7 +21,6 @@ public class Tag {
     private String tagName;
 
     @Builder
-
     public Tag(Long tagId, String tagName) {
         this.tagId = tagId;
         this.tagName = tagName;

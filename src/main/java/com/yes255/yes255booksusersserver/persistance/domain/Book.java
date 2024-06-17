@@ -30,6 +30,9 @@ public class Book {
     @Column(name = "book_description", nullable = false)
     private String bookDescription;
 
+    @Column(name = "book_index")
+    private String bookIndex;
+
     @Column(name = "book_author")
     private String bookAuthor;
 
@@ -48,16 +51,16 @@ public class Book {
     @Column(name = "book_image")
     private String bookImage;
 
-    @Column(name = "book_quantity", nullable = false)
-    private Integer bookQuantity;
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
     @Column(name = "review_count", nullable = false)
     @ColumnDefault("0")
     private Integer reviewCount;
 
     @ColumnDefault("0")
-    @Column(name = "view_count", nullable = false)
-    private Integer viewCount;
+    @Column(name = "hits_count", nullable = false)
+    private Integer hitsCount;
 
     @ColumnDefault("0")
     @Column(name = "search_count", nullable = false)
@@ -65,22 +68,23 @@ public class Book {
 
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
-                String bookAuthor, String bookPublisher, Date bookPublishDate,
+                String bookIndex, String bookAuthor, String bookPublisher, Date bookPublishDate,
                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
-                Integer bookQuantity, Integer reviewCount, Integer viewCount, Integer searchCount) {
+                Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount) {
         this.bookId = bookId;
         this.bookIsbn = bookIsbn;
         this.bookName = bookName;
         this.bookDescription = bookDescription;
+        this.bookIndex = bookIndex;
         this.bookAuthor = bookAuthor;
         this.bookPublisher = bookPublisher;
         this.bookPublishDate = bookPublishDate;
         this.bookPrice = bookPrice;
         this.bookSellingPrice = bookSellingPrice;
         this.bookImage = bookImage;
-        this.bookQuantity = bookQuantity;
+        this.quantity = quantity;
         this.reviewCount = reviewCount;
-        this.viewCount = viewCount;
+        this.hitsCount = hitsCount;
         this.searchCount = searchCount;
     }
 }
