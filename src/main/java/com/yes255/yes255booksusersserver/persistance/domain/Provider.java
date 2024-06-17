@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Providers {
+public class Provider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class Providers {
     private String providerName;
 
     @Builder
-    public Providers(String providerName) {
+    public Provider(String providerName) {
         this.providerName = providerName;
     }
 }

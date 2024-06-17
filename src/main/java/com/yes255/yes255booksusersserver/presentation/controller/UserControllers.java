@@ -1,6 +1,6 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
-import com.yes255.yes255booksusersserver.application.service.UserServices;
+import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserControllers {
 
-    private final UserServices userServices;
+    private final UserService userService;
 
     @PostMapping("/users/sign-up")
     public ResponseEntity<CreateUserResponse> signUp(@RequestBody CreateUserRequest userRequest) {
-        return new ResponseEntity<>(userServices.createUser(userRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.createUser(userRequest), HttpStatus.CREATED);
     }
 }
