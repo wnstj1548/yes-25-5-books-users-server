@@ -1,0 +1,36 @@
+### 카테고리 생성
+POST localhost:8061/categories
+Content-Type: application/json
+
+{
+  "categoryName": "categoryName"
+}
+
+### 카테고리 불러오기
+GET localhost:8061/categories/1
+Content-Type: application/json
+
+### 1단계 카테고리 전체 불러오기
+GET localhost:8061/categories/first
+Content-Type: application/json
+
+### 카테고리 전체 불러오기
+GET localhost:8061/categories
+Content-Type: application/json
+
+### 카테고리 전체 불러오기
+GET localhost:8061/categories/parent/1
+Content-Type: application/json
+
+### 카테고리 수정하기
+PUT localhost:8061/books
+Content-Type: application/json
+
+{
+  "categoryId" : 1,
+  "categoryName" : "categoryName2"
+}
+
+### 카테고리 삭제하기
+DELETE localhost:8061/categories/1
+Content-Type: application/json

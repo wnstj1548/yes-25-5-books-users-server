@@ -41,7 +41,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/books")
+    @PutMapping("/books")
     public ResponseEntity<BookResponse> updateBook(@RequestBody UpdateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList ) {
 
         List<BookCategoryResponse> bookCategoryList = bookCategoryService.findByBookId(request.bookId());
