@@ -41,11 +41,11 @@ public class UserServiceImpl implements UserService {
 
         User user = User.builder()
                         .customer(customer)
-                        .userName(userRequest.getUserName())
-                        .userBirth(userRequest.getUserBirth())
-                        .userEmail(userRequest.getUserEmail())
-                        .userPhone(userRequest.getUserPhone())
-                        .userPassword(userRequest.getUserPassword())
+                        .userName(userRequest.userName())
+                        .userBirth(userRequest.userBirth())
+                        .userEmail(userRequest.userEmail())
+                        .userPhone(userRequest.userPhone())
+                        .userPassword(userRequest.userPassword())
                         .provider(provider)
                         .userState(userState)
                         .build();
@@ -54,12 +54,12 @@ public class UserServiceImpl implements UserService {
         log.info("User : {}", user);
 
         return CreateUserResponse.builder()
-                    .userName(userRequest.getUserName())
-                    .userBirth(userRequest.getUserBirth())
-                    .userEmail(userRequest.getUserEmail())
-                    .userPhone(userRequest.getUserPhone())
-                    .userPassword(userRequest.getUserPassword())
-                    .userConfirmPassword(userRequest.getUserConfirmPassword())
+                    .userName(userRequest.userName())
+                    .userBirth(userRequest.userBirth())
+                    .userEmail(userRequest.userEmail())
+                    .userPhone(userRequest.userPhone())
+                    .userPassword(userRequest.userPassword())
+                    .userConfirmPassword(userRequest.userConfirmPassword())
                     .build();
     }
 }

@@ -76,19 +76,19 @@ public class User {
         this.userPassword = userPassword;
     }
 
-    // 회원 등록 생성자 (선택)
-    @Builder
-    public User(Customer customer, String userName, String userPhone, String userEmail,
-                Provider provider, UserState userState) {
-
-        this.customer = customer;
-        this.userName = userName;
-        this.userPhone = userPhone;
-        this.userEmail = userEmail;
-        this.userRegisterDate = LocalDateTime.now();
-        this.provider = provider;
-        this.userState = userState;
-    }
+//    // 회원 등록 생성자 (선택)
+//    @Builder
+//    public User(Customer customer, String userName, String userPhone, String userEmail,
+//                Provider provider, UserState userState) {
+//
+//        this.customer = customer;
+//        this.userName = userName;
+//        this.userPhone = userPhone;
+//        this.userEmail = userEmail;
+//        this.userRegisterDate = LocalDateTime.now();
+//        this.provider = provider;
+//        this.userState = userState;
+//    }
 
     // 마지막 로그인 날짜 갱신
     public void updateLastLoginDate() {

@@ -5,13 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateProviderRequest {
+import lombok.Builder;
 
-    private String providerName;
-
-    public CreateProviderRequest(String providerName) {
-        this.providerName = providerName;
-    }
+@Builder
+public record CreateProviderRequest(String providerName) {
 }

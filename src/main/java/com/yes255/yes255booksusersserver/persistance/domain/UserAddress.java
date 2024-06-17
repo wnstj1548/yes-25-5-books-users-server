@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "user_addresss")
+@Table(name = "user_address")
 public class UserAddress {
 
     @Id
@@ -54,7 +54,6 @@ public class UserAddress {
         this.addressDetail = addressDetail;
         this.addressBased = addressBased;
         this.userId = userId;
-        this.addressId = addressId;
         this.address = address;
         this.user = user;
 
