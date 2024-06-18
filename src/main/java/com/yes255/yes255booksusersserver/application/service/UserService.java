@@ -1,25 +1,32 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface UserService {
 
-    UserResponse findUserByUserId(Long userId, String userEmail);
+    LoginUserResponse findLoginUserByEmail(LoginUserRequest email);
 
-    List<UserResponse> findAllUserByUserNameByUserPhone(String userName, String userPhone);
+    UpdateUserResponse findUserByUserId(Long userId);
+
+    List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable);
 
     UserResponse createUser(CreateUserRequest userRequest);
 
-    UserResponse updateUser(Long userId, UpdateUserRequest userRequest);
+    UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest);
 
-    void deleteUser(Long userId, String userEmail);
+    void deleteUser(Long userId, DeleteUserRequest userRequest);
 
     void updateLastLoginDate(Long userId);
+
+    boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest);
+
+    boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
+
+    boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest);
 
     void createRecord();
 }
