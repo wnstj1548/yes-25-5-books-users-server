@@ -9,15 +9,15 @@ public interface BookCategoryService {
 
     BookCategoryResponse createBookCategory(Long bookId, Long categoryId);
 
-    BookCategoryResponse findById(Long bookCategoryId);
+    BookCategoryResponse findBookCategory(Long bookCategoryId);
 
-    List<BookCategoryResponse> findByBookId(Long bookId);
+    List<BookCategoryResponse> findBookCategoryByBookId(Long bookId);
 
-    List<BookCategoryResponse> findByCategoryId(Long categoryId);
+    List<BookCategoryResponse> findBookCategoryByCategoryId(Long categoryId);
 
     List<BookCategoryResponse> findAllBookCategories();
 
-    BookCategoryResponse updateBookCategoryById(UpdateBookCategoryRequest request);
+    BookCategoryResponse updateBookCategory(UpdateBookCategoryRequest request);
 
-    void deleteByBookCategoryId(Long bookCategoryId);
+    void deleteBookCategory(Long bookCategoryId);
 }

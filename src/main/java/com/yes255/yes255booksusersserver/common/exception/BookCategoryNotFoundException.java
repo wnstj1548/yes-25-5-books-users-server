@@ -1,4 +1,4 @@
-package com.yes255.yes255booksusersserver.persistance.exception;
+package com.yes255.yes255booksusersserver.common.exception;
 
 public class BookCategoryNotFoundException extends RuntimeException {
     public BookCategoryNotFoundException() {

@@ -21,7 +21,7 @@ spring:
         use_sql_comments: true
         highlight_sql: true
         auto_quote_keyword: true
-#    database: h2
+    database: mysql
     hibernate:
       ddl-auto: update
     defer-datasource-initialization: true

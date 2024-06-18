@@ -39,7 +39,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public TagResponse findByTagId(Long tagId) {
+    public TagResponse findTag(Long tagId) {
 
         if(Objects.isNull(tagId)) {
             throw new IllegalArgumentException("tagId must not be null");
@@ -76,7 +76,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public void deleteByTagId(Long tagId) {
+    public void deleteTag(Long tagId) {
         if(Objects.isNull(tagId)) {
             throw new IllegalArgumentException("tagId must not be null");
         }

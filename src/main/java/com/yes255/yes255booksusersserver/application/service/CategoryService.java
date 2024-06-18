@@ -10,15 +10,15 @@ public interface CategoryService {
 
     CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest);
 
-    CategoryResponse findByCategoryId(long categoryId);
+    CategoryResponse findCategory(long categoryId);
 
     List<CategoryResponse> findAllCategories();
 
     CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest);
 
-    void deleteByCategoryId(long categoryId);
+    void deleteCategory(long categoryId);
 
-    List<CategoryResponse> findFirstStepCategories();
+    List<CategoryResponse> findRootCategories();
 
-    List<CategoryResponse> findByParentCategoryId(long parentCategoryId);
+    List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId);
 }

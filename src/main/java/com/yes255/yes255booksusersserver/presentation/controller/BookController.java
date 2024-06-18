@@ -22,20 +22,19 @@ public class BookController {
     private final BookService bookService;
     private final BookCategoryService bookCategoryService;
     private final BookTagService bookTagService;
-    private final TagService tagService;
 
     @GetMapping("/books")
-    public ResponseEntity<List<BookResponse>> getAllBooks() {
+    public ResponseEntity<List<BookResponse>> findAll() {
         return ResponseEntity.ok(bookService.findAllBooks());
     }
 
     @GetMapping("/books/{bookId}")
-    public ResponseEntity<BookResponse> getBookById(@PathVariable("bookId") long bookId) {
-        return ResponseEntity.ok(bookService.findByBookId(bookId));
+    public ResponseEntity<BookResponse> findById(@PathVariable("bookId") Long bookId) {
+        return ResponseEntity.ok(bookService.findBook(bookId));
     }
 
     @PostMapping("/books")
-    public ResponseEntity<BookResponse> createBook(@RequestBody CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
+    public ResponseEntity<BookResponse> create(@RequestBody CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
 
         BookResponse response = bookService.createBook(request);
 
@@ -53,17 +52,17 @@ public class BookController {
     }
 
     @PutMapping("/books")
-    public ResponseEntity<BookResponse> updateBook(@RequestBody UpdateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
+    public ResponseEntity<BookResponse> update(@RequestBody UpdateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
 
-        List<BookCategoryResponse> bookCategoryList = bookCategoryService.findByBookId(request.bookId());
-        List<BookTagResponse> bookTagList = bookTagService.findByBookId(request.bookId());
+        List<BookCategoryResponse> bookCategoryList = bookCategoryService.findBookCategoryByBookId(request.bookId());
+        List<BookTagResponse> bookTagList = bookTagService.findBookTagByBookId(request.bookId());
 
         for(BookCategoryResponse bookCategory : bookCategoryList) {
-            bookCategoryService.deleteByBookCategoryId(bookCategory.bookCategoryId());
+            bookCategoryService.deleteBookCategory(bookCategory.bookCategoryId());
         }
 
         for(BookTagResponse bookTag : bookTagList) {
-            bookTagService.deleteByBookTagId(bookTag.bookTagId());
+            bookTagService.deleteBookTag(bookTag.bookTagId());
         }
 
         BookResponse response = bookService.updateBook(request);
@@ -79,8 +78,8 @@ public class BookController {
     }
 
     @DeleteMapping("/books/{bookId}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
-        bookService.deleteByBookId(bookId);
+    public ResponseEntity<Void> delete(@PathVariable Long bookId) {
+        bookService.deleteBook(bookId);
 
         return ResponseEntity.noContent().build();
     }

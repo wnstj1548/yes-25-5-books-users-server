@@ -9,12 +9,8 @@ import java.util.List;
 public interface TagService {
 
     TagResponse createTag(CreateTagRequest createTagRequest);
-
-    TagResponse findByTagId(Long tagId);
-
+    TagResponse findTag(Long tagId);
     List<TagResponse> findAllTags();
-
     TagResponse updateTag(UpdateTagRequest updateTagRequest);
-
-    void deleteByTagId(Long tagId);
+    void deleteTag(Long tagId);
 }
