@@ -23,7 +23,7 @@ spring:
         auto_quote_keyword: true
     database: mysql
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     defer-datasource-initialization: true
     generate-ddl: true
   sql:
@@ -34,10 +34,11 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.transaction.interceptor: trace
 server:
-  port: 8060
+  port: 8061
 
   application:
     name: book-user-server
+
 eureka:
   client:
     enabled: false
