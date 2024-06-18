@@ -33,7 +33,7 @@ public class BookTagServiceImpl implements BookTagService {
 
     @Transactional
     @Override
-    public List<BookTagResponse> findByBookId(Long bookId) {
+    public List<BookTagResponse> findBookTagByBookId(Long bookId) {
         return jpaBookTagRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
@@ -64,7 +64,7 @@ public class BookTagServiceImpl implements BookTagService {
 
     @Transactional
     @Override
-    public void deleteByBookTagId(Long bookTagId) {
+    public void deleteBookTag(Long bookTagId) {
 
         if(jpaBookTagRepository.existsById(bookTagId)) {
             throw new IllegalArgumentException("알맞지 않은 bookTagId 입니다.");

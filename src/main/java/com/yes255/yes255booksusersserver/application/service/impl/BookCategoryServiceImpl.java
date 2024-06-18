@@ -4,7 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.BookCategoryService
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
-import com.yes255.yes255booksusersserver.persistance.exception.BookCategoryNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.BookCategoryNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
@@ -55,7 +55,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public BookCategoryResponse findById(Long bookCategoryId) {
+    public BookCategoryResponse findBookCategory(Long bookCategoryId) {
 
         BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElse(null);
 
@@ -68,14 +68,14 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookCategoryResponse> findByBookId(Long bookId) {
+    public List<BookCategoryResponse> findBookCategoryByBookId(Long bookId) {
 
         return jpaBookCategoryRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookCategoryResponse> findByCategoryId(Long categoryId) {
+    public List<BookCategoryResponse> findBookCategoryByCategoryId(Long categoryId) {
 
         return jpaBookCategoryRepository.findByCategory(jpaCategoryRepository.findById(categoryId).orElse(null)).stream().map(this::toResponse).toList();
     }
@@ -89,7 +89,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Transactional
     @Override
-    public BookCategoryResponse updateBookCategoryById(UpdateBookCategoryRequest request) {
+    public BookCategoryResponse updateBookCategory(UpdateBookCategoryRequest request) {
 
         if(Objects.isNull(request)) {
             throw new IllegalArgumentException();
@@ -104,7 +104,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Transactional
     @Override
-    public void deleteByBookCategoryId(Long bookCategoryId) {
+    public void deleteBookCategory(Long bookCategoryId) {
 
         if(!jpaBookCategoryRepository.existsById(bookCategoryId)) {
             throw new IllegalArgumentException();

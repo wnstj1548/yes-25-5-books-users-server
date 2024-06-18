@@ -2,7 +2,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
-import com.yes255.yes255booksusersserver.persistance.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
@@ -54,7 +54,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public BookResponse findByBookId(long bookId) {
+    public BookResponse findBook(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElse(null);
         if(Objects.isNull(book)) {
@@ -87,7 +87,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public void deleteByBookId(long bookId) {
+    public void deleteBook(long bookId) {
 
         if(!jpaBookRepository.existsById(bookId)) {
             throw new IllegalArgumentException("Book does not exist");

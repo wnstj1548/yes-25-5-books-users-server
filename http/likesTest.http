@@ -1,0 +1,20 @@
+### 좋아요 생성
+POST localhost:8080/likes
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "userId": 1
+}
+
+### 좋아요 상태 바꾸기
+GET localhost:8061/likes/1
+Content-Type: application/json
+
+### 유저로 좋아요 불러오기
+GET localhost:8061/likes/users/1
+Content-Type: application/json
+
+### 책으로 좋아요 불러오기
+DELETE localhost:8061/likes/books/1
+Content-Type: application/json

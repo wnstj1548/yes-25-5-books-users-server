@@ -1,0 +1,28 @@
+### 태그 생성
+POST localhost:8061/tags
+Content-Type: application/json
+
+{
+  "tagName": "tagName"
+}
+
+### 태그 불러오기
+GET localhost:8061/tags/2
+Content-Type: application/json
+
+### 태그 전체 불러오기
+GET localhost:8061/tags
+Content-Type: application/json
+
+### 카테고리 수정하기
+PUT localhost:8061/tags
+Content-Type: application/json
+
+{
+  "tagId" : 2,
+  "tagName" : "tagName2"
+}
+
+### 태그 삭제하기
+DELETE localhost:8061/tags/3
+Content-Type: application/json
