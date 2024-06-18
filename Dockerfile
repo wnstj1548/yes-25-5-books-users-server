@@ -17,7 +17,7 @@ RUN mvn dependency:go-offline
 COPY . .
 
 # Build the application
-RUN mvn clean package -U
+RUN mvn package
 
 # Default command
 # 이 부분도 jar파일 생성위치에 맞게 수정
