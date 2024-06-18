@@ -17,28 +17,28 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping("/tags")
-    public ResponseEntity<List<TagResponse>> getAllTags() {
+    public ResponseEntity<List<TagResponse>> findAll() {
         return ResponseEntity.ok(tagService.findAllTags());
     }
 
     @GetMapping("/tags/{tagId}")
-    public ResponseEntity<TagResponse> getTagById(@PathVariable Long tagId) {
-        return ResponseEntity.ok(tagService.findByTagId(tagId));
+    public ResponseEntity<TagResponse> find(@PathVariable Long tagId) {
+        return ResponseEntity.ok(tagService.findTag(tagId));
     }
 
     @PostMapping("/tags")
-    public ResponseEntity<TagResponse> createTag(@RequestBody CreateTagRequest createTagRequest) {
+    public ResponseEntity<TagResponse> create(@RequestBody CreateTagRequest createTagRequest) {
         return ResponseEntity.ok(tagService.createTag(createTagRequest));
     }
 
-    @PatchMapping("/tags")
-    public ResponseEntity<TagResponse> updateTag(@RequestBody UpdateTagRequest updateTagRequest) {
+    @PutMapping("/tags")
+    public ResponseEntity<TagResponse> update(@RequestBody UpdateTagRequest updateTagRequest) {
         return ResponseEntity.ok(tagService.updateTag(updateTagRequest));
     }
 
     @DeleteMapping("/tags/{tagId}")
-    public ResponseEntity<Void> deleteTag(@PathVariable Long tagId) {
-        tagService.deleteByTagId(tagId);
+    public ResponseEntity<Void> delete(@PathVariable Long tagId) {
+        tagService.deleteTag(tagId);
         return ResponseEntity.noContent().build();
     }
 }

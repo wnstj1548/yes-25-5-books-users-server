@@ -2,7 +2,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.CategoryService;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
-import com.yes255.yes255booksusersserver.persistance.exception.CategoryNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public CategoryResponse findByCategoryId(long categoryId) {
+    public CategoryResponse findCategory(long categoryId) {
 
         Category category = jpaCategoryRepository.findById(categoryId).orElse(null);
         if(category == null) {
@@ -77,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public void deleteByCategoryId(long categoryId) {
+    public void deleteCategory(long categoryId) {
 
         if(!jpaCategoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("category not found");
@@ -88,22 +88,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<CategoryResponse> findFirstStepCategories() {
+    public List<CategoryResponse> findRootCategories() {
 
-        List<CategoryResponse> firstStepCategories = new ArrayList<>();
+        List<CategoryResponse> rootCategories = new ArrayList<>();
 
         for(CategoryResponse category : findAllCategories()) {
             if(Objects.isNull(category.parentCategory())) {
-                firstStepCategories.add(category);
+                rootCategories.add(category);
             }
         }
 
-        return firstStepCategories;
+        return rootCategories;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<CategoryResponse> findByParentCategoryId(long parentCategoryId) {
+    public List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId) {
         return findAllCategories().stream()
                 .filter(category -> Objects.nonNull(category.parentCategory()) && category.parentCategory().getCategoryId() == parentCategoryId)
                 .collect(Collectors.toList());

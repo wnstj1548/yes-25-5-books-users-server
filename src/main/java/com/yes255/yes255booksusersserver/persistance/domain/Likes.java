@@ -23,15 +23,14 @@ public class Likes {
     @ManyToOne
     private Book book;
 
-//    @ManyToOne
-//    private User user;
+    @ManyToOne
+    private User user;
 
     @Builder
-
-    public Likes(Long likesId, boolean likesStatus, Book book) {
+    public Likes(Long likesId, boolean likesStatus, Book book, User user) {
         LikesId = likesId;
         this.likesStatus = likesStatus;
         this.book = book;
-//        this.user = user;
+        this.user = user;
     }
 }

@@ -10,11 +10,11 @@ public interface BookService {
 
     BookResponse createBook(CreateBookRequest createBookRequest);
 
-    BookResponse findByBookId(long bookId);
+    BookResponse findBook(long bookId);
 
     List<BookResponse> findAllBooks();
 
     BookResponse updateBook(UpdateBookRequest updateBookRequest);
 
-    void deleteByBookId(long bookId);
+    void deleteBook(long bookId);
 }

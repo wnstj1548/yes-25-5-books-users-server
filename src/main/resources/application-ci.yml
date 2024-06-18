@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://133.186.241.167:3306/be6_yes255
+    url: jdbc:mysql://133.186.241.167:3306/be6_yes255_book
     username: be6_yes255
     password: ${YES25_5_MYSQL_PASSWORD}
   jpa:
@@ -25,10 +25,9 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.transaction.interceptor: trace
 server:
-  port: 8060
+  port: 8061
   application:
     name: book-user-server
-
 eureka:
   client:
     enabled: false

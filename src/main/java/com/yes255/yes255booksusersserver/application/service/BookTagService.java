@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface BookTagService {
 
-    List<BookTagResponse> findByBookId(Long bookId);
+    List<BookTagResponse> findBookTagByBookId(Long bookId);
     BookTagResponse createBookTag(Long bookId, Long tagId);
-    void deleteByBookTagId(Long bookTagId);
+    void deleteBookTag(Long bookTagId);
 }
