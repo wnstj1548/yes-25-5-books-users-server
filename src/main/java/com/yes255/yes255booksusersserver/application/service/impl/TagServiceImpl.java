@@ -8,6 +8,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateTagReque
 import com.yes255.yes255booksusersserver.presentation.dto.response.TagResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,7 @@ public class TagServiceImpl implements TagService {
                 .build();
     }
 
+    @Transactional
     @Override
     public TagResponse createTag(CreateTagRequest createTagRequest) {
 
@@ -35,6 +37,7 @@ public class TagServiceImpl implements TagService {
         return toResponse(jpaTagRepository.save(createTagRequest.toEntity()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public TagResponse findByTagId(Long tagId) {
 
@@ -51,11 +54,13 @@ public class TagServiceImpl implements TagService {
         return toResponse(tag);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<TagResponse> findAllTags() {
         return jpaTagRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public TagResponse updateTag(UpdateTagRequest updateTagRequest) {
         if(Objects.isNull(updateTagRequest)) {
@@ -69,6 +74,7 @@ public class TagServiceImpl implements TagService {
         return toResponse(jpaTagRepository.save(updateTagRequest.toEntity()));
     }
 
+    @Transactional
     @Override
     public void deleteByTagId(Long tagId) {
         if(Objects.isNull(tagId)) {

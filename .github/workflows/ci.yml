@@ -28,6 +28,7 @@ jobs:
       - name: Execute SonarQube Analysis in Docker
         run: |
           docker run --rm books-app-ci mvn clean verify sonar:sonar \
+          -Dspring.profiles.active=ci \
           -Dsonar.projectKey=yes-25-5-books-user  \
           -Dsonar.projectName='yes-25-5-books-user' \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
@@ -35,7 +36,8 @@ jobs:
 
       - name: Build with Maven in Docker
         run: |
-          docker run --rm -v "$(pwd)":/app -w /app books-app-ci mvn package
+          docker run --rm -v "$(pwd)":/app -w /app books-app-ci mvn package \
+          -Dspring.profiles.active=ci 
 
       - name: Check if JAR file exists
         run: |

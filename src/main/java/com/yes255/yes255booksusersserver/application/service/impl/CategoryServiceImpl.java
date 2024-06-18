@@ -9,6 +9,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategory
 import com.yes255.yes255booksusersserver.presentation.dto.response.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
+    @Transactional
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
 
@@ -36,11 +38,10 @@ public class CategoryServiceImpl implements CategoryService {
             throw new IllegalArgumentException();
         }
 
-        Category category = jpaCategoryRepository.save(createCategoryRequest.toEntity());
-
-        return toResponse(category);
+        return toResponse(jpaCategoryRepository.save(createCategoryRequest.toEntity()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryResponse findByCategoryId(long categoryId) {
 
@@ -53,11 +54,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryResponse> findAllCategories() {
         return jpaCategoryRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest) {
 
@@ -72,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
         return toResponse(jpaCategoryRepository.save(updateCategoryRequest.toEntity()));
     }
 
+    @Transactional
     @Override
     public void deleteByCategoryId(long categoryId) {
 
@@ -82,6 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
         jpaCategoryRepository.deleteById(categoryId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryResponse> findFirstStepCategories() {
 
@@ -96,6 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
         return firstStepCategories;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryResponse> findByParentCategoryId(long parentCategoryId) {
         return findAllCategories().stream()

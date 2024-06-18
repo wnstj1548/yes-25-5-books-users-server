@@ -12,6 +12,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookCate
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
                 .build();
     }
 
+    @Transactional
     @Override
     public BookCategoryResponse createBookCategory(Long bookId, Long categoryId) {
 
@@ -52,6 +54,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookCategoryResponse findById(Long bookCategoryId) {
 
         BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElse(null);
@@ -63,24 +66,28 @@ public class BookCategoryServiceImpl implements BookCategoryService {
         return toResponse(bookCategory);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> findByBookId(Long bookId) {
 
         return jpaBookCategoryRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> findByCategoryId(Long categoryId) {
 
         return jpaBookCategoryRepository.findByCategory(jpaCategoryRepository.findById(categoryId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> findAllBookCategories() {
 
         return jpaBookCategoryRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public BookCategoryResponse updateBookCategoryById(UpdateBookCategoryRequest request) {
 
@@ -95,6 +102,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
         return toResponse(jpaBookCategoryRepository.save(request.toEntity()));
     }
 
+    @Transactional
     @Override
     public void deleteByBookCategoryId(Long bookCategoryId) {
 
