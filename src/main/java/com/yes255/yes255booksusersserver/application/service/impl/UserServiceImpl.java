@@ -4,11 +4,18 @@ import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserResponse;
-import jakarta.transaction.Transactional;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,47 +26,210 @@ public class UserServiceImpl implements UserService {
 
     private final JpaCustomerRepository customerRepository;
     private final JpaProviderRepository providerRepository;
-    private final JpaUserStateRepository stateRepository;
+    private final JpaUserGradeRepository userGradeRepository;
+    private final JpaUserStateRepository userStateRepository;
 
+    @Transactional(readOnly = true)
+    @Override
+    public UserResponse findUserByUserId(Long userId, String userEmail) {
+
+        User user = userRepository.findByUserIdAndUserEmail(userId, userEmail);
+
+        if (Objects.isNull(user)) {
+            throw new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다.");
+        }
+
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .userPhone(user.getUserPhone())
+                .userEmail(user.getUserEmail())
+                .userRegisterDate(user.getUserRegisterDate())
+                .userLastLoginDate(user.getUserLastLoginDate())
+                .providerId(user.getProvider().getProviderId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
+                .userStateId(user.getUserState().getUserStateId())
+                .userPassword(user.getUserPassword())
+                .build();
+    }
 
     @Override
-    public User getCurrentUser(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public List<UserResponse> findAllUserByUserNameByUserPhone(String userName, String userPhone) {
+
+        List<User> users = userRepository.findAllByUserNameAndUserPhone(userName, userPhone);
+
+        if (Objects.isNull(users)) {
+            throw new IllegalArgumentException("회원이 존재 하지 않습니다.");
+        }
+
+        return users.stream()
+                .map(user -> UserResponse.builder()
+                        .userId(user.getUserId())
+                        .userName(user.getUserName())
+                        .userPhone(user.getUserPhone())
+                        .userEmail(user.getUserEmail())
+                        .userBirth(user.getUserBirth())
+                        .userRegisterDate(user.getUserRegisterDate())
+                        .userLastLoginDate(user.getUserLastLoginDate())
+                        .providerId(user.getProvider().getProviderId())
+                        .userGradeId(user.getUserGrade().getUserGradeId())
+                        .userStateId(user.getUserState().getUserStateId())
+                        .userPassword(user.getUserPassword())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public CreateUserResponse createUser(CreateUserRequest userRequest) {
+    public UserResponse createUser(CreateUserRequest userRequest) {
 
-        Customer customer = new Customer("Member");
-        Provider provider = new Provider("Provider");
-        UserState userState = new UserState("활성");
+        User checkUser = userRepository.findByUserEmail(userRequest.userEmail());
 
-        customerRepository.save(customer);
-        providerRepository.save(provider);
-        stateRepository.save(userState);
+        if (Objects.nonNull(checkUser)) {
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        }
 
-        User user = User.builder()
-                        .customer(customer)
-                        .userName(userRequest.userName())
-                        .userBirth(userRequest.userBirth())
-                        .userEmail(userRequest.userEmail())
-                        .userPhone(userRequest.userPhone())
-                        .userPassword(userRequest.userPassword())
-                        .provider(provider)
-                        .userState(userState)
-                        .build();
+        // 비밀번호 검증 오류
+        if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
+            throw new IllegalArgumentException("비밀번호가 다릅니다.");
+        }
 
+        // 회원 가입 시 고객 ID 부여
+        Customer customer = customerRepository.save(Customer.builder()
+                                                            .userRole("Member")
+                                                            .build());
+
+        Provider provider = providerRepository.findByProviderName("Local");
+
+        UserGrade userGrade = userGradeRepository.findByUserGradeName("Normal");
+
+        UserState userState = userStateRepository.findByUserStateName("Active");
+
+        User user = userRequest.toEntity(customer, provider, userGrade, userState);
         userRepository.save(user);
+
         log.info("User : {}", user);
 
-        return CreateUserResponse.builder()
-                    .userName(userRequest.userName())
-                    .userBirth(userRequest.userBirth())
-                    .userEmail(userRequest.userEmail())
-                    .userPhone(userRequest.userPhone())
-                    .userPassword(userRequest.userPassword())
-                    .userConfirmPassword(userRequest.userConfirmPassword())
-                    .build();
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .userPhone(user.getUserPhone())
+                .userEmail(user.getUserEmail())
+                .userRegisterDate(user.getUserRegisterDate())
+                .userLastLoginDate(user.getUserLastLoginDate())
+                .providerId(user.getProvider().getProviderId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
+                .userStateId(user.getUserState().getUserStateId())
+                .userPassword(user.getUserPassword())
+                .build();
     }
+
+    @Transactional
+    @Override
+    public UserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
+
+        // 비밀번호 검증 오류
+        if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
+            throw new IllegalArgumentException("비밀번호가 다릅니다.");
+        }
+
+        Customer customer = customerRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(userRequest.userId() + ": 고객 ID가 존재하지 않습니다."));
+
+        User user = userRepository.findByUserEmail(userRequest.userEmail());
+
+        user.updateUserName(userRequest.userName());
+        user.updateUserPhone(userRequest.userPhone());
+        user.updateUserBirth(userRequest.userBirth());
+        user.updateUserPassword(userRequest.userPassword());
+
+        userRepository.save(user);
+
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .userPhone(user.getUserPhone())
+                .userEmail(user.getUserEmail())
+                .userRegisterDate(user.getUserRegisterDate())
+                .userLastLoginDate(user.getUserLastLoginDate())
+                .providerId(user.getProvider().getProviderId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
+                .userStateId(user.getUserState().getUserStateId())
+                .userPassword(user.getUserPassword())
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(Long userId, String userEmail) {
+
+        User user = userRepository.findByUserIdAndUserEmail(userId, userEmail);
+
+        if (Objects.isNull(user)) {
+            throw new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다.");
+        }
+
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    @Override
+    public void updateLastLoginDate(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다."));
+
+        user.updateLastLoginDate();
+        userRepository.save(user);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private final JpaPointPolicyRepository pointPolicyRepository;
+    @Override
+    public void createRecord() {
+
+        // DB에 저장 예정
+        // -----------------------------------------------------------------------------------------------------
+        // 회원 가입 포인트 정책 생성
+        PointPolicy pointPolicy = pointPolicyRepository.save(PointPolicy.builder()
+                .pointPolicyName("회원 가입 기념 포인트 정책")
+                .pointPolicyCondition("회원가입")
+                .pointPolicyApplyAmount(BigDecimal.valueOf(5000))
+                .pointPolicyApplyType(true)
+                .pointPolicyCreatedAt(LocalDate.now())
+                .build());
+
+        // Local 제공자 생성
+        providerRepository.save(Provider.builder()
+                .providerName("Local")
+                .build());
+
+
+        // Normal 회원 등급 생성
+        userGradeRepository.save(UserGrade.builder()
+                .userGradeName("Normal")
+                .pointPolicy(pointPolicy)
+                .build());
+
+        // Active 회원 상태 생성
+        userStateRepository.save(UserState.builder()
+                .userStateName("Active")
+                .build());
+        // -----------------------------------------------------------------------------------------------------
+    }
+
 }
