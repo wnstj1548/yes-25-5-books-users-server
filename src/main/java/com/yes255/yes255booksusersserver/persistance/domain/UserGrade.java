@@ -25,7 +25,8 @@ public class UserGrade {
     private PointPolicy pointPolicy;
 
     @Builder
-    public UserGrade(String userGradeName, PointPolicy pointPolicy) {
+    public UserGrade(Long userGradeId, String userGradeName, PointPolicy pointPolicy) {
+        this.userGradeId = userGradeId;
         this.userGradeName = userGradeName;
         this.pointPolicy = pointPolicy;
     }

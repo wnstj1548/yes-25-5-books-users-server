@@ -21,7 +21,8 @@ public class Provider {
     private String providerName;
 
     @Builder
-    public Provider(String providerName) {
+    public Provider(Long providerId, String providerName) {
+        this.providerId = providerId;
         this.providerName = providerName;
     }
 }

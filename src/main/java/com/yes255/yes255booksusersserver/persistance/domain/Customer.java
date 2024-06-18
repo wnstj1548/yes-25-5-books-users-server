@@ -21,7 +21,8 @@ public class Customer {
     private String userRole;
 
     @Builder
-    public Customer(String userRole) {
+    public Customer(Long userId, String userRole) {
+        this.userId = userId;
         this.userRole = userRole;
     }
 }

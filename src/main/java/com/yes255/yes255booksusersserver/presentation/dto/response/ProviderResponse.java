@@ -3,5 +3,5 @@ package com.yes255.yes255booksusersserver.presentation.dto.response;
 import lombok.Builder;
 
 @Builder
-public record CreateProviderResponse(Long provideId, String providerName) {
+public record ProviderResponse(Long providerId, String providerName) {
 }

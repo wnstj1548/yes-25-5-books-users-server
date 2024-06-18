@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.persistance.domain.Provider;
+import com.yes255.yes255booksusersserver.presentation.dto.request.CreateProviderRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.ProviderResponse;
 
 import java.util.List;
 
@@ -12,9 +14,11 @@ public interface ProviderService {
 
 
 
-    Provider createProvider(Provider provider);
-    Provider updateProvider(Long providerId, Provider provider);
-    Provider getProviderById(Long providerId);
-    List<Provider> getAllProviders();
+    ProviderResponse createProvider(CreateProviderRequest request);
+
+    // todo : Create? or Update?
+    ProviderResponse updateProvider(Long providerId, CreateProviderRequest request);
+    ProviderResponse getProviderById(Long providerId);
+    List<ProviderResponse> getAllProviders();
     void deleteProvider(Long providerId);
 }

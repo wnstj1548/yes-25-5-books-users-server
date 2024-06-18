@@ -19,7 +19,8 @@ public class UserState {
     private String userStateName;
 
     @Builder
-    public UserState(String userStateName) {
+    public UserState(Long userStateId, String userStateName) {
+        this.userStateId = userStateId;
         this.userStateName = userStateName;
     }
 }
