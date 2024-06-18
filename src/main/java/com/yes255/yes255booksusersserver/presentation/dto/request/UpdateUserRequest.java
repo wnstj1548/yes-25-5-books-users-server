@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
-public record UpdateUserRequest(Long userId, String userName, String userPhone, String userEmail, LocalDate userBirth,
-                                LocalDateTime userRegisterDate, LocalDateTime userLastLoginDate, Long providerId,
-                                Long userGradeId, Long userStateId, String userPassword, String userConfirmPassword) {
+public record UpdateUserRequest(String userName, String userPhone, LocalDate userBirth,
+                                String userPassword, String userConfirmPassword) {
 }

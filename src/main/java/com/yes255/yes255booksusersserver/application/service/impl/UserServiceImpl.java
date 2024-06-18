@@ -3,11 +3,14 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.FindUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,50 +34,49 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserResponse findUserByUserId(Long userId, String userEmail) {
+    public LoginUserResponse findLoginUserByEmail(LoginUserRequest userRequest) {
 
-        User user = userRepository.findByUserIdAndUserEmail(userId, userEmail);
+        User user = userRepository.findByUserEmail(userRequest.email());
 
         if (Objects.isNull(user)) {
-            throw new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다.");
+            throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
         }
 
-        return UserResponse.builder()
-                .userId(user.getUserId())
-                .userName(user.getUserName())
-                .userPhone(user.getUserPhone())
-                .userEmail(user.getUserEmail())
-                .userRegisterDate(user.getUserRegisterDate())
-                .userLastLoginDate(user.getUserLastLoginDate())
-                .providerId(user.getProvider().getProviderId())
-                .userGradeId(user.getUserGrade().getUserGradeId())
-                .userStateId(user.getUserState().getUserStateId())
-                .userPassword(user.getUserPassword())
+        return LoginUserResponse.builder()
+                .email(user.getUserEmail())
+                .password(user.getUserPassword())
+                .userRole(user.getCustomer().getUserRole())
+                .loginStatusName(user.getUserState().getUserStateName())
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<UserResponse> findAllUserByUserNameByUserPhone(String userName, String userPhone) {
+    public UpdateUserResponse findUserByUserId(Long userId) {
 
-        List<User> users = userRepository.findAllByUserNameAndUserPhone(userName, userPhone);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다."));
+
+        return UpdateUserResponse.builder()
+                .userName(user.getUserName())
+                .userPhone(user.getUserPhone())
+                .userBirth(user.getUserBirth())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable) {
+
+        List<User> users = userRepository.findAllByUserNameAndUserPhone(emailRequest.name(), emailRequest.phone(), pageable);
 
         if (Objects.isNull(users)) {
             throw new IllegalArgumentException("회원이 존재 하지 않습니다.");
         }
 
         return users.stream()
-                .map(user -> UserResponse.builder()
-                        .userId(user.getUserId())
-                        .userName(user.getUserName())
-                        .userPhone(user.getUserPhone())
+                .map(user -> FindUserResponse.builder()
                         .userEmail(user.getUserEmail())
-                        .userBirth(user.getUserBirth())
-                        .userRegisterDate(user.getUserRegisterDate())
-                        .userLastLoginDate(user.getUserLastLoginDate())
-                        .providerId(user.getProvider().getProviderId())
-                        .userGradeId(user.getUserGrade().getUserGradeId())
-                        .userStateId(user.getUserState().getUserStateId())
-                        .userPassword(user.getUserPassword())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -126,17 +128,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
+    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
 
         // 비밀번호 검증 오류
         if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
         }
 
-        Customer customer = customerRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(userRequest.userId() + ": 고객 ID가 존재하지 않습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재하지 않습니다."));
 
-        User user = userRepository.findByUserEmail(userRequest.userEmail());
 
         user.updateUserName(userRequest.userName());
         user.updateUserPhone(userRequest.userPhone());
@@ -145,31 +146,23 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        return UserResponse.builder()
-                .userId(user.getUserId())
+        return UpdateUserResponse.builder()
                 .userName(user.getUserName())
                 .userPhone(user.getUserPhone())
-                .userEmail(user.getUserEmail())
-                .userRegisterDate(user.getUserRegisterDate())
-                .userLastLoginDate(user.getUserLastLoginDate())
-                .providerId(user.getProvider().getProviderId())
-                .userGradeId(user.getUserGrade().getUserGradeId())
-                .userStateId(user.getUserState().getUserStateId())
-                .userPassword(user.getUserPassword())
+                .userBirth(user.getUserBirth())
                 .build();
     }
 
     @Transactional
     @Override
-    public void deleteUser(Long userId, String userEmail) {
+    public void deleteUser(Long userId, DeleteUserRequest userRequest) {
 
-        User user = userRepository.findByUserIdAndUserEmail(userId, userEmail);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다."));
 
-        if (Objects.isNull(user)) {
-            throw new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다.");
+        if (user.getUserPassword().equals(userRequest.userPassword())) {
+            userRepository.delete(user);
         }
-
-        userRepository.delete(user);
     }
 
     @Transactional
@@ -182,6 +175,33 @@ public class UserServiceImpl implements UserService {
         user.updateLastLoginDate();
         userRepository.save(user);
     }
+
+    @Override
+    public boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest) {
+
+        User user = userRepository.findByUserEmailAndUserPassword(loginUserRequest.email(), loginUserRequest.password());
+
+        return !Objects.isNull(user);
+    }
+
+    @Override
+    public boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest) {
+
+        User user = userRepository.findByUserEmailAndUserName(passwordRequest.email(), passwordRequest.name());
+
+        return !Objects.isNull(user);
+    }
+
+    // todo : 비밀번호 찾기 서비스 작성
+    @Override
+    public boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest) {
+
+        // todo : userId는 어디서 받는지?
+//        User user = userRepository.findById()
+
+        return false;
+    }
+
 
 
 

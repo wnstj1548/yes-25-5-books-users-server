@@ -63,6 +63,8 @@ public class User {
     @Column(nullable = false)
     private String userPassword;
 
+
+
     // 회원 등록 생성자 (전부)
     @Builder
     public User(Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
