@@ -9,6 +9,6 @@ import java.util.Date;
 public record BookResponse(Long bookId, String bookIsbn, String bookName, String bookDescription,
                            String bookAuthor, String bookPublisher, Date bookPublishDate,
                            BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
-                           Integer bookQuantity, Integer reviewCount, Integer viewCount, Integer searchCount) {
+                           Integer bookQuantity, Integer reviewCount, Integer hitsCount, Integer searchCount) {
 
 }
