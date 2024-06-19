@@ -1,8 +1,10 @@
 package com.yes255.yes255booksusersserver.common.exception;
 
-public class CategoryNotFoundException extends RuntimeException{
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 
-    public CategoryNotFoundException() {
-        super("category not found");
+public class CategoryNotFoundException extends ApplicationException{
+
+    public CategoryNotFoundException(ErrorStatus errorStatus) {
+        super(errorStatus);
     }
 }

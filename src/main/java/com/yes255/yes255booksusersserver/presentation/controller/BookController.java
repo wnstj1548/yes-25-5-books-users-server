@@ -6,6 +6,7 @@ import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -95,7 +97,7 @@ public class BookController {
         BookResponse book = bookService.findBook(bookId);
 
         if(quantity > book.bookQuantity()) {
-            throw new QuantityInsufficientException();
+            throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 409, LocalDateTime.now()));
         }
 
         UpdateBookRequest updatedBook = UpdateBookRequest.builder()

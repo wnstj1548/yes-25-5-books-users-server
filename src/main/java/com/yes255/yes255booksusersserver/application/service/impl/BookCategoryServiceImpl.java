@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,12 +40,8 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     @Override
     public BookCategoryResponse createBookCategory(Long bookId, Long categoryId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElse(null);
-        Category category = jpaCategoryRepository.findById(categoryId).orElse(null);
-
-        if(book == null || category == null) {
-            throw new IllegalArgumentException();
-        }
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
+        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
 
         BookCategory bookCategory = BookCategory.builder()
                         .bookCategoryId(null)
@@ -57,10 +56,10 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     @Transactional(readOnly = true)
     public BookCategoryResponse findBookCategory(Long bookCategoryId) {
 
-        BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElse(null);
+        BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
 
         if(bookCategory == null) {
-            throw new BookCategoryNotFoundException();
+            throw new BookCategoryNotFoundException(ErrorStatus.toErrorStatus("알맞은 북 카테고리 관계를 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
         return toResponse(bookCategory);
@@ -92,11 +91,11 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     public BookCategoryResponse updateBookCategory(UpdateBookCategoryRequest request) {
 
         if(Objects.isNull(request)) {
-            throw new IllegalArgumentException();
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         if(!jpaBookCategoryRepository.existsById(request.bookCategoryId())) {
-            throw new IllegalArgumentException();
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(jpaBookCategoryRepository.save(request.toEntity()));
@@ -107,7 +106,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     public void deleteBookCategory(Long bookCategoryId) {
 
         if(!jpaBookCategoryRepository.existsById(bookCategoryId)) {
-            throw new IllegalArgumentException();
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         jpaBookCategoryRepository.deleteById(bookCategoryId);
