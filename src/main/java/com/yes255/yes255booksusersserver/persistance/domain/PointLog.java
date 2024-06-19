@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,7 +22,7 @@ public class PointLog {
 
     @NotNull(message = "포인트 변경 날짜는 필수입니다.")
     @Column(nullable = false)
-    private LocalDate pointLogUpdatedAt;
+    private LocalDateTime pointLogUpdatedAt;
 
     @NotNull(message = "포인트 사용처는 필수입니다.")
     @Column(nullable = false, length = 20)
@@ -40,7 +41,7 @@ public class PointLog {
     private Point point;
 
     @Builder
-    public PointLog(LocalDate pointLogUpdatedAt, String pointLogUsed, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
+    public PointLog(LocalDateTime pointLogUpdatedAt, String pointLogUsed, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
         this.pointLogUpdatedAt = pointLogUpdatedAt;
         this.pointLogUsed = pointLogUsed;
         this.pointLogUpdatedType = pointLogUpdatedType;

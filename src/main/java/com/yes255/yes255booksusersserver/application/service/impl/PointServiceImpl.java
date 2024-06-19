@@ -1,14 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
-import com.yes255.yes255booksusersserver.persistance.domain.Point;
-import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
-import com.yes255.yes255booksusersserver.persistance.domain.User;
-import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.domain.*;
+import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointResponse;
@@ -16,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +21,7 @@ public class PointServiceImpl implements PointService {
     private final JpaUserGradeRepository userGradeRepository;
     private final JpaPointRepository pointRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
+    private final JpaPointLogRepository pointLogRepository;
 
     // 포인트 조회
     @Override
@@ -70,6 +66,10 @@ public class PointServiceImpl implements PointService {
         pointRepository.save(point);
 
         // todo : 포인트 이력 추가
+//        pointLogRepository.save(PointLog.builder()
+//                        .pointLogUpdatedAt(LocalDateTime.now())
+//                        .
+//                        .build());
 
         return UpdatePointResponse.builder()
                 .point(point.getPointCurrent())

@@ -77,7 +77,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         pointPolicy.updatePointPolicyName(policyRequest.pointPolicyName());
 
-        if (pointPolicy.isPointPolicyApplyType()) {
+        if (policyRequest.pointPolicyApplyType()) {
             pointPolicy.updatePointPolicyApplyAmount(policyRequest.pointPolicyApply());
             pointPolicy.updatePointPolicyRate(null);
         }
@@ -87,6 +87,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
         }
 
         pointPolicy.updatePointPolicyCondition(policyRequest.pointPolicyCondition());
+        pointPolicy.updatePointPolicyApplyType(policyRequest.pointPolicyApplyType());
         pointPolicy.updatePointPolicyUpdatedAt();
 
         pointPolicyRepository.save(pointPolicy);

@@ -55,15 +55,21 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public UpdateUserResponse findUserByUserId(Long userId) {
+    public UserResponse findUserByUserId(Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(userId + ": 유저 ID가 존재 하지 않습니다."));
 
-        return UpdateUserResponse.builder()
+        return UserResponse.builder()
+                .userId(user.getUserId())
                 .userName(user.getUserName())
                 .userPhone(user.getUserPhone())
-                .userBirth(user.getUserBirth())
+                .userEmail(user.getUserEmail())
+                .userRegisterDate(user.getUserRegisterDate())
+                .userLastLoginDate(user.getUserLastLoginDate())
+                .providerId(user.getProvider().getProviderId())
+                .userStateId(user.getUserState().getUserStateId())
+                .userPassword(user.getUserPassword())
                 .build();
     }
 

@@ -23,6 +23,11 @@ public class PointPolicy {
     @Column(nullable = false, length = 50)
     private String pointPolicyName;
 
+    // 구매 누적 금액
+    @NotNull(message = "누적 금액 필수입니다.")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal pointPolicyRedemptionAmount;
+
     // 적립률
     private BigDecimal pointPolicyRate;
 
@@ -48,12 +53,13 @@ public class PointPolicy {
     private LocalDate pointPolicyUpdatedAt;
 
     @Builder
-    public PointPolicy(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyRate, String pointPolicyCondition,
-                       BigDecimal pointPolicyApplyAmount, LocalDate pointPolicyCreatedAt,
+    public PointPolicy(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyRate, BigDecimal pointPolicyRedemptionAmount,
+                       String pointPolicyCondition, BigDecimal pointPolicyApplyAmount, LocalDate pointPolicyCreatedAt,
                        LocalDate pointPolicyUpdatedAt, boolean pointPolicyApplyType) {
 
         this.pointPolicyId = pointPolicyId;
         this.pointPolicyName = pointPolicyName;
+        this.pointPolicyRedemptionAmount = pointPolicyRedemptionAmount;
         this.pointPolicyRate = pointPolicyRate;
         this.pointPolicyCondition = pointPolicyCondition;
         this.pointPolicyApplyAmount = pointPolicyApplyAmount;
@@ -66,6 +72,10 @@ public class PointPolicy {
         this.pointPolicyName = pointPolicyName;
     }
 
+    public void updatePointPolicyRedemptionAmount(BigDecimal pointPolicyRedemptionAmount) {
+        this.pointPolicyRedemptionAmount = pointPolicyRedemptionAmount;
+    }
+
     public void updatePointPolicyApplyAmount(BigDecimal pointPolicyApplyAmount) {
         this.pointPolicyApplyAmount = pointPolicyApplyAmount;
     }
@@ -76,6 +86,10 @@ public class PointPolicy {
 
     public void updatePointPolicyCondition(String pointPolicyCondition) {
         this.pointPolicyCondition = pointPolicyCondition;
+    }
+
+    public void updatePointPolicyApplyType(boolean pointPolicyApplyType) {
+        this.pointPolicyApplyType = pointPolicyApplyType;
     }
 
     public void updatePointPolicyUpdatedAt() {

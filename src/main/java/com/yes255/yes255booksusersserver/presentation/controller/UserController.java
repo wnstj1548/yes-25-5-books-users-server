@@ -31,6 +31,12 @@ public class UserController {
         return new ResponseEntity<>(userService.findLoginUserByEmail(userRequest), HttpStatus.OK);
     }
 
+//    // 회원 조회
+//    @GetMapping("/users/{userId}")
+//    public ResponseEntity<UserResponse> findUserById(@PathVariable Long userId) {
+//        return new ResponseEntity<>(userService.findBy)
+//    }
+
     // 회원 가입
     @PostMapping("/auth/signup")
     public ResponseEntity<UserResponse> signUp(@RequestBody CreateUserRequest userRequest) {
@@ -59,13 +65,13 @@ public class UserController {
     }
 
     // todo : 비밀번호 설정
-    @PostMapping("/auth/setPassword")
+//    @PostMapping("/auth/setPassword")
 
 
 
-    // 회원 수정 페이지
+    // 회원 조회
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> findByUserId(@PathVariable Long userId) {
+    public ResponseEntity<UserResponse> findByUserId(@PathVariable Long userId) {
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
 
