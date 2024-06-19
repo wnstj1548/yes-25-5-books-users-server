@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.LikesService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.Likes;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,10 +40,7 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public List<LikesResponse> findLikeByUserId(Long userId) {
 
-        User user = jpaUserRepository.findById(userId).orElse(null);
-        if(user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         return jpaLikesRepository.findByUser(user).stream().map(this::toResponse).toList();
     }
@@ -49,10 +49,7 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public List<LikesResponse> findLikeByBookId(Long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElse(null);
-        if(book == null) {
-            throw new IllegalArgumentException("Book not found");
-        }
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         return jpaLikesRepository.findByBook(book).stream().map(this::toResponse).toList();
     }
@@ -61,16 +58,8 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public LikesResponse createLike(CreateLikesRequest request) {
 
-        Book book = jpaBookRepository.findById(request.bookId()).orElse(null);
-        User user = jpaUserRepository.findById(request.userId()).orElse(null);
-
-        if(book == null) {
-            throw new IllegalArgumentException("Book not found");
-        }
-
-        if(user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        Book book = jpaBookRepository.findById(request.bookId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        User user = jpaUserRepository.findById(request.userId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         Likes likes = Likes.builder()
                 .likesId(null)
@@ -88,22 +77,9 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public LikesResponse updateLikeStatus(UpdateLikesRequest request) {
 
-        Book book = jpaBookRepository.findById(request.bookId()).orElse(null);
-        User user = jpaUserRepository.findById(request.userId()).orElse(null);
-
-        if(book == null) {
-            throw new IllegalArgumentException("Book not found");
-        }
-
-        if(user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-
-        Likes like = jpaLikesRepository.findByUserAndBook(user, book).orElse(null);
-
-        if(like == null) {
-            throw new IllegalArgumentException("Like not found");
-        }
+        Book book = jpaBookRepository.findById(request.bookId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        User user = jpaUserRepository.findById(request.userId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Likes like = jpaLikesRepository.findByUserAndBook(user, book).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("좋아요를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         Likes updatedLike = Likes.builder()
                 .likesId(like.getLikesId())

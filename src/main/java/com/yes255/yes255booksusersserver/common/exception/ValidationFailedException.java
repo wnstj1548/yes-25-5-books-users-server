@@ -1,11 +1,7 @@
 package com.yes255.yes255booksusersserver.common.exception;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import org.springframework.validation.BindingResult;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ValidationFailedException extends RuntimeException {

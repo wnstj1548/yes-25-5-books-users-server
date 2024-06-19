@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.CategoryService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
 
         if(Objects.isNull(createCategoryRequest)) {
-            throw new IllegalArgumentException();
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(jpaCategoryRepository.save(createCategoryRequest.toEntity()));
@@ -47,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = jpaCategoryRepository.findById(categoryId).orElse(null);
         if(category == null) {
-            throw new CategoryNotFoundException();
+            throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("알맞은 카테고리를 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
         return toResponse(category);
@@ -65,11 +68,11 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest) {
 
         if(Objects.isNull(updateCategoryRequest)) {
-            throw new IllegalArgumentException("category request cannot be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        if(jpaCategoryRepository.existsById(updateCategoryRequest.categoryId())) {
-            throw new IllegalArgumentException("category not found");
+        if(!jpaCategoryRepository.existsById(updateCategoryRequest.categoryId())) {
+            throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(jpaCategoryRepository.save(updateCategoryRequest.toEntity()));
@@ -80,7 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(long categoryId) {
 
         if(!jpaCategoryRepository.existsById(categoryId)) {
-            throw new IllegalArgumentException("category not found");
+            throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         jpaCategoryRepository.deleteById(categoryId);

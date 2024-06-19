@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
@@ -17,4 +18,6 @@ public interface BookService {
     BookResponse updateBook(UpdateBookRequest updateBookRequest);
 
     void deleteBook(long bookId);
+
+    List<BookResponse> findBookByCategoryId(Long categoryId);
 }

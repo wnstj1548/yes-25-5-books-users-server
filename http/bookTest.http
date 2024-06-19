@@ -3,7 +3,7 @@ POST localhost:8061/books
 Content-Type: application/json
 
 {
-  "bookIsbn": "bookIsbn",
+  "bookIsbn": "bookIsbn1234",
   "bookName": "bookName",
   "bookDescription": "email@gmail.com",
   "bookAuthor" : "test1234",

@@ -1,6 +1,9 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
 import com.yes255.yes255booksusersserver.persistance.domain.Tag;
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +38,9 @@ public class BookTagServiceImpl implements BookTagService {
     @Transactional
     @Override
     public List<BookTagResponse> findBookTagByBookId(Long bookId) {
-        return jpaBookTagRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
+        return jpaBookTagRepository.findByBook(jpaBookRepository.findById(bookId).orElseThrow(() ->
+                new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()))))
+                .stream().map(this::toResponse).toList();
     }
 
     @Transactional
@@ -42,14 +48,14 @@ public class BookTagServiceImpl implements BookTagService {
     public BookTagResponse createBookTag(Long bookId, Long tagId) {
 
         if (Objects.isNull(tagId) || Objects.isNull(bookId)) {
-            throw new IllegalArgumentException("Book id and tag id cannot be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        Book book = jpaBookRepository.findById(bookId).orElse(null);
-        Tag tag = jpaTagRepository.findById(tagId).orElse(null);
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("책 값을 찾을 수 없습니다", 404, LocalDateTime.now())));
+        Tag tag = jpaTagRepository.findById(tagId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("태그를 찾을 수 없습니다", 404, LocalDateTime.now())));
 
         if(Objects.isNull(book) || Objects.isNull(tag)) {
-            throw new IllegalArgumentException("Book id and tag id cannot be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         BookTag bookTag = BookTag.builder()
@@ -66,8 +72,8 @@ public class BookTagServiceImpl implements BookTagService {
     @Override
     public void deleteBookTag(Long bookTagId) {
 
-        if(jpaBookTagRepository.existsById(bookTagId)) {
-            throw new IllegalArgumentException("알맞지 않은 bookTagId 입니다.");
+        if(!jpaBookTagRepository.existsById(bookTagId)) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("알맞지 않은 북태그 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         jpaBookTagRepository.deleteById(bookTagId);

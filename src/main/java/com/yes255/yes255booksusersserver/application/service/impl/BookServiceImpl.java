@@ -1,9 +1,15 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.BookService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.domain.Category;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
@@ -11,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,6 +27,8 @@ import java.util.Objects;
 public class BookServiceImpl implements BookService {
 
     private final JpaBookRepository jpaBookRepository;
+    private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     public BookResponse toResponse(Book book) {
         return BookResponse.builder()
@@ -34,7 +44,7 @@ public class BookServiceImpl implements BookService {
                 .bookImage(book.getBookImage())
                 .bookQuantity(book.getQuantity())
                 .reviewCount(book.getReviewCount())
-                .viewCount(book.getHitsCount())
+                .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .build();
     }
@@ -44,7 +54,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse createBook(CreateBookRequest createBookRequest) {
 
         if(Objects.isNull(createBookRequest)) {
-            throw new IllegalArgumentException();
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         Book book = jpaBookRepository.save(createBookRequest.toEntity());
@@ -56,9 +66,9 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse findBook(long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElse(null);
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book)) {
-            throw new BookNotFoundException();
+            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(book);
@@ -75,11 +85,11 @@ public class BookServiceImpl implements BookService {
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
         if(Objects.isNull(updateBookRequest)) {
-            throw new IllegalArgumentException("updateBookRequest cannot be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         if(!jpaBookRepository.existsById(updateBookRequest.bookId())) {
-            throw new IllegalArgumentException("Book does not exist");
+            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
         return toResponse(jpaBookRepository.save(updateBookRequest.toEntity()));
@@ -90,10 +100,24 @@ public class BookServiceImpl implements BookService {
     public void deleteBook(long bookId) {
 
         if(!jpaBookRepository.existsById(bookId)) {
-            throw new IllegalArgumentException("Book does not exist");
+            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
         jpaBookRepository.deleteById(bookId);
+    }
+
+    @Override
+    public List<BookResponse> findBookByCategoryId(Long categoryId) {
+
+        List<BookResponse> bookList = new ArrayList<>();
+        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())));
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
+
+        for(BookCategory bookCategory : bookCategoryList) {
+            bookList.add(toResponse(bookCategory.getBook()));
+        }
+
+        return bookList;
     }
 
 }

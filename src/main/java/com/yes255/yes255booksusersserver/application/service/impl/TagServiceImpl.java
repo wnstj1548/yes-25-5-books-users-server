@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.TagService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Tag;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaTagRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateTagRequest;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,7 +34,7 @@ public class TagServiceImpl implements TagService {
     public TagResponse createTag(CreateTagRequest createTagRequest) {
 
         if(Objects.isNull(createTagRequest)) {
-            throw new IllegalArgumentException("createTagRequest must not be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(jpaTagRepository.save(createTagRequest.toEntity()));
@@ -42,14 +45,10 @@ public class TagServiceImpl implements TagService {
     public TagResponse findTag(Long tagId) {
 
         if(Objects.isNull(tagId)) {
-            throw new IllegalArgumentException("tagId must not be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        Tag tag = jpaTagRepository.findById(tagId).orElse(null);
-
-        if(Objects.isNull(tag)) {
-            throw new IllegalArgumentException("tagId " + tagId + " not found");
-        }
+        Tag tag = jpaTagRepository.findById(tagId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("태그를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         return toResponse(tag);
     }
@@ -64,11 +63,11 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagResponse updateTag(UpdateTagRequest updateTagRequest) {
         if(Objects.isNull(updateTagRequest)) {
-            throw new IllegalArgumentException("updateTagRequest must not be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         if(!jpaTagRepository.existsById(updateTagRequest.tagId())) {
-            throw new IllegalArgumentException("tagId " + updateTagRequest.tagId() + " not found");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("태그 아이디가 존재하지 않습니다..", 404, LocalDateTime.now()));
         }
 
         return toResponse(jpaTagRepository.save(updateTagRequest.toEntity()));
@@ -78,7 +77,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public void deleteTag(Long tagId) {
         if(Objects.isNull(tagId)) {
-            throw new IllegalArgumentException("tagId must not be null");
+            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
         jpaTagRepository.deleteById(tagId);
