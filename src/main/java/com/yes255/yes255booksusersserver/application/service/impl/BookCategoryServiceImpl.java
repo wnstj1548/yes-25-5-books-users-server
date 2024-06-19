@@ -58,10 +58,6 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
         BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
 
-        if(bookCategory == null) {
-            throw new BookCategoryNotFoundException(ErrorStatus.toErrorStatus("알맞은 북 카테고리 관계를 찾을 수 없습니다.", 404, LocalDateTime.now()));
-        }
-
         return toResponse(bookCategory);
     }
 

@@ -72,7 +72,7 @@ public class BookTagServiceImpl implements BookTagService {
     @Override
     public void deleteBookTag(Long bookTagId) {
 
-        if(jpaBookTagRepository.existsById(bookTagId)) {
+        if(!jpaBookTagRepository.existsById(bookTagId)) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("알맞지 않은 북태그 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 

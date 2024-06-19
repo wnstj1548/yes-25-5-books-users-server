@@ -20,6 +20,8 @@ public record CreateBookRequest(
 
         String bookDescription,
 
+        String index,
+
         String bookAuthor,
 
         String bookPublisher,

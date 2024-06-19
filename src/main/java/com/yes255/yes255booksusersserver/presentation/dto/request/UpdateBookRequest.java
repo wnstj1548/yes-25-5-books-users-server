@@ -25,6 +25,8 @@ public record UpdateBookRequest(
 
         String bookDescription,
 
+        String index,
+
         String bookAuthor,
 
         String bookPublisher,
@@ -55,6 +57,7 @@ public record UpdateBookRequest(
                 .bookIsbn(bookIsbn)
                 .bookName(bookName)
                 .bookDescription(bookDescription)
+                .bookIndex(index)
                 .bookAuthor(bookAuthor)
                 .bookPublisher(bookPublisher)
                 .bookPublishDate(bookPublishDate)

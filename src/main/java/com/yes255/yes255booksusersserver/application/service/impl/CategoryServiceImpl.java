@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        if(jpaCategoryRepository.existsById(updateCategoryRequest.categoryId())) {
+        if(!jpaCategoryRepository.existsById(updateCategoryRequest.categoryId())) {
             throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 

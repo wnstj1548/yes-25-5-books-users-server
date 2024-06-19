@@ -144,6 +144,7 @@ public class BookController {
 
         UpdateBookRequest updatedBook = UpdateBookRequest.builder()
                 .bookId(book.bookId())
+                .bookIsbn(book.bookIsbn())
                 .bookName(book.bookName())
                 .bookDescription(book.bookDescription())
                 .bookAuthor(book.bookAuthor())
