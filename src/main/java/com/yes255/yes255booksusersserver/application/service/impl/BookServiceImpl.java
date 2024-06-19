@@ -5,7 +5,11 @@ import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.domain.Category;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +27,8 @@ import java.util.Objects;
 public class BookServiceImpl implements BookService {
 
     private final JpaBookRepository jpaBookRepository;
+    private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     public BookResponse toResponse(Book book) {
         return BookResponse.builder()
@@ -97,6 +104,20 @@ public class BookServiceImpl implements BookService {
         }
 
         jpaBookRepository.deleteById(bookId);
+    }
+
+    @Override
+    public List<BookResponse> findBookByCategoryId(Long categoryId) {
+
+        List<BookResponse> bookList = new ArrayList<>();
+        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())));
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
+
+        for(BookCategory bookCategory : bookCategoryList) {
+            bookList.add(toResponse(bookCategory.getBook()));
+        }
+
+        return bookList;
     }
 
 }
