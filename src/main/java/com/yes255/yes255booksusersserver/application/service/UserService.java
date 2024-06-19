@@ -27,6 +27,4 @@ public interface UserService {
     boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
 
     boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest);
-
-    void createRecord();
 }

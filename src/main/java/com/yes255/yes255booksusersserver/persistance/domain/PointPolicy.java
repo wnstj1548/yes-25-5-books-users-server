@@ -61,4 +61,24 @@ public class PointPolicy {
         this.pointPolicyCreatedAt = pointPolicyCreatedAt;
         this.pointPolicyUpdatedAt = pointPolicyUpdatedAt;
     }
+
+    public void updatePointPolicyName(String pointPolicyName) {
+        this.pointPolicyName = pointPolicyName;
+    }
+
+    public void updatePointPolicyApplyAmount(BigDecimal pointPolicyApplyAmount) {
+        this.pointPolicyApplyAmount = pointPolicyApplyAmount;
+    }
+
+    public void updatePointPolicyRate(BigDecimal pointPolicyRate) {
+        this.pointPolicyRate = pointPolicyRate;
+    }
+
+    public void updatePointPolicyCondition(String pointPolicyCondition) {
+        this.pointPolicyCondition = pointPolicyCondition;
+    }
+
+    public void updatePointPolicyUpdatedAt() {
+        this.pointPolicyUpdatedAt = LocalDate.now();
+    }
 }

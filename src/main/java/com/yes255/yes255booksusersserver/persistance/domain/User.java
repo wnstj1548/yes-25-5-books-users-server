@@ -63,7 +63,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserAddress> userAddresses;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Point> points;
 
 
