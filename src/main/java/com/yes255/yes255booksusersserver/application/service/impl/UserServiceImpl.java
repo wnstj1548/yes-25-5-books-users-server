@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService {
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
     private final JpaUserStateRepository userStateRepository;
+    private final JpaCartRepository cartRepository;
+    private final JpaPointPolicyRepository pointPolicyRepository;
+    private final JpaPointRepository pointRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -96,19 +99,55 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("비밀번호가 다릅니다.");
         }
 
-        // 회원 가입 시 고객 ID 부여
+        // 회원 가입 시 고객 ID(권한) 부여
         Customer customer = customerRepository.save(Customer.builder()
                                                             .userRole("Member")
                                                             .build());
 
+        // Local 제공자
         Provider provider = providerRepository.findByProviderName("Local");
 
-        UserGrade userGrade = userGradeRepository.findByUserGradeName("Normal");
-
+        // 회원 상태 Active
         UserState userState = userStateRepository.findByUserStateName("Active");
 
+        // 유저 저장
         User user = userRequest.toEntity(customer, provider, userState);
         userRepository.save(user);
+
+        // 회원 등급 Normal 생성
+        PointPolicy pointPolicy = pointPolicyRepository.findByPointPolicyName("Normal");
+        userGradeRepository.save(UserGrade.builder()
+                        .user(user)
+                        .userGradeName("Normal")
+                        .pointPolicy(pointPolicy)
+                        .build());
+
+        // 회원 장바구니 생성
+        Cart cart = cartRepository.save(Cart.builder()
+                        .cartCreatedAt(LocalDate.now())
+                        .user(user)
+                        .build());
+
+
+        // 회원 포인트 생성
+        Point point = pointRepository.save(Point.builder()
+                        .pointCurrent(BigDecimal.valueOf(0))
+                        .user(user)
+                        .build());
+
+
+        // 만약 정책이 존재한다면 회원 가입 포인트 지급
+        PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SignUp");
+        if (Objects.nonNull(singUpPolicy)) {
+            point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
+            pointRepository.save(point);
+
+            userGradeRepository.save(UserGrade.builder()
+                    .user(user)
+                    .userGradeName(singUpPolicy.getPointPolicyName())
+                    .pointPolicy(singUpPolicy)
+                    .build());
+        }
 
         log.info("User : {}", user);
 
@@ -206,78 +245,4 @@ public class UserServiceImpl implements UserService {
 
         return false;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private final JpaPointPolicyRepository pointPolicyRepository;
-    private final JpaPointRepository pointRepository;
-    @Override
-    public void createRecord() {
-
-        // DB에 저장 예정
-        // -----------------------------------------------------------------------------------------------------
-
-        // 회원 가입 포인트 정책 생성
-        PointPolicy pointPolicy = pointPolicyRepository.save(PointPolicy.builder()
-                .pointPolicyName("회원 가입 기념 포인트 정책")
-                .pointPolicyCondition("회원가입")
-                .pointPolicyApplyAmount(BigDecimal.valueOf(5000))
-                .pointPolicyApplyType(true)
-                .pointPolicyCreatedAt(LocalDate.now())
-                .build());
-
-        // 포인트 정책 적립률 생성
-        PointPolicy pointPolicy2 = pointPolicyRepository.save(PointPolicy.builder()
-                .pointPolicyName("구매 적립률 정책")
-                .pointPolicyCondition("구매")
-                .pointPolicyRate(BigDecimal.valueOf(0.2))
-                .pointPolicyApplyType(false)
-                .pointPolicyCreatedAt(LocalDate.now())
-                .build());
-
-        // Local 제공자 생성
-        providerRepository.save(Provider.builder()
-                .providerName("Local")
-                .build());
-
-
-        // Normal 회원 등급 생성
-        userGradeRepository.save(UserGrade.builder()
-                .userGradeName("Normal")
-                .pointPolicy(pointPolicy)
-                .build());
-
-        // SignUp 등급 생성
-        userGradeRepository.save(UserGrade.builder()
-                .userGradeName("New Member")
-                .pointPolicy(pointPolicy2)
-                .build());
-
-        // Active 회원 상태 생성
-        userStateRepository.save(UserState.builder()
-                .userStateName("Active")
-                .build());
-
-//        User user = userRepository.findById(1L).get();
-//        providerRepository.save(Point.builder()
-//                        .pointCurrent(BigDecimal.valueOf(50000))
-//                        .user(user)
-//                .build());
-        // -----------------------------------------------------------------------------------------------------
-    }
-
 }
