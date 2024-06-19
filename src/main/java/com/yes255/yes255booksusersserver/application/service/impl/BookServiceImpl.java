@@ -34,7 +34,7 @@ public class BookServiceImpl implements BookService {
                 .bookImage(book.getBookImage())
                 .bookQuantity(book.getQuantity())
                 .reviewCount(book.getReviewCount())
-                .viewCount(book.getHitsCount())
+                .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .build();
     }

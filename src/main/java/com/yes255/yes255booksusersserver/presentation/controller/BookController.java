@@ -1,16 +1,20 @@
+
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
 import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
-import com.yes255.yes255booksusersserver.application.service.TagService;
+import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
+import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookTagResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +38,11 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public ResponseEntity<BookResponse> create(@RequestBody CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
+    public ResponseEntity<BookResponse> create(@RequestBody @Valid CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException(bindingResult);
+        }
 
         BookResponse response = bookService.createBook(request);
 
@@ -52,7 +60,11 @@ public class BookController {
     }
 
     @PutMapping("/books")
-    public ResponseEntity<BookResponse> update(@RequestBody UpdateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList ) {
+    public ResponseEntity<BookResponse> update(@RequestBody @Valid UpdateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList, BindingResult bindingResult ) {
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException(bindingResult);
+        }
 
         List<BookCategoryResponse> bookCategoryList = bookCategoryService.findBookCategoryByBookId(request.bookId());
         List<BookTagResponse> bookTagList = bookTagService.findBookTagByBookId(request.bookId());
@@ -77,8 +89,38 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/books/{bookId}")
+    public ResponseEntity<BookResponse> updateQuantity(@PathVariable Long bookId, @RequestParam(value = "quantity") Integer quantity) {
+
+        BookResponse book = bookService.findBook(bookId);
+
+        if(quantity > book.bookQuantity()) {
+            throw new QuantityInsufficientException();
+        }
+
+        UpdateBookRequest updatedBook = UpdateBookRequest.builder()
+                .bookId(book.bookId())
+                .bookName(book.bookName())
+                .bookDescription(book.bookDescription())
+                .bookAuthor(book.bookAuthor())
+                .bookPublisher(book.bookPublisher())
+                .bookPublishDate(book.bookPublishDate())
+                .bookPrice(book.bookPrice())
+                .bookSellingPrice(book.bookSellingPrice())
+                .bookImage(book.bookImage())
+                .quantity(book.bookQuantity() - quantity)
+                .reviewCount(book.reviewCount())
+                .hitsCount(book.hitsCount())
+                .searchCount(book.searchCount())
+                .build();
+
+        return ResponseEntity.ok(bookService.updateBook(updatedBook));
+
+    }
+
     @DeleteMapping("/books/{bookId}")
     public ResponseEntity<Void> delete(@PathVariable Long bookId) {
+
         bookService.deleteBook(bookId);
 
         return ResponseEntity.noContent().build();
