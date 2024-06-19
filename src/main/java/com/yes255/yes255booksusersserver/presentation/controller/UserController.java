@@ -27,8 +27,8 @@ public class UserController {
 
     // 인증을 위한 회원 정보 반환
     @PostMapping("/users")
-    public ResponseEntity<LoginUserResponse> findLoginUserByEmail(@RequestBody LoginUserRequest userRequest) {
-        return new ResponseEntity<>(userService.findLoginUserByEmail(userRequest), HttpStatus.OK);
+    public ResponseEntity<LoginUserResponse> findLoginUserByEmail(@RequestParam String email) {
+        return new ResponseEntity<>(userService.findLoginUserByEmail(email), HttpStatus.OK);
     }
 
 //    // 회원 조회

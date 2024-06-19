@@ -37,9 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public LoginUserResponse findLoginUserByEmail(LoginUserRequest userRequest) {
+    public LoginUserResponse findLoginUserByEmail(String email) {
 
-        User user = userRepository.findByUserEmail(userRequest.email());
+        User user = userRepository.findByUserEmail(email);
 
         if (Objects.isNull(user)) {
             throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
