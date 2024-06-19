@@ -10,3 +10,12 @@ eureka:
     register-with-eureka: false
   instance:
     preferIpAddress: true
+springdoc:
+  packages-to-scan: com.yes255.yes255booksusersserver.presentation.controller
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
