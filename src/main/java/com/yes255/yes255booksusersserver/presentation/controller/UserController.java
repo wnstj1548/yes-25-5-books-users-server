@@ -22,20 +22,11 @@ public class UserController {
 
     private final UserService userService;
 
-    private final JpaCustomerRepository customerRepository;
-    private final JpaProviderRepository providerRepository;
-
     // 인증을 위한 회원 정보 반환
     @PostMapping("/users")
-    public ResponseEntity<LoginUserResponse> findLoginUserByEmail(@RequestParam String email) {
-        return new ResponseEntity<>(userService.findLoginUserByEmail(email), HttpStatus.OK);
+    public ResponseEntity<LoginUserResponse> findLoginUserByEmail(@RequestBody LoginUserRequest userRequest) {
+        return new ResponseEntity<>(userService.findLoginUserByEmail(userRequest), HttpStatus.OK);
     }
-
-//    // 회원 조회
-//    @GetMapping("/users/{userId}")
-//    public ResponseEntity<UserResponse> findUserById(@PathVariable Long userId) {
-//        return new ResponseEntity<>(userService.findBy)
-//    }
 
     // 회원 가입
     @PostMapping("/auth/signup")

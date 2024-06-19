@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserService {
 
-    LoginUserResponse findLoginUserByEmail(String email);
+    LoginUserResponse findLoginUserByEmail(LoginUserRequest email);
 
     UserResponse findUserByUserId(Long userId);
 
