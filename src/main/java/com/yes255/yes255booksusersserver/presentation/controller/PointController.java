@@ -16,7 +16,7 @@ public class PointController {
     private final PointService pointService;
 
     // 포인트 사용 및 적립 갱신
-    @PatchMapping("{userId}")
+    @PatchMapping("/{userId}")
     public ResponseEntity<UpdatePointResponse> updatePoint(@PathVariable Long userId, @RequestBody UpdatePointRequest pointRequest) {
         return new ResponseEntity<>(pointService.updatePointByUserId(userId, pointRequest), HttpStatus.OK);
     }

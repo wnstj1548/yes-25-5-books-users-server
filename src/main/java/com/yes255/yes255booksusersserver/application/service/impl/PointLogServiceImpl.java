@@ -20,11 +20,10 @@ public class PointLogServiceImpl implements PointLogService {
     @Override
     public List<PointLogResponse> findAllPointLogsByUserId(Long userId, Pageable pageable) {
 
-        List<PointLog> pointLogs = pointLogRepository.findByPoint_User_UserId(userId, pageable);
+        List<PointLog> pointLogs = pointLogRepository.findByPoint_User_UserIdOrderByPointLogUpdatedAtDesc(userId, pageable);
 
         return pointLogs.stream().map(pointLog -> PointLogResponse.builder()
                 .pointLogUpdatedAt(pointLog.getPointLogUpdatedAt())
-                .pointLogUsed(pointLog.getPointLogUsed())
                 .pointLogUpdatedType(pointLog.getPointLogUpdatedType())
                 .pointLogAmount(pointLog.getPointLogAmount())
                 .pointCurrent(pointLog.getPoint().getPointCurrent())

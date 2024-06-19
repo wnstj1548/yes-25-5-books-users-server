@@ -24,10 +24,6 @@ public class PointLog {
     @Column(nullable = false)
     private LocalDateTime pointLogUpdatedAt;
 
-    @NotNull(message = "포인트 사용처는 필수입니다.")
-    @Column(nullable = false, length = 20)
-    private String pointLogUsed;
-
     @NotNull(message = "포인트 변경 타입은 필수입니다.")
     @Column(nullable = false, length = 20)
     private String pointLogUpdatedType;
@@ -41,9 +37,8 @@ public class PointLog {
     private Point point;
 
     @Builder
-    public PointLog(LocalDateTime pointLogUpdatedAt, String pointLogUsed, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
+    public PointLog(LocalDateTime pointLogUpdatedAt, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
         this.pointLogUpdatedAt = pointLogUpdatedAt;
-        this.pointLogUsed = pointLogUsed;
         this.pointLogUpdatedType = pointLogUpdatedType;
         this.pointLogAmount = pointLogAmount;
         this.point = point;

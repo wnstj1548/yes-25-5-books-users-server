@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface JpaPointLogRepository extends JpaRepository<PointLog, Long> {
 
-    List<PointLog> findByPoint_User_UserId(Long userId, Pageable pageable);
+    List<PointLog> findByPoint_User_UserIdOrderByPointLogUpdatedAtDesc(Long userId, Pageable pageable);
 
 }
