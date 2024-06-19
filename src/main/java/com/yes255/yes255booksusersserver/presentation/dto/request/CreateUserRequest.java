@@ -9,7 +9,7 @@ import lombok.Builder;
 public record CreateUserRequest(String userName, LocalDate userBirth, String userEmail,
                                 String userPhone, String userPassword, String userConfirmPassword) {
 
-    public User toEntity(Customer customer, Provider provider, UserGrade userGrade, UserState userState) {
+    public User toEntity(Customer customer, Provider provider, UserState userState) {
         return User.builder()
                 .customer(customer)
                 .userName(userName)
@@ -17,7 +17,6 @@ public record CreateUserRequest(String userName, LocalDate userBirth, String use
                 .userEmail(userEmail)
                 .userPhone(userPhone)
                 .provider(provider)
-                .userGrade(userGrade)
                 .userState(userState)
                 .userPassword(userPassword)
                 .build();

@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
     public UpdateUserResponse findUserByUserId(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException(userId + ": 유저 ID가 존재 하지 않습니다."));
 
         return UpdateUserResponse.builder()
                 .userName(user.getUserName())
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
 
         UserState userState = userStateRepository.findByUserStateName("Active");
 
-        User user = userRequest.toEntity(customer, provider, userGrade, userState);
+        User user = userRequest.toEntity(customer, provider, userState);
         userRepository.save(user);
 
         log.info("User : {}", user);
@@ -120,7 +120,6 @@ public class UserServiceImpl implements UserService {
                 .userRegisterDate(user.getUserRegisterDate())
                 .userLastLoginDate(user.getUserLastLoginDate())
                 .providerId(user.getProvider().getProviderId())
-                .userGradeId(user.getUserGrade().getUserGradeId())
                 .userStateId(user.getUserState().getUserStateId())
                 .userPassword(user.getUserPassword())
                 .build();
@@ -181,7 +180,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findByUserEmailAndUserPassword(loginUserRequest.email(), loginUserRequest.password());
 
-        return !Objects.isNull(user);
+        if (Objects.nonNull(user)) {
+            user.updateLastLoginDate();
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -219,17 +224,28 @@ public class UserServiceImpl implements UserService {
 
 
     private final JpaPointPolicyRepository pointPolicyRepository;
+    private final JpaPointRepository pointRepository;
     @Override
     public void createRecord() {
 
         // DB에 저장 예정
         // -----------------------------------------------------------------------------------------------------
+
         // 회원 가입 포인트 정책 생성
         PointPolicy pointPolicy = pointPolicyRepository.save(PointPolicy.builder()
                 .pointPolicyName("회원 가입 기념 포인트 정책")
                 .pointPolicyCondition("회원가입")
                 .pointPolicyApplyAmount(BigDecimal.valueOf(5000))
                 .pointPolicyApplyType(true)
+                .pointPolicyCreatedAt(LocalDate.now())
+                .build());
+
+        // 포인트 정책 적립률 생성
+        PointPolicy pointPolicy2 = pointPolicyRepository.save(PointPolicy.builder()
+                .pointPolicyName("구매 적립률 정책")
+                .pointPolicyCondition("구매")
+                .pointPolicyRate(BigDecimal.valueOf(0.2))
+                .pointPolicyApplyType(false)
                 .pointPolicyCreatedAt(LocalDate.now())
                 .build());
 
@@ -245,10 +261,22 @@ public class UserServiceImpl implements UserService {
                 .pointPolicy(pointPolicy)
                 .build());
 
+        // SignUp 등급 생성
+        userGradeRepository.save(UserGrade.builder()
+                .userGradeName("New Member")
+                .pointPolicy(pointPolicy2)
+                .build());
+
         // Active 회원 상태 생성
         userStateRepository.save(UserState.builder()
                 .userStateName("Active")
                 .build());
+
+//        User user = userRepository.findById(1L).get();
+//        providerRepository.save(Point.builder()
+//                        .pointCurrent(BigDecimal.valueOf(50000))
+//                        .user(user)
+//                .build());
         // -----------------------------------------------------------------------------------------------------
     }
 

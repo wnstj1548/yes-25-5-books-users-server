@@ -24,10 +24,15 @@ public class UserGrade {
     @JoinColumn(name = "point_policy_id")
     private PointPolicy pointPolicy;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Builder
-    public UserGrade(Long userGradeId, String userGradeName, PointPolicy pointPolicy) {
+    public UserGrade(Long userGradeId, String userGradeName, PointPolicy pointPolicy, User user) {
         this.userGradeId = userGradeId;
         this.userGradeName = userGradeName;
         this.pointPolicy = pointPolicy;
+        this.user = user;
     }
 }

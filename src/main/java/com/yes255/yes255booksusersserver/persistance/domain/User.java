@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -22,7 +23,7 @@ public class User {
     private Long userId;
 
     @MapsId
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "user_id")
     private Customer customer;
 
@@ -51,10 +52,6 @@ public class User {
     @JoinColumn(nullable = false, name = "provider_id")
     private Provider provider;
 
-    @ManyToOne
-    @JoinColumn(name = "user_grade_id")
-    private UserGrade userGrade;
-
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_state_id")
     private UserState userState;
@@ -63,13 +60,18 @@ public class User {
     @Column(nullable = false)
     private String userPassword;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserAddress> userAddresses;
+
+    @OneToMany(mappedBy = "user")
+    private List<Point> points;
 
 
     // 회원 등록 생성자 (전부)
     @Builder
     public User(Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
                 LocalDateTime userRegisterDate, LocalDateTime userLastLoginDate,
-                Provider provider, UserGrade userGrade, UserState userState, String userPassword) {
+                Provider provider, UserState userState, String userPassword) {
 
         this.customer = customer;
         this.userName = userName;
@@ -78,7 +80,6 @@ public class User {
         this.userBirth = userBirth;
         this.userRegisterDate = LocalDateTime.now();
         this.provider = provider;
-        this.userGrade = userGrade;
         this.userState = userState;
         this.userPassword = userPassword;
     }
@@ -108,6 +109,6 @@ public class User {
     public String toString() {
         return userName + ", " + userPhone + ", " + userEmail + ", " + userBirth + ", "
                 + userRegisterDate + ", " + userLastLoginDate + ", " + provider + ", "
-                + userGrade + ", " + userState + ", " + userPassword;
+                + ", " + userState + ", " + userPassword;
     }
 }
