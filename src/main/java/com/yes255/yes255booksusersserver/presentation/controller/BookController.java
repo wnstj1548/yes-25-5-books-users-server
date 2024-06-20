@@ -4,10 +4,12 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
 import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
@@ -22,6 +24,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -138,41 +141,49 @@ public class BookController {
     /**
      * 책의 수량을 업데이트합니다.
      *
-     * @param bookId   업데이트할 책의 ID
-     * @param quantity 새로운 수량 값
-     * @return ResponseEntity<BookResponse> 형식의 업데이트된 책 정보
+     * @param request 업데이트 할 책의 id 리스트와 수량 리스트가 포함되어 있습니다.
+     * @return ResponseEntity<List<BookResponse>> 형식의 업데이트된 책 정보
      * @throws QuantityInsufficientException 요청 수량이 재고보다 많은 경우 발생합니다.
      */
-    @Operation(summary = "책 수량 수정", description = "책의 수량을 받아 현재 책의 재고를 업데이트합니다.")
-    @Parameter(name = "request", description = " quantity (구매하는 책의 수량) 를 포함합니다.")
-    @PatchMapping("/books/{bookId}")
-    public ResponseEntity<BookResponse> updateQuantity(@PathVariable Long bookId, @RequestParam(value = "quantity") Integer quantity) {
+    @Operation(summary = "책 리스트 수량 수정", description = "책의 아이디 리스트와 수량 리스트를 받아 현재 책의 재고를 업데이트합니다.")
+    @Parameter(name = "request", description = " bookIdList(구매하는 책 id 리스트), quantityList (구매하는 책의 수량 리스트) 를 포함합니다.")
+    @PatchMapping("/books")
+    public ResponseEntity<List<BookResponse>> updateQuantity(@RequestBody UpdateBookQuantityRequest request) {
 
-        BookResponse book = bookService.findBook(bookId);
-
-        if(quantity > book.bookQuantity()) {
-            throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 409, LocalDateTime.now()));
+        if(request.bookIdList().size() != request.quantityList().size()) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("책 리스트와 수량 리스트의 개수가 다릅니다.", 400, LocalDateTime.now()));
         }
 
-        UpdateBookRequest updatedBook = UpdateBookRequest.builder()
-                .bookId(book.bookId())
-                .bookIsbn(book.bookIsbn())
-                .bookName(book.bookName())
-                .bookDescription(book.bookDescription())
-                .bookAuthor(book.bookAuthor())
-                .bookPublisher(book.bookPublisher())
-                .bookPublishDate(book.bookPublishDate())
-                .bookPrice(book.bookPrice())
-                .bookSellingPrice(book.bookSellingPrice())
-                .bookImage(book.bookImage())
-                .quantity(book.bookQuantity() - quantity)
-                .reviewCount(book.reviewCount())
-                .hitsCount(book.hitsCount())
-                .searchCount(book.searchCount())
-                .build();
+        List<BookResponse> updatedBookList = new ArrayList<>();
 
-        return ResponseEntity.ok(bookService.updateBook(updatedBook));
+        for(int i = 0; i< request.bookIdList().size(); i++) {
+            BookResponse book = bookService.findBook(request.bookIdList().get(i));
 
+            if(request.quantityList().get(i) > book.bookQuantity()) {
+                throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
+            }
+
+            UpdateBookRequest updatedBook = UpdateBookRequest.builder()
+                    .bookId(book.bookId())
+                    .bookIsbn(book.bookIsbn())
+                    .bookName(book.bookName())
+                    .bookDescription(book.bookDescription())
+                    .bookAuthor(book.bookAuthor())
+                    .bookPublisher(book.bookPublisher())
+                    .bookPublishDate(book.bookPublishDate())
+                    .bookPrice(book.bookPrice())
+                    .bookSellingPrice(book.bookSellingPrice())
+                    .bookImage(book.bookImage())
+                    .quantity(book.bookQuantity() - request.quantityList().get(i))
+                    .reviewCount(book.reviewCount())
+                    .hitsCount(book.hitsCount())
+                    .searchCount(book.searchCount())
+                    .build();
+
+            updatedBookList.add(bookService.updateBook(updatedBook));
+        }
+
+        return ResponseEntity.ok(updatedBookList);
     }
 
     /**
