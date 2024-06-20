@@ -56,6 +56,10 @@ public class User {
     @JoinColumn(nullable = false, name = "user_state_id")
     private UserState userState;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false, name = "user_grade_id")
+    private UserGrade userGrade;
+
     @NotNull(message = "유저 비밀번호는 필수입니다.")
     @Column(nullable = false)
     private String userPassword;
