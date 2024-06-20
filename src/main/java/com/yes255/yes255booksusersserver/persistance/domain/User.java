@@ -22,6 +22,8 @@ public class User {
     @Column(unique = true)
     private Long userId;
 
+
+
     @MapsId
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id")
