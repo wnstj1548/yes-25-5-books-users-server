@@ -29,7 +29,9 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryResponse.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())
-                .parentCategory(category.getParentCategory())
+                .parentCategoryId(category.getParentCategory() != null ?
+                        category.getParentCategory().getCategoryId() :
+                        null)
                 .build();
     }
 
@@ -41,7 +43,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        return toResponse(jpaCategoryRepository.save(createCategoryRequest.toEntity()));
+        Category category = Category.builder()
+                .categoryId(null)
+                .categoryName(createCategoryRequest.categoryName())
+                .parentCategory(jpaCategoryRepository.findById(createCategoryRequest.parentCategoryId()).orElse(null))
+                .build();
+
+        return toResponse(jpaCategoryRepository.save(category));
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +83,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
-        return toResponse(jpaCategoryRepository.save(updateCategoryRequest.toEntity()));
+        Category category = Category.builder()
+                .categoryId(updateCategoryRequest.categoryId())
+                .categoryName(updateCategoryRequest.categoryName())
+                .parentCategory(jpaCategoryRepository.findById(updateCategoryRequest.parentCategoryId()).orElse(null))
+                .build();
+
+        return toResponse(jpaCategoryRepository.save(category));
     }
 
     @Transactional
@@ -96,7 +110,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> rootCategories = new ArrayList<>();
 
         for(CategoryResponse category : findAllCategories()) {
-            if(Objects.isNull(category.parentCategory())) {
+            if(Objects.isNull(category.parentCategoryId())) {
                 rootCategories.add(category);
             }
         }
@@ -108,7 +122,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId) {
         return findAllCategories().stream()
-                .filter(category -> Objects.nonNull(category.parentCategory()) && category.parentCategory().getCategoryId() == parentCategoryId)
+                .filter(category -> Objects.nonNull(category.parentCategoryId()) && category.parentCategoryId() == parentCategoryId)
                 .collect(Collectors.toList());
     }
 }

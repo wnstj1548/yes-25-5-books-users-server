@@ -8,7 +8,9 @@ import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookTagRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
@@ -89,7 +91,7 @@ public class BookController {
 
         if(tagIdList != null) {
             for(Long tagId : tagIdList) {
-                bookTagService.createBookTag(response.bookId(), tagId);
+                bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
             }
         }
 
@@ -131,7 +133,7 @@ public class BookController {
 
         if(tagIdList != null) {
             for(Long tagId : tagIdList) {
-                bookTagService.createBookTag(response.bookId(), tagId);
+                bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
             }
         }
 
@@ -157,10 +159,22 @@ public class BookController {
         List<BookResponse> updatedBookList = new ArrayList<>();
 
         for(int i = 0; i< request.bookIdList().size(); i++) {
+
             BookResponse book = bookService.findBook(request.bookIdList().get(i));
 
             if(request.quantityList().get(i) > book.bookQuantity()) {
                 throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
+            }
+
+            Integer updatedQuantity;
+
+            if(request.operationType() == OperationType.DECREASE) {
+                if(request.quantityList().get(i) > book.bookQuantity()) {
+                    throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
+                }
+                updatedQuantity = request.quantityList().get(i) - book.bookQuantity();
+            } else {
+                updatedQuantity = request.quantityList().get(i) + book.bookQuantity();
             }
 
             UpdateBookRequest updatedBook = UpdateBookRequest.builder()
@@ -174,7 +188,7 @@ public class BookController {
                     .bookPrice(book.bookPrice())
                     .bookSellingPrice(book.bookSellingPrice())
                     .bookImage(book.bookImage())
-                    .quantity(book.bookQuantity() - request.quantityList().get(i))
+                    .quantity(updatedQuantity)
                     .reviewCount(book.reviewCount())
                     .hitsCount(book.hitsCount())
                     .searchCount(book.searchCount())
