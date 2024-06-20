@@ -5,6 +5,7 @@ import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,8 +58,8 @@ public class BookControllerTest {
         List<BookResponse> mockBooks = List.of(
                 new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                         sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0),
-        new BookResponse(2L, "ISBN11111111", "Name", "Description", "Index2","Author", "Publisher",
-                sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120,0,0,0)
+                new BookResponse(2L, "ISBN11111111", "Name", "Description", "Index2","Author", "Publisher",
+                        sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120,0,0,0)
         );
         when(bookService.findAllBooks()).thenReturn(mockBooks);
 
@@ -142,16 +143,19 @@ public class BookControllerTest {
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 150,0,0,0);
         when(bookService.findBook(bookId)).thenReturn(mockBook);
 
+        List<Long> bookIdList = List.of(1L);
+        List<Integer> quantityList = List.of(30);
+
         BookResponse mockUpdatedBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockUpdatedBook);
 
         // when
-        ResponseEntity<BookResponse> responseEntity = bookController.updateQuantity(bookId, quantity);
+        ResponseEntity<List<BookResponse>> responseEntity = bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList));
 
         // then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(mockUpdatedBook, responseEntity.getBody());
+        assertEquals(mockUpdatedBook, responseEntity.getBody().get(0));
     }
 
     @DisplayName("책 삭제 - 성공")
@@ -172,14 +176,14 @@ public class BookControllerTest {
     @Test
     void updateQuantity_failure_quantityInsufficient() throws ParseException {
         // given
-        Long bookId = 1L;
-        Integer quantity = 15;
+        List<Long> bookIdList = List.of(1L);
+        List<Integer> quantityList = List.of(15);
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 10,0,0,0);
-        when(bookService.findBook(bookId)).thenReturn(mockBook);
+        when(bookService.findBook(1L)).thenReturn(mockBook);
 
         // then
-        assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(bookId, quantity));
+        assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList)));
 
     }
 }
