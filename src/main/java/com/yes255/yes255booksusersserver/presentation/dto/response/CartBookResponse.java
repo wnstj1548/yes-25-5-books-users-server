@@ -2,5 +2,7 @@ package com.yes255.yes255booksusersserver.presentation.dto.response;
 
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 
-public record CartBookResponse(Book book, int cartBookQuantity) {
+import java.math.BigDecimal;
+
+public record CartBookResponse(Long CartBookId, String bookName, BigDecimal bookPrice, int cartBookQuantity) {
 }

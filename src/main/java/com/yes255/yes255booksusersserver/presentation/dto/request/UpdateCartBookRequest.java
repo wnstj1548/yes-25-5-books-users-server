@@ -3,5 +3,5 @@ package com.yes255.yes255booksusersserver.presentation.dto.request;
 import lombok.Builder;
 
 @Builder
-public record UpdateCartBookRequest(Long bookId, int bookQuantity) {
+public record UpdateCartBookRequest(Long cartBookId, int bookQuantity) {
 }

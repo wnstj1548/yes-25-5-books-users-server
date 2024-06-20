@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +62,7 @@ public class CartBookServiceImpl implements CartBookService {
                         .build());
 
         return CreateCartBookResponse.builder()
-                .bookId(cartBook.getCartBookId())
+                .cartBookId(cartBook.getCartBookId())
                 .bookQuantity(request.bookQuantity())
                 .build();
     }
@@ -70,27 +71,20 @@ public class CartBookServiceImpl implements CartBookService {
     @Override
     public UpdateCartBookResponse updateCartBookByUserId(Long userId, UpdateCartBookRequest request) {
 
-        Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
-
         Cart cart = cartRepository.findByUser_UserId(userId);
 
-        CartBook cartBook = cartBookRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), request.bookId());
+        CartBook cartBook = cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), cart.getCartId());
+
+        if (Objects.isNull(cartBook)) {
+            throw new IllegalArgumentException("장바구니 도서가 존재하지 않습니다.");
+        }
 
         cartBook.updateCartBookQuantity(request.bookQuantity());
 
-        cartBookRepository.save(CartBook.builder()
-                .book(book)
-                .user(user)
-                .bookQuantity(request.bookQuantity())
-                .cart(cart)
-                .build());
+        cartBookRepository.save(cartBook);
 
         return UpdateCartBookResponse.builder()
-                .bookId(cartBook.getCartBookId())
+                .cartBookId(cartBook.getCartBookId())
                 .bookQuantity(request.bookQuantity())
                 .build();
     }
@@ -107,6 +101,12 @@ public class CartBookServiceImpl implements CartBookService {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
 
-        return cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(cart.getCartId());
+        List<CartBook> cartBooks = cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(cart.getCartId());
+
+
+        return cartBooks.stream()
+                .map(cartBook -> new CartBookResponse(cartBook.getCartBookId(), cartBook.getBook().getBookName(),
+                        cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
+                .collect(Collectors.toList());
     }
 }
