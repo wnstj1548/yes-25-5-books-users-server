@@ -66,6 +66,14 @@ jobs:
           ssh-keyscan ${REMOTE_HOST} >> ~/.ssh/known_hosts
           scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no target/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
 
+      - name: Merge to main branch
+        if: success() && github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'develop'
+        run: |
+          git checkout main
+          git pull origin main
+          git merge --ff-only develop
+          git push origin main
+
       - name: Send Dooray Webhook on Success
         if: success()
         uses: actions/github-script@v6
