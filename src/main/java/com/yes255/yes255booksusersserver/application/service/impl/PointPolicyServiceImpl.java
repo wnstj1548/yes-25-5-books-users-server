@@ -31,6 +31,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyApply(policyRequest.pointPolicyApply())
                 .pointPolicyCondition(policyRequest.pointPolicyCondition())
                 .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
+                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
                 .build();
     }
 
@@ -83,10 +84,12 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         if (policyRequest.pointPolicyApplyType()) {
             pointPolicy.updatePointPolicyApplyAmount(policyRequest.pointPolicyApply());
+            pointPolicy.updatePointPolicyConditionAmount(null);
             pointPolicy.updatePointPolicyRate(null);
         }
         else {
             pointPolicy.updatePointPolicyRate(policyRequest.pointPolicyApply());
+            pointPolicy.updatePointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount());
             pointPolicy.updatePointPolicyApplyAmount(null);
         }
 
@@ -102,6 +105,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyApply(policyRequest.pointPolicyApply())
                 .pointPolicyCondition(policyRequest.pointPolicyCondition())
                 .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
+                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
                 .build();
     }
 

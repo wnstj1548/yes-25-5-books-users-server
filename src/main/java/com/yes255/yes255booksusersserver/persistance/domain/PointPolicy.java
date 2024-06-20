@@ -23,9 +23,8 @@ public class PointPolicy {
     @Column(nullable = false, length = 50)
     private String pointPolicyName;
 
-    // 조건 금액 (ex : if 00금액, 00금액 이하로 적용)
-    @NotNull(message = "조건 금액 필수입니다.")
-    @Column(nullable = false, precision = 10, scale = 2)
+    // 조건 금액 (ex : if 00금액, 00금액 이상으로 적용)
+    @Column(precision = 10, scale = 2)
     private BigDecimal pointPolicyConditionAmount;
 
     // 적립률
