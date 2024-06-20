@@ -74,7 +74,7 @@ public class User {
     // 회원 등록 생성자 (전부)
     @Builder
     public User(Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
-                LocalDateTime userRegisterDate, LocalDateTime userLastLoginDate,
+                UserGrade userGrade, LocalDateTime userRegisterDate, LocalDateTime userLastLoginDate,
                 Provider provider, UserState userState, String userPassword) {
 
         this.customer = customer;
@@ -85,6 +85,7 @@ public class User {
         this.userRegisterDate = LocalDateTime.now();
         this.provider = provider;
         this.userState = userState;
+        this.userGrade = userGrade;
         this.userPassword = userPassword;
     }
 
