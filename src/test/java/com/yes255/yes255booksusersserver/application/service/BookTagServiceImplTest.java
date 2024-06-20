@@ -9,6 +9,7 @@ import com.yes255.yes255booksusersserver.persistance.domain.Tag;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaTagRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookTagRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookTagResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -99,7 +100,7 @@ public class BookTagServiceImplTest {
         when(jpaBookTagRepository.save(any())).thenReturn(new BookTag(null,testBook, testTag));
 
         // when
-        BookTagResponse response = bookTagService.createBookTag(1L, 1L);
+        BookTagResponse response = bookTagService.createBookTag(new CreateBookTagRequest(1L, 1L));
 
         // then
         assertNotNull(response);
@@ -114,7 +115,7 @@ public class BookTagServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
         // then
-        assertThrows(BookNotFoundException.class, () -> bookTagService.createBookTag(1L, 1L));
+        assertThrows(BookNotFoundException.class, () -> bookTagService.createBookTag(new CreateBookTagRequest(1L, 1L)));
     }
 
     @DisplayName("북태그 생성 - 실패 (태그를 찾을 수 없음)")
@@ -125,7 +126,7 @@ public class BookTagServiceImplTest {
         when(jpaTagRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> bookTagService.createBookTag(1L, 1L));
+        assertThrows(ApplicationException.class, () -> bookTagService.createBookTag(new CreateBookTagRequest(1L, 1L)));
     }
 
     @DisplayName("북태그 삭제 - 성공")

@@ -87,8 +87,8 @@ public class LikesServiceImplTest {
         // then
         assertNotNull(responses);
         assertEquals(1, responses.size());
-        assertEquals(testUser.getUserId(), responses.get(0).user().getUserId());
-        assertEquals(testBook.getBookId(), responses.get(0).book().getBookId());
+        assertEquals(testUser.getUserId(), responses.get(0).userId());
+        assertEquals(testBook.getBookId(), responses.get(0).bookId());
         assertTrue(responses.get(0).likesStatus());
     }
 
@@ -115,8 +115,8 @@ public class LikesServiceImplTest {
         // then
         assertNotNull(responses);
         assertEquals(1, responses.size());
-        assertEquals(testUser.getUserId(), responses.get(0).user().getUserId());
-        assertEquals(testBook.getBookId(), responses.get(0).book().getBookId());
+        assertEquals(testUser.getUserId(), responses.get(0).userId());
+        assertEquals(testBook.getBookId(), responses.get(0).bookId());
         assertTrue(responses.get(0).likesStatus());
     }
 
@@ -147,8 +147,8 @@ public class LikesServiceImplTest {
 
         // then
         assertNotNull(response);
-        assertEquals(testUser.getUserId(), response.user().getUserId());
-        assertEquals(testBook.getBookId(), response.book().getBookId());
+        assertEquals(testUser.getUserId(), response.userId());
+        assertEquals(testBook.getBookId(), response.bookId());
         assertTrue(response.likesStatus());
     }
 
@@ -191,8 +191,8 @@ public class LikesServiceImplTest {
 
         // then
         assertNotNull(response);
-        assertEquals(testUser.getUserId(), response.user().getUserId());
-        assertEquals(testBook.getBookId(), response.book().getBookId());
+        assertEquals(testUser.getUserId(), response.userId());
+        assertEquals(testBook.getBookId(), response.bookId());
         assertFalse(response.likesStatus());
     }
 

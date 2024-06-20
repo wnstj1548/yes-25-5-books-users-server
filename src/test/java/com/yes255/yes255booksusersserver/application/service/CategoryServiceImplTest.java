@@ -116,7 +116,7 @@ class CategoryServiceImplTest {
 
         assertEquals(updatedCategory.getCategoryId(), response.categoryId());
         assertEquals(updatedCategory.getCategoryName(), response.categoryName());
-        assertNull(response.parentCategory());
+        assertNull(response.parentCategoryId());
     }
 
     @DisplayName("카테고리 수정 - 실패 (요청 값이 비어있는 경우)")
@@ -202,6 +202,6 @@ class CategoryServiceImplTest {
         assertEquals(1, responses.size());
         assertEquals(childCategory.getCategoryId(), responses.get(0).categoryId());
         assertEquals(childCategory.getCategoryName(), responses.get(0).categoryName());
-        assertEquals(parentCategory.getCategoryId(), responses.get(0).parentCategory().getCategoryId());
+        assertEquals(parentCategory.getCategoryId(), responses.get(0).parentCategoryId());
     }
 }

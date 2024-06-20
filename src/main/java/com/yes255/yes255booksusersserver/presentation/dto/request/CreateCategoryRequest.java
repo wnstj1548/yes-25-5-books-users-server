@@ -8,16 +8,7 @@ public record CreateCategoryRequest(
         @NotBlank(message = "카테고리 이름은 필수 입력 항목입니다.")
         String categoryName,
 
-        Category parentCategory
+        Long parentCategoryId
 ) {
-
-    public Category toEntity() {
-
-        return Category.builder()
-                .categoryId(null)
-                .categoryName(categoryName)
-                .parentCategory(parentCategory)
-                .build();
-    }
 
 }
