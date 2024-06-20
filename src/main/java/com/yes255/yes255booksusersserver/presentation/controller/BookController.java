@@ -162,17 +162,13 @@ public class BookController {
 
             BookResponse book = bookService.findBook(request.bookIdList().get(i));
 
-            if(request.quantityList().get(i) > book.bookQuantity()) {
-                throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
-            }
-
             Integer updatedQuantity;
 
             if(request.operationType() == OperationType.DECREASE) {
                 if(request.quantityList().get(i) > book.bookQuantity()) {
                     throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
                 }
-                updatedQuantity = request.quantityList().get(i) - book.bookQuantity();
+                updatedQuantity = book.bookQuantity() - request.quantityList().get(i);
             } else {
                 updatedQuantity = request.quantityList().get(i) + book.bookQuantity();
             }
