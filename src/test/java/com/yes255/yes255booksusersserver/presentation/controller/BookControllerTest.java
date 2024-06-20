@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.BookCategoryService
 import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.application.service.BookTagService;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
+import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
@@ -151,7 +152,7 @@ public class BookControllerTest {
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockUpdatedBook);
 
         // when
-        ResponseEntity<List<BookResponse>> responseEntity = bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList));
+        ResponseEntity<List<BookResponse>> responseEntity = bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList, OperationType.DECREASE));
 
         // then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -183,7 +184,7 @@ public class BookControllerTest {
         when(bookService.findBook(1L)).thenReturn(mockBook);
 
         // then
-        assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList)));
+        assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList, OperationType.DECREASE)));
 
     }
 }

@@ -6,7 +6,6 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
-import com.yes255.yes255booksusersserver.common.exception.BookCategoryNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
@@ -86,15 +85,17 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     @Override
     public BookCategoryResponse updateBookCategory(UpdateBookCategoryRequest request) {
 
-        if(Objects.isNull(request)) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
-        }
-
         if(!jpaBookCategoryRepository.existsById(request.bookCategoryId())) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        return toResponse(jpaBookCategoryRepository.save(request.toEntity()));
+        BookCategory bookCategory = BookCategory.builder()
+                .bookCategoryId(request.bookCategoryId())
+                .category(jpaCategoryRepository.findById(request.categoryId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("카테고리가 존재하지 않습니다.", 404, LocalDateTime.now()))))
+                .book(jpaBookRepository.findById(request.bookId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("도서가 존재하지 않습니다.", 404, LocalDateTime.now()))))
+                .build();
+
+        return toResponse(jpaBookCategoryRepository.save(bookCategory));
     }
 
     @Transactional
