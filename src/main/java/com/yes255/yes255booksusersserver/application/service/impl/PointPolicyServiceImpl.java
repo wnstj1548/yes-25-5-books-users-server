@@ -7,10 +7,12 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.PointPolicyReq
 import com.yes255.yes255booksusersserver.presentation.dto.response.PointPolicyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class PointPolicyServiceImpl implements PointPolicyService {
@@ -33,6 +35,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     }
 
     // 포인트 정책 단건 조회
+    @Transactional(readOnly = true)
     @Override
     public PointPolicyResponse findPointPolicyById(Long pointPolicyId) {
 
@@ -51,6 +54,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     }
 
     // 포인트 정책 목록 조회
+    @Transactional(readOnly = true)
     @Override
     public List<PointPolicyResponse> findAllPointPolicies() {
 

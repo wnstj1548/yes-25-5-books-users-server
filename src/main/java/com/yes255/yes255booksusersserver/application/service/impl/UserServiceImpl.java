@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
 
+    // 로그인을 위한 정보 반환
     @Transactional(readOnly = true)
     @Override
     public LoginUserResponse findLoginUserByEmail(LoginUserRequest userRequest) {
@@ -45,6 +46,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
         }
 
+        // 최근 로그인 날짜 업데이트
+        user.updateLastLoginDate();
+        userRepository.save(user);
+
         return LoginUserResponse.builder()
                 .email(user.getUserEmail())
                 .password(user.getUserPassword())
@@ -53,6 +58,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    // 특정 유저 조회
     @Transactional(readOnly = true)
     @Override
     public UserResponse findUserByUserId(Long userId) {
@@ -73,6 +79,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    // 이메일과 전화번호로 유저 이메일 찾기
     @Transactional(readOnly = true)
     @Override
     public List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable) {
@@ -90,6 +97,8 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+
+    // 회원 가입
     @Transactional
     @Override
     public UserResponse createUser(CreateUserRequest userRequest) {
@@ -107,24 +116,24 @@ public class UserServiceImpl implements UserService {
 
         // 회원 가입 시 고객 ID(권한) 부여
         Customer customer = customerRepository.save(Customer.builder()
-                                                            .userRole("Member")
+                                                            .userRole("MEMBER")
                                                             .build());
 
         // Local 제공자
-        Provider provider = providerRepository.findByProviderName("Local");
+        Provider provider = providerRepository.findByProviderName("LOCAL");
 
         // 회원 상태 Active
-        UserState userState = userStateRepository.findByUserStateName("Active");
+        UserState userState = userStateRepository.findByUserStateName("ACTIVE");
 
         // 유저 저장
         User user = userRequest.toEntity(customer, provider, userState);
         userRepository.save(user);
 
         // 회원 등급 Normal 생성
-        PointPolicy pointPolicy = pointPolicyRepository.findByPointPolicyName("Normal");
+        PointPolicy pointPolicy = pointPolicyRepository.findByPointPolicyName("NORMAL");
         userGradeRepository.save(UserGrade.builder()
                         .user(user)
-                        .userGradeName("Normal")
+                        .userGradeName("NORMAL")
                         .pointPolicy(pointPolicy)
                         .build());
 
@@ -143,7 +152,7 @@ public class UserServiceImpl implements UserService {
 
 
         // 만약 정책이 존재한다면 회원 가입 포인트 지급
-        PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SignUp");
+        PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SIGN-UP");
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
@@ -170,6 +179,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    // 회원 수정
     @Transactional
     @Override
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
@@ -197,6 +207,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    // 회원 탈퇴
     @Transactional
     @Override
     public void deleteUser(Long userId, DeleteUserRequest userRequest) {
@@ -209,6 +220,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    // 최근 로그인 날짜 갱신 (사용 안할 수도)
     @Transactional
     @Override
     public void updateLastLoginDate(Long userId) {
@@ -220,6 +232,8 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    // 이메일과 비밀번호로 로그인
+    @Transactional(readOnly = true)
     @Override
     public boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest) {
 
@@ -234,6 +248,8 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    // 이메일과 이름으로 비밀번호 찾기
+    @Transactional(readOnly = true)
     @Override
     public boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest) {
 
@@ -243,6 +259,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // todo : 비밀번호 찾기 서비스 작성
+    @Transactional(readOnly = true)
     @Override
     public boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest) {
 

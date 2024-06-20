@@ -7,6 +7,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.PointLogRespo
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ public class PointLogServiceImpl implements PointLogService {
 
     private final JpaPointLogRepository pointLogRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<PointLogResponse> findAllPointLogsByUserId(Long userId, Pageable pageable) {
 
