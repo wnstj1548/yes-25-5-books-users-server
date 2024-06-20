@@ -24,6 +24,7 @@ public class PointServiceImpl implements PointService {
     private final JpaPointRepository pointRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointLogRepository pointLogRepository;
+    private final JpaUserTotalAmountRepository totalAmountRepository;
 
     // 포인트 조회
     @Transactional(readOnly = true)
@@ -78,6 +79,16 @@ public class PointServiceImpl implements PointService {
 
         point.updatePointCurrent(tempPoint);
         pointRepository.save(point);
+
+        // todo : 회원 가입 시 총 누적 금액 테이블 추가
+        // 구매 누적 금액 갱신
+//        UserTotalAmount userTotalAmount = totalAmountRepository.findByUser_UserId(userId);
+//        userTotalAmount.updateTotalAmount(pointRequest.amount());
+//
+//        totalAmountRepository.save(userTotalAmount);
+
+        // 회원 등급 갱신 체크 및 적용
+
 
         // 포인트로 구매 시 포인트 이력 추가
         if (usePoints.compareTo(BigDecimal.ZERO) > 0) {

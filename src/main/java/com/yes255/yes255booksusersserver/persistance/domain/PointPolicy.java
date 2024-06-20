@@ -23,10 +23,10 @@ public class PointPolicy {
     @Column(nullable = false, length = 50)
     private String pointPolicyName;
 
-    // 구매 누적 금액
-    @NotNull(message = "누적 금액 필수입니다.")
+    // 조건 금액 (ex : if 00금액, 00금액 이하로 적용)
+    @NotNull(message = "조건 금액 필수입니다.")
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pointPolicyRedemptionAmount;
+    private BigDecimal pointPolicyConditionAmount;
 
     // 적립률
     private BigDecimal pointPolicyRate;
@@ -53,13 +53,13 @@ public class PointPolicy {
     private LocalDate pointPolicyUpdatedAt;
 
     @Builder
-    public PointPolicy(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyRate, BigDecimal pointPolicyRedemptionAmount,
+    public PointPolicy(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyRate, BigDecimal pointPolicyConditionAmount,
                        String pointPolicyCondition, BigDecimal pointPolicyApplyAmount, LocalDate pointPolicyCreatedAt,
                        LocalDate pointPolicyUpdatedAt, boolean pointPolicyApplyType) {
 
         this.pointPolicyId = pointPolicyId;
         this.pointPolicyName = pointPolicyName;
-        this.pointPolicyRedemptionAmount = pointPolicyRedemptionAmount;
+        this.pointPolicyConditionAmount = pointPolicyConditionAmount;
         this.pointPolicyRate = pointPolicyRate;
         this.pointPolicyCondition = pointPolicyCondition;
         this.pointPolicyApplyAmount = pointPolicyApplyAmount;
@@ -72,8 +72,8 @@ public class PointPolicy {
         this.pointPolicyName = pointPolicyName;
     }
 
-    public void updatePointPolicyRedemptionAmount(BigDecimal pointPolicyRedemptionAmount) {
-        this.pointPolicyRedemptionAmount = pointPolicyRedemptionAmount;
+    public void updatePointPolicyConditionAmount(BigDecimal pointPolicyConditionAmount) {
+        this.pointPolicyConditionAmount = pointPolicyConditionAmount;
     }
 
     public void updatePointPolicyApplyAmount(BigDecimal pointPolicyApplyAmount) {
