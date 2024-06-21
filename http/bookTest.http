@@ -13,11 +13,10 @@ Content-Type: application/json
   "bookSellingPrice": 19.99,
   "bookImage": "book-image-url.jpg",
   "quantity": 100
-
 }
 
 ### 책 불러오기
-GET localhost:8061/books/1
+GET localhost:8061/books/5
 Content-Type: application/json
 
 ### 책 전체 불러오기
@@ -29,22 +28,18 @@ PUT localhost:8061/books
 Content-Type: application/json
 
 {
-  "bookId": 1,
-  "bookIsbn": "bookIsbn",
+  "bookId": 5,
+  "bookIsbn": "bookIsbnIsbn",
   "bookName": "bookName2",
-  "bookDescription": "email@gmail.com",
-  "bookAuthor": "test1234",
+  "bookDescription": "gmailgmail@gmail.com",
+  "bookAuthor": "testAuthor",
   "bookPublisher": "publisher",
   "bookPublishDate": "2024-06-15T00:00:00.000+00:00",
   "bookPrice": 25.99,
   "bookSellingPrice": 19.99,
-  "bookImage": "book-image-url.jpg",
-  "bookQuantity": 100,
-  "reviewCount": 0,
-  "viewCount": 0,
-  "searchCount": 0,
-  "quantity": 0,
-  "hitsCount": 0
+  "bookImage": "imageimage.jpg",
+  "quantity": 110,
+  "hitsCount" : 0
 }
 
 ### 책 삭제하기

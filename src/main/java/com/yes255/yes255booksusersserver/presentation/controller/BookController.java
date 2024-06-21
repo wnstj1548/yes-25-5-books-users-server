@@ -185,9 +185,6 @@ public class BookController {
                     .bookSellingPrice(book.bookSellingPrice())
                     .bookImage(book.bookImage())
                     .quantity(updatedQuantity)
-                    .reviewCount(book.reviewCount())
-                    .hitsCount(book.hitsCount())
-                    .searchCount(book.searchCount())
                     .build();
 
             updatedBookList.add(bookService.updateBook(updatedBook));

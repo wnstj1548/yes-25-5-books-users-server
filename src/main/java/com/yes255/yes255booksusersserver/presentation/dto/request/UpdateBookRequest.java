@@ -43,13 +43,7 @@ public record UpdateBookRequest(
         String bookImage,
 
         @NotNull(message = "책 수량은 필수 입력 항목입니다.")
-        Integer quantity,
-
-        Integer reviewCount,
-
-        Integer hitsCount,
-
-        Integer searchCount
+        Integer quantity
 ) {
     public Book toEntity() {
         return Book.builder()
@@ -65,9 +59,6 @@ public record UpdateBookRequest(
                 .bookSellingPrice(bookSellingPrice)
                 .bookImage(bookImage)
                 .quantity(quantity)
-                .reviewCount(reviewCount)
-                .hitsCount(hitsCount)
-                .searchCount(searchCount)
                 .build();
     }
 }

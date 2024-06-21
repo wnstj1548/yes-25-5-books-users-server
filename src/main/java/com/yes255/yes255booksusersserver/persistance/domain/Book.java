@@ -9,6 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Optional;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -86,5 +87,22 @@ public class Book {
         this.reviewCount = reviewCount;
         this.hitsCount = hitsCount;
         this.searchCount = searchCount;
+    }
+
+    public void from(Book book) {
+        this.bookIsbn = Optional.ofNullable(book.getBookIsbn()).orElse(this.bookIsbn);
+        this.bookName = Optional.ofNullable(book.getBookName()).orElse(this.bookName);
+        this.bookDescription = Optional.ofNullable(book.getBookDescription()).orElse(this.bookDescription);
+        this.bookIndex = Optional.ofNullable(book.getBookIndex()).orElse(this.bookIndex);
+        this.bookAuthor = Optional.ofNullable(book.getBookAuthor()).orElse(this.bookAuthor);
+        this.bookPublisher = Optional.ofNullable(book.getBookPublisher()).orElse(this.bookPublisher);
+        this.bookPublishDate = Optional.ofNullable(book.getBookPublishDate()).orElse(this.bookPublishDate);
+        this.bookPrice = Optional.ofNullable(book.getBookPrice()).orElse(this.bookPrice);
+        this.bookSellingPrice = Optional.ofNullable(book.getBookSellingPrice()).orElse(this.bookSellingPrice);
+        this.bookImage = Optional.ofNullable(book.getBookImage()).orElse(this.bookImage);
+        this.quantity = Optional.ofNullable(book.getQuantity()).orElse(this.quantity);
+        this.reviewCount = Optional.ofNullable(book.getReviewCount()).orElse(this.reviewCount);
+        this.hitsCount = Optional.ofNullable(book.getHitsCount()).orElse(this.hitsCount);
+        this.searchCount = Optional.ofNullable(book.getSearchCount()).orElse(this.searchCount);
     }
 }
