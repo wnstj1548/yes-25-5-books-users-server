@@ -1,4 +1,7 @@
 package com.yes255.yes255booksusersserver.presentation.dto.request;
 
-public class CreateUserAddressRequest {
+import lombok.Builder;
+
+@Builder
+public record CreateUserAddressRequest(String addressName, String addressDetail, boolean addressBased) {
 }

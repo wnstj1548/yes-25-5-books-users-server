@@ -105,8 +105,8 @@ public class CartBookServiceImpl implements CartBookService {
 
 
         return cartBooks.stream()
-                .map(cartBook -> new CartBookResponse(cartBook.getCartBookId(), cartBook.getBook().getBookName(),
-                        cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
+                .map(cartBook -> new CartBookResponse(cartBook.getCartBookId(), cartBook.getBook().getBookId(),
+                        cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
                 .collect(Collectors.toList());
     }
 }

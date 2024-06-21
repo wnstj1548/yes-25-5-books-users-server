@@ -11,7 +11,9 @@ public interface JpaUserGradeRepository extends JpaRepository<UserGrade, Long> {
 
     UserGrade findByUserGradeName(String userGradeName);
 
-    List<UserGrade> findByUser_UserIdAndPointPolicy_PointPolicyNameIn(Long userId, List<String> pointPolicyNames);
+//    List<UserGrade> findByUser_UserIdAndPointPolicy_PointPolicyNameIn(Long userId, List<String> pointPolicyNames);
 
     UserGrade findByPointPolicy_PointPolicyId(Long pointPolicyId);
+
+    List<UserGrade> findAllBy();
 }
