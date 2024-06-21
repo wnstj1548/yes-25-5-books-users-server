@@ -1,4 +1,7 @@
 package com.yes255.yes255booksusersserver.presentation.dto.response;
 
-public class CreateUserAddressResponse {
+import lombok.Builder;
+
+@Builder
+public record CreateUserAddressResponse(String addressName, String addressDetail, boolean addressBased) {
 }

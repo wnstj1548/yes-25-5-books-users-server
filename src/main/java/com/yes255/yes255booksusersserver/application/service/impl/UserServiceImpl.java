@@ -11,6 +11,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,16 +35,21 @@ public class UserServiceImpl implements UserService {
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserTotalAmountRepository totalAmountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 로그인을 위한 정보 반환
     @Transactional(readOnly = true)
     @Override
-    public LoginUserResponse findLoginUserByEmail(LoginUserRequest userRequest) {
+    public LoginUserResponse findLoginUserByEmailByPassword(LoginUserRequest userRequest) {
 
         User user = userRepository.findByUserEmail(userRequest.email());
 
         if (Objects.isNull(user)) {
             throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
+        }
+
+        if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         // 최근 로그인 날짜 업데이트
@@ -128,13 +134,29 @@ public class UserServiceImpl implements UserService {
         // 회원 등급 NORMAL 부여
         UserGrade userGrade = userGradeRepository.findByUserGradeName("NORMAL");
 
+        // 비밀번호 인코딩
+        String encodedPwd = passwordEncoder.encode(userRequest.userPassword());
+
         // 유저 저장
-        User user = userRequest.toEntity(customer, provider, userState, userGrade);
+        User user = User.builder()
+                .customer(customer)
+                .userName(userRequest.userName())
+                .userBirth(userRequest.userBirth())
+                .userEmail(userRequest.userEmail())
+                .userPhone(userRequest.userPhone())
+                .provider(provider)
+                .userState(userState)
+                .userGrade(userGrade)
+                .userPassword(encodedPwd)
+                .build();
+
+//        User user = userRequest.toEntity(customer, provider, userState, userGrade);
         userRepository.save(user);
 
         // 회원 총 구매 금액 테이블 생성
         UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
                 .user(user)
+                .userTotalAmount(BigDecimal.valueOf(0))
                 .build());
       
         // 회원 장바구니 생성
@@ -156,7 +178,6 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
 
             userGradeRepository.save(UserGrade.builder()
-                    .user(user)
                     .userGradeName(singUpPolicy.getPointPolicyName())
                     .pointPolicy(singUpPolicy)
                     .build());
@@ -236,10 +257,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest) {
 
-        User user = userRepository.findByUserEmailAndUserPassword(loginUserRequest.email(), loginUserRequest.password());
+        User user = userRepository.findByUserEmail(loginUserRequest.email());
 
-        if (Objects.nonNull(user)) {
+        if (Objects.nonNull(user) && passwordEncoder.matches(loginUserRequest.password(), user.getUserPassword())) {
             user.updateLastLoginDate();
+            userRepository.save(user);
 
             return true;
         }

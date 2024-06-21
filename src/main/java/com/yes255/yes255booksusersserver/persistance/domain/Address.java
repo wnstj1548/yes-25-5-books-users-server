@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.persistance.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -17,10 +18,11 @@ public class Address {
     @Column(name = "address_id")
     private Long addressId;
 
-    @Column(name = "address_zip")
+    @Column(name = "address_zip", length = 30)
     private String addressZip;
 
-    @Column(name = "address_raw")
+    @NotNull(message = "주소는 필수입니다.")
+    @Column(name = "address_raw", nullable = false)
     private String addressRaw;
 
     @Builder

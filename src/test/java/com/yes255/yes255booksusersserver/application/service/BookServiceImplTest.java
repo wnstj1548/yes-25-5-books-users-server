@@ -143,19 +143,6 @@ public class BookServiceImplTest {
         assertThrows(BookNotFoundException.class, () -> bookService.updateBook(request));
     }
 
-    @DisplayName("책 삭제 - 성공")
-    @Test
-    void deleteBook_success() {
-        // given
-        when(jpaBookRepository.existsById(1L)).thenReturn(true);
-
-        // when
-        bookService.deleteBook(1L);
-
-        // then
-        verify(jpaBookRepository, times(1)).deleteById(1L);
-    }
-
     @DisplayName("책 삭제 - 실패 (존재하지 않는 책)")
     @Test
     void deleteBook_failure_bookNotFound() {

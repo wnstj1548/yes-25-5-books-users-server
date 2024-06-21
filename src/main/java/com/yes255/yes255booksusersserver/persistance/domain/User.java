@@ -110,6 +110,10 @@ public class User {
         this.userPassword = userPassword;
     }
 
+    public void updateUserGrade(UserGrade userGrade) {
+        this.userGrade = userGrade;
+    }
+
     @Override
     public String toString() {
         return userName + ", " + userPhone + ", " + userEmail + ", " + userBirth + ", "
