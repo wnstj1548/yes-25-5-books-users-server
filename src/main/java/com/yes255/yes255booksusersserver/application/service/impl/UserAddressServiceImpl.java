@@ -8,7 +8,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.AddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;

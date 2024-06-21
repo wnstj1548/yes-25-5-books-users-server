@@ -48,8 +48,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
         }
 
-        String encodePwd = passwordEncoder.encode(userRequest.password());
-        if (!passwordEncoder.matches(user.getUserPassword(), encodePwd)) {
+        if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -258,10 +257,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest) {
 
-        User user = userRepository.findByUserEmailAndUserPassword(loginUserRequest.email(), loginUserRequest.password());
+        User user = userRepository.findByUserEmail(loginUserRequest.email());
 
-        if (Objects.nonNull(user)) {
+        if (Objects.nonNull(user) && passwordEncoder.matches(loginUserRequest.password(), user.getUserPassword())) {
             user.updateLastLoginDate();
+            userRepository.save(user);
 
             return true;
         }
