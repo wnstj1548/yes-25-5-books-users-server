@@ -1,27 +1,27 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
+import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
@@ -63,11 +63,6 @@ public class PointServiceImpl implements PointService {
         BigDecimal amount = pointRequest.amount() != null && pointRequest.amount().compareTo(BigDecimal.ZERO) > 0
                 ? pointRequest.amount()
                 : BigDecimal.ZERO;
-
-        // 회원 등급에 관한 정책 가져오기
-        PointPolicy pointPolicy = pointPolicyRepository.findById(user.getUserGrade().getPointPolicy().getPointPolicyId())
-
-    public UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest) {
 
         List<String> policyNames = List.of("Normal", "Royal", "Gold", "Platinum");
 
