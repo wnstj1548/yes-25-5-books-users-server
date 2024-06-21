@@ -179,7 +179,6 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
 
             userGradeRepository.save(UserGrade.builder()
-                    .user(user)
                     .userGradeName(singUpPolicy.getPointPolicyName())
                     .pointPolicy(singUpPolicy)
                     .build());

@@ -12,10 +12,12 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.CreateAddress
 import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateAddressResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -56,6 +58,7 @@ public class AddressServiceImpl implements AddressService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public AddressResponse findAddressById(Long addressId) {
 
@@ -68,6 +71,7 @@ public class AddressServiceImpl implements AddressService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<AddressResponse> findAllAddresses() {
 
