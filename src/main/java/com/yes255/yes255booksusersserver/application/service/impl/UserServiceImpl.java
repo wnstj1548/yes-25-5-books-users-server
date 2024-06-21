@@ -135,6 +135,7 @@ public class UserServiceImpl implements UserService {
         // 회원 총 구매 금액 테이블 생성
         UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
                 .user(user)
+                .userTotalAmount(BigDecimal.valueOf(0))
                 .build());
 
         // 회원 장바구니 생성

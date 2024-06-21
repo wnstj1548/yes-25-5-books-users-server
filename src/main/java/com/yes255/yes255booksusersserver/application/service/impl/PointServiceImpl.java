@@ -80,9 +80,23 @@ public class PointServiceImpl implements PointService {
         totalAmountRepository.save(userTotalAmount);
 
 
-        // todo : 갱신 체크 및 적용 추가
+        // todo : 갱신 체크 및 적용 추가 (밖에 구현, for 문 이용) , 최소와 최대 추가?
         // 회원 등급 갱신 체크 및 적용
         UserTotalAmount totalAmount = totalAmountRepository.findByUser_UserId(userId);
+
+        List<UserGrade> userGrades = userGradeRepository.findAll();
+        for (UserGrade userGrade : userGrades) {
+
+            PointPolicy policy = userGrade.getPointPolicy();
+
+            if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
+                totalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
+
+                user.updateUserGrade(userGrade);
+            }
+        }
+
+
 //        if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
 //                totalAmount.getUserTotalAmount().compareTo(user.getUserGrade().getPointPolicy().getPointPolicyApplyAmount()) >= 0) {
 //            User.
