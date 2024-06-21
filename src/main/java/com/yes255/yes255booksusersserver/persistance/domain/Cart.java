@@ -7,32 +7,28 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Point {
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pointId;
+    private Long cartId;
 
-    @NotNull
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pointCurrent;
+    @NotNull(message = "장바구니 생성일은 필수입니다.")
+    @Column(nullable = false)
+    private LocalDate cartCreatedAt;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
     @Builder
-    public Point(BigDecimal pointCurrent,User user) {
-        this.pointCurrent = pointCurrent;
+    public Cart(LocalDate cartCreatedAt, User user) {
+        this.cartCreatedAt = cartCreatedAt;
         this.user = user;
-    }
-
-    public void updatePointCurrent(BigDecimal pointCurrent) {
-        this.pointCurrent = pointCurrent;
     }
 }

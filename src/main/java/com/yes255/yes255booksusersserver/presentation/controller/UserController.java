@@ -85,21 +85,4 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    // 제공자, 회원 상태, 회원 등급, 포인트 정책  record 생성용
-    @GetMapping("/test")
-    public void test() {
-        userService.createRecord();
-    }
 }

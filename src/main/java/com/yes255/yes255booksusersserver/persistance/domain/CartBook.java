@@ -7,32 +7,36 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserGrade {
+@Entity
+public class CartBook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userGradeId;
-
-    @NotNull(message = "회원 등급명은 필수입니다.")
-    @Column(nullable = false, length = 10)
-    private String userGradeName;
+    private Long cartBookId;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "point_policy_id")
-    private PointPolicy pointPolicy;
+    @JoinColumn(nullable = false, name = "cart_id")
+    private Cart cart;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false, name = "book_id")
+    private Book book;
+
+    @NotNull(message = "도서 수량은 필수입니다.")
+    @Column(nullable = false)
+    private int bookQuantity;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
     @Builder
-    public UserGrade(Long userGradeId, String userGradeName, PointPolicy pointPolicy, User user) {
-        this.userGradeId = userGradeId;
-        this.userGradeName = userGradeName;
-        this.pointPolicy = pointPolicy;
+    public CartBook(Cart cart, Book book, int bookQuantity, User user) {
+        this.cart = cart;
+        this.book = book;
+        this.bookQuantity = bookQuantity;
         this.user = user;
     }
 }
