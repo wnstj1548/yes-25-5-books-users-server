@@ -144,7 +144,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void updateBookCategory_success() {
         // given
-        UpdateBookCategoryRequest request = new UpdateBookCategoryRequest(1L, testBook, testCategory);
+        UpdateBookCategoryRequest request = new UpdateBookCategoryRequest(1L, 1L, 1L);
         when(jpaBookCategoryRepository.existsById(1L)).thenReturn(true);
 
         // when
@@ -161,7 +161,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void updateBookCategory_failure_bookCategoryNotFound() {
         // given
-        UpdateBookCategoryRequest request = new UpdateBookCategoryRequest(2L, testBook, testCategory);
+        UpdateBookCategoryRequest request = new UpdateBookCategoryRequest(2L, 1L, 1L);
         when(jpaBookCategoryRepository.existsById(2L)).thenReturn(false);
 
         // then

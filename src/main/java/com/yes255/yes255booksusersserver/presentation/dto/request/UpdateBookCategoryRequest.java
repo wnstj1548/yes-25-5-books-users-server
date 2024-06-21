@@ -11,16 +11,8 @@ public record UpdateBookCategoryRequest(
         Long bookCategoryId,
 
         @NotNull(message = "업데이트 할 책은 필수 입력 항목입니다.")
-        Book book,
+        Long bookId,
 
         @NotNull(message = "업데이트 할 카테고리는 필수 입력 항목입니다.")
-        Category category) {
-
-    public BookCategory toEntity() {
-        return BookCategory.builder()
-                .bookCategoryId(bookCategoryId)
-                .book(book)
-                .category(category)
-                .build();
-    }
+        Long categoryId) {
 }

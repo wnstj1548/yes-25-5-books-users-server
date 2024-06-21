@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final JpaUserRepository userRepository;
-
     private final JpaCustomerRepository customerRepository;
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
@@ -34,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final JpaCartRepository cartRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
+    private final JpaUserTotalAmountRepository totalAmountRepository;
 
     // 로그인을 위한 정보 반환
     @Transactional(readOnly = true)
@@ -51,8 +51,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return LoginUserResponse.builder()
-                .email(user.getUserEmail())
-                .password(user.getUserPassword())
+                .userId(user.getUserId())
                 .userRole(user.getCustomer().getUserRole())
                 .loginStatusName(user.getUserState().getUserStateName())
                 .build();
@@ -75,6 +74,7 @@ public class UserServiceImpl implements UserService {
                 .userLastLoginDate(user.getUserLastLoginDate())
                 .providerId(user.getProvider().getProviderId())
                 .userStateId(user.getUserState().getUserStateId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
                 .userPassword(user.getUserPassword())
                 .build();
     }
@@ -125,24 +125,23 @@ public class UserServiceImpl implements UserService {
         // 회원 상태 Active
         UserState userState = userStateRepository.findByUserStateName("ACTIVE");
 
+        // 회원 등급 NORMAL 부여
+        UserGrade userGrade = userGradeRepository.findByUserGradeName("NORMAL");
+
         // 유저 저장
-        User user = userRequest.toEntity(customer, provider, userState);
+        User user = userRequest.toEntity(customer, provider, userState, userGrade);
         userRepository.save(user);
 
-        // 회원 등급 Normal 생성
-        PointPolicy pointPolicy = pointPolicyRepository.findByPointPolicyName("NORMAL");
-        userGradeRepository.save(UserGrade.builder()
-                        .user(user)
-                        .userGradeName("NORMAL")
-                        .pointPolicy(pointPolicy)
-                        .build());
-
+        // 회원 총 구매 금액 테이블 생성
+        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
+                .user(user)
+                .build());
+      
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
                         .cartCreatedAt(LocalDate.now())
                         .user(user)
                         .build());
-
 
         // 회원 포인트 생성
         Point point = pointRepository.save(Point.builder()
@@ -150,8 +149,7 @@ public class UserServiceImpl implements UserService {
                         .user(user)
                         .build());
 
-
-        // 만약 정책이 존재한다면 회원 가입 포인트 지급
+        // 만약 회원가입 정책이 존재한다면 회원 가입 포인트 지급
         PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SIGN-UP");
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
@@ -175,6 +173,7 @@ public class UserServiceImpl implements UserService {
                 .userLastLoginDate(user.getUserLastLoginDate())
                 .providerId(user.getProvider().getProviderId())
                 .userStateId(user.getUserState().getUserStateId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
                 .userPassword(user.getUserPassword())
                 .build();
     }

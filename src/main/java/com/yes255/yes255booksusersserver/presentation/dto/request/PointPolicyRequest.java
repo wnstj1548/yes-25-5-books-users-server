@@ -7,7 +7,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
-public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyApply, String pointPolicyCondition, boolean pointPolicyApplyType) {
+
+public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyApply,
+                                 String pointPolicyCondition, boolean pointPolicyApplyType,
+                                 BigDecimal pointPolicyConditionAmount) {
 
     public PointPolicy toEntity() {
         return PointPolicy.builder()
@@ -16,6 +19,7 @@ public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyA
                 .pointPolicyRate(!pointPolicyApplyType ? pointPolicyApply: null)
                 .pointPolicyCondition(pointPolicyCondition)
                 .pointPolicyCreatedAt(LocalDate.now())
+                .pointPolicyConditionAmount(pointPolicyConditionAmount)
                 .pointPolicyApplyType(true)
                 .build();
     }

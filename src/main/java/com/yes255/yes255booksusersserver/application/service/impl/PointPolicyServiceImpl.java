@@ -31,6 +31,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyApply(policyRequest.pointPolicyApply())
                 .pointPolicyCondition(policyRequest.pointPolicyCondition())
                 .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
+                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
                 .build();
     }
 
@@ -80,18 +81,20 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
 
         pointPolicy.updatePointPolicyName(policyRequest.pointPolicyName());
-
-        if (policyRequest.pointPolicyApplyType()) {
+      
+        if (pointPolicy.isPointPolicyApplyType()) {
             pointPolicy.updatePointPolicyApplyAmount(policyRequest.pointPolicyApply());
             pointPolicy.updatePointPolicyRate(null);
         }
         else {
             pointPolicy.updatePointPolicyRate(policyRequest.pointPolicyApply());
+            pointPolicy.updatePointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount());
             pointPolicy.updatePointPolicyApplyAmount(null);
         }
 
         pointPolicy.updatePointPolicyCondition(policyRequest.pointPolicyCondition());
         pointPolicy.updatePointPolicyApplyType(policyRequest.pointPolicyApplyType());
+      
         pointPolicy.updatePointPolicyUpdatedAt();
 
         pointPolicyRepository.save(pointPolicy);
@@ -102,6 +105,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyApply(policyRequest.pointPolicyApply())
                 .pointPolicyCondition(policyRequest.pointPolicyCondition())
                 .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
+                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
                 .build();
     }
 

@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface JpaUserGradeRepository extends JpaRepository<UserGrade, Long> {
 
-    List<UserGrade> findByUser_UserId(Long userId);
+//    List<UserGrade> findByUser_UserId(Long userId);
 
     UserGrade findByUserGradeName(String userGradeName);
 
     List<UserGrade> findByUser_UserIdAndPointPolicy_PointPolicyNameIn(Long userId, List<String> pointPolicyNames);
+
+    UserGrade findByPointPolicy_PointPolicyId(Long pointPolicyId);
 }

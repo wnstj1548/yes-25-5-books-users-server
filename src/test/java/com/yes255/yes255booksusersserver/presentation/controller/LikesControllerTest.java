@@ -58,6 +58,7 @@ public class LikesControllerTest {
         testUser = User.builder()
                 .userEmail("test@gmail.com")
 //                .userGrade(new UserGrade(null, "grade",null))
+
                 .userState(new UserState(null, "statename"))
                 .userPhone("010-2341-2342")
                 .userName("test")
@@ -99,7 +100,7 @@ public class LikesControllerTest {
     @Test
     void update_success() throws Exception {
         UpdateLikesRequest request = new UpdateLikesRequest(1L, 1L);
-        LikesResponse mockResponse = new LikesResponse(1L, testBook, testUser, false);
+        LikesResponse mockResponse = new LikesResponse(1L, 1L, 1L, false);
 
         doReturn(mockResponse).when(likesService).updateLikeStatus(any(UpdateLikesRequest.class));
 
@@ -114,7 +115,7 @@ public class LikesControllerTest {
     @Test
     void create_success() throws Exception {
         CreateLikesRequest request = new CreateLikesRequest(1L, 1L);
-        LikesResponse mockResponse = new LikesResponse(1L, testBook, testUser, true);
+        LikesResponse mockResponse = new LikesResponse(1L, 1L, 1L, true);
 
         doReturn(mockResponse).when(likesService).createLike(any(CreateLikesRequest.class));
 

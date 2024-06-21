@@ -30,8 +30,8 @@ public class LikesServiceImpl implements LikesService {
     public LikesResponse toResponse(Likes likes) {
         return LikesResponse.builder()
                 .likesId(likes.getLikesId())
-                .user(likes.getUser())
-                .book(likes.getBook())
+                .userId(likes.getUser().getUserId())
+                .bookId(likes.getBook().getBookId())
                 .likesStatus(likes.isLikesStatus())
                 .build();
     }
