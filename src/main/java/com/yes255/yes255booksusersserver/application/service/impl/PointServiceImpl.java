@@ -19,6 +19,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointRe
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,22 +66,24 @@ public class PointServiceImpl implements PointService {
                 ? pointRequest.amount()
                 : BigDecimal.ZERO;
 
-        List<String> policyNames = List.of("Normal", "Royal", "Gold", "Platinum");
-
-        // 유저가 가진 회원 등급 중에 정책 이름이 Normal, Royal, Gold, Platinum인 등급만 필터링
-        List<UserGrade> filteredUserGrades = userGradeRepository.findByUser_UserIdAndPointPolicy_PointPolicyNameIn(userId, policyNames);
-
-        if (filteredUserGrades.size() != 1) {
-            throw new IllegalArgumentException("회원 등급은 2개 이상일 수 없습니다.");
-        }
-
-        PointPolicy pointPolicy = pointPolicyRepository.findById(filteredUserGrades.getFirst().getPointPolicy().getPointPolicyId())
-                .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
+//        List<String> policyNames = List.of("Normal", "Royal", "Gold", "Platinum");
+//
+//        // 유저가 가진 회원 등급 중에 정책 이름이 Normal, Royal, Gold, Platinum인 등급만 필터링
+//        List<UserGrade> filteredUserGrades = userGradeRepository.findByUser_UserIdAndPointPolicy_PointPolicyNameIn(userId, policyNames);
+//
+//        if (filteredUserGrades.size() != 1) {
+//            throw new IllegalArgumentException("회원 등급은 2개 이상일 수 없습니다.");
+//        }
+//
+//        PointPolicy pointPolicy = pointPolicyRepository.findById(filteredUserGrades.getFirst().getPointPolicy().getPointPolicyId())
+//                .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
 
         Point point = pointRepository.findByUser_UserId(userId);
 
+        UserGrade userGrade = user.getUserGrade();
+
         BigDecimal tempPoint = point.getPointCurrent()
-                .add(amount.multiply(pointPolicy.getPointPolicyRate()))
+                .add(amount.multiply(userGrade.getPointPolicy().getPointPolicyRate()))
                 .subtract(usePoints);
 
         if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
@@ -98,19 +102,19 @@ public class PointServiceImpl implements PointService {
 
         // todo : 갱신 체크 및 적용 추가 (밖에 구현, for 문 이용) , 최소와 최대 추가?
         // 회원 등급 갱신 체크 및 적용
-        UserTotalAmount totalAmount = totalAmountRepository.findByUser_UserId(userId);
-
-        List<UserGrade> userGrades = userGradeRepository.findAll();
-        for (UserGrade userGrade : userGrades) {
-
-            PointPolicy policy = userGrade.getPointPolicy();
-
-            if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
-                totalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
-
-                user.updateUserGrade(userGrade);
-            }
-        }
+//        UserTotalAmount totalAmount = totalAmountRepository.findByUser_UserId(userId);
+//
+//        List<UserGrade> userGrades = userGradeRepository.findAll();
+//        for (UserGrade userGrade : userGrades) {
+//
+//            PointPolicy policy = userGrade.getPointPolicy();
+//
+//            if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
+//                totalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
+//
+//                user.updateUserGrade(userGrade);
+//            }
+//        }
 
 
 //        if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
@@ -135,7 +139,7 @@ public class PointServiceImpl implements PointService {
             pointLogRepository.save(PointLog.builder()
                             .pointLogUpdatedAt(LocalDateTime.now())
                             .pointLogUpdatedType("적립")
-                            .pointLogAmount(amount.multiply(pointPolicy.getPointPolicyRate()))
+                            .pointLogAmount(amount.multiply(userGrade.getPointPolicy().getPointPolicyRate()))
                             .point(point)
                             .build());
         }

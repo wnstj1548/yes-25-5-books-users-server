@@ -16,10 +16,6 @@ public class UserAddress {
     @Column(name = "user_address_id")
     private Long userAddressId;
 
-    @NotNull(message = "주소 ID는 필수입니다.")
-    @Column(name = "address_id", nullable = false)
-    private Long addressId;
-
     @Column(name = "address_name")
     private String addressName;
 
@@ -39,11 +35,10 @@ public class UserAddress {
     private User user;
 
     @Builder
-    public UserAddress(Long userAddressId, Long addressId, String addressName,
-                       String addressDetail, boolean addressBased, Address address, User user) {
+    public UserAddress(Long userAddressId, String addressName, String addressDetail,
+                       boolean addressBased, Address address, User user) {
 
         this.userAddressId = userAddressId;
-        this.addressId = addressId;
         this.addressName = addressName;
         this.addressDetail = addressDetail;
         this.addressBased = addressBased;

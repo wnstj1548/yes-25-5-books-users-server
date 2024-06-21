@@ -1,6 +1,8 @@
 //package com.yes255.yes255booksusersserver.application.service.impl;
 //
 //import com.yes255.yes255booksusersserver.application.service.UserAddressService;
+//import com.yes255.yes255booksusersserver.persistance.domain.Address;
+//import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
 //import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 //import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 //import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
@@ -20,6 +22,7 @@
 //public class UserAddressServiceImpl implements UserAddressService {
 //
 //    private final JpaUserAddressRepository userAddressRepository;
+//    private final JpaAddressRepository addressRepository;
 //
 //    @Transactional
 //    @Override
@@ -45,15 +48,16 @@
 //        UserAddress existingUserAddress = userAddressRepository.findById(addressId)
 //                .orElseThrow(() -> new RuntimeException("User Address not found"));
 //
+//        Address address = addressRepository.findById(addressRequest.addressId())
+//                .orElseThrow(() -> new RuntimeException("Address Not Found"));
+//
 //        // 기존 사용자 주소 정보를 기반으로 새로운 사용자 주소 객체 생성
 //        UserAddress updatedUserAddress = UserAddress.builder()
 //                .userAddressId(existingUserAddress.getUserAddressId())
-//                .addressId(addressRequest.)
 //                .addressName(addressRequest.addressName())
 //                .addressDetail(addressRequest.addressDetail())
-//                .addressBased(userAddress.isAddressBased())
-//                .address(existingUserAddress.getAddress())
-//                .user(existingUserAddress.getUser())
+//                .addressBased(addressRequest.addressBased())
+//                .address(address)
 //                .build();
 //
 //        return userAddressRepository.save(updatedUserAddress);
