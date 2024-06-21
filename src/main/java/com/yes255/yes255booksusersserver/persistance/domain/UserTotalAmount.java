@@ -12,27 +12,27 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Point {
+public class UserTotalAmount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pointId;
+    private Long userTotalAmountId;
 
-    @NotNull
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pointCurrent;
+    @NotNull(message = "유저 누적 금액은 필수입니다.")
+    @Column(nullable = false)
+    private BigDecimal userTotalAmount;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
     @Builder
-    public Point(BigDecimal pointCurrent,User user) {
-        this.pointCurrent = pointCurrent;
+    public UserTotalAmount(BigDecimal userTotalAmount, User user) {
+        this.userTotalAmount = userTotalAmount;
         this.user = user;
     }
 
-    public void updatePointCurrent(BigDecimal pointCurrent) {
-        this.pointCurrent = pointCurrent;
+    public void updateTotalAmount(BigDecimal totalAmount) {
+        this.userTotalAmount = this.userTotalAmount.add(totalAmount);
     }
 }

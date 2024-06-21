@@ -4,9 +4,11 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepos
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -33,12 +35,14 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.save(updatedCustomer);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
