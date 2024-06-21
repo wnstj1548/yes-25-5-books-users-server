@@ -24,6 +24,10 @@ public class PointLog {
     @Column(nullable = false)
     private LocalDateTime pointLogUpdatedAt;
 
+    @NotNull(message = "포인트 사용처는 필수입니다.")
+    @Column(nullable = false, length = 20)
+    private String pointLogUsed;
+
     @NotNull(message = "포인트 변경 타입은 필수입니다.")
     @Column(nullable = false, length = 20)
     private String pointLogUpdatedType;

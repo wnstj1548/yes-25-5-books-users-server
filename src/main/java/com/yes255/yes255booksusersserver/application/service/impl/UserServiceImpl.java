@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
         UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
                 .user(user)
                 .build());
-
+      
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
                         .cartCreatedAt(LocalDate.now())
@@ -154,6 +154,12 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
+
+            userGradeRepository.save(UserGrade.builder()
+                    .user(user)
+                    .userGradeName(singUpPolicy.getPointPolicyName())
+                    .pointPolicy(singUpPolicy)
+                    .build());
         }
 
         log.info("User : {}", user);
