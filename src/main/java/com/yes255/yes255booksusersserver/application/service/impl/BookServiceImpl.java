@@ -3,15 +3,9 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.BookService;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
-import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
-import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
-import com.yes255.yes255booksusersserver.persistance.domain.Category;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
@@ -33,6 +27,7 @@ public class BookServiceImpl implements BookService {
     private final JpaCategoryRepository jpaCategoryRepository;
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
     private final JpaBookTagRepository jpaBookTagRepository;
+    private final JpaCartBookRepository jpaCartBookRepository;
 
     public BookResponse toResponse(Book book) {
         return BookResponse.builder()
@@ -88,24 +83,16 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
-        if(Objects.isNull(updateBookRequest)) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
-        }
+        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId()).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        existingBook.from(updateBookRequest.toEntity());
+        jpaBookRepository.save(existingBook);
 
-        if(!jpaBookRepository.existsById(updateBookRequest.bookId())) {
-            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
-        }
-
-        return toResponse(jpaBookRepository.save(updateBookRequest.toEntity()));
+        return toResponse(existingBook);
     }
 
     @Transactional
     @Override
     public void deleteBook(Long bookId) {
-
-        if(!jpaBookRepository.existsById(bookId)) {
-            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
-        }
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 

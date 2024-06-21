@@ -116,7 +116,7 @@ public class BookControllerTest {
     void update_success() throws ParseException {
         // given
         UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "index" ,"Updated Author", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120);
         List<Long> categoryIdList = List.of(1L, 2L);
 
         BookResponse mockResponse = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
