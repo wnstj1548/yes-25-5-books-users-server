@@ -1,37 +1,82 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.ProviderService;
+import com.yes255.yes255booksusersserver.persistance.domain.Provider;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaProviderRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateProviderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateProviderRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.CreateProviderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ProviderResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateProviderResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Transactional
 @Service
+@RequiredArgsConstructor
 public class ProviderServicesImpl implements ProviderService {
+
+    private final JpaProviderRepository providerRepository;
+
     @Override
-    public ProviderResponse createProvider(CreateProviderRequest request) {
-        return null;
+    public CreateProviderResponse createProvider(CreateProviderRequest request) {
+
+        Provider provider = request.toEntity();
+        providerRepository.save(provider);
+
+        return CreateProviderResponse.builder()
+                .providerName(request.providerName())
+                .build();
     }
 
     @Override
-    public ProviderResponse updateProvider(Long providerId, UpdateProviderRequest request) {
-        return null;
+    public UpdateProviderResponse updateProvider(Long providerId, UpdateProviderRequest request) {
+
+        Provider provider = providerRepository.findById(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("제공자가 존재하지 않습니다."));
+
+        provider.updateProviderName(request.providerName());
+        providerRepository.save(provider);
+
+        return UpdateProviderResponse.builder()
+                .providerName(request.providerName())
+                .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public ProviderResponse getProviderById(Long providerId) {
-        return null;
+    public ProviderResponse findProviderById(Long providerId) {
+
+        Provider provider = providerRepository.findById(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("제공자가 존재하지 않습니다."));
+
+        return ProviderResponse.builder()
+                .providerId(provider.getProviderId())
+                .providerName(provider.getProviderName())
+                .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<ProviderResponse> getAllProviders() {
-        return List.of();
+    public List<ProviderResponse> findAllProviders() {
+
+        List<Provider> providers = providerRepository.findAll();
+
+        return providers.stream()
+                .map(provider -> new ProviderResponse(provider.getProviderId(), provider.getProviderName()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteProvider(Long providerId) {
 
+        providerRepository.findById(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("제공자가 존재하지 않습니다."));
+
+        providerRepository.deleteById(providerId);
     }
 }

@@ -10,7 +10,7 @@ public interface UserService {
 
     LoginUserResponse findLoginUserByEmail(LoginUserRequest email);
 
-    UpdateUserResponse findUserByUserId(Long userId);
+    UserResponse findUserByUserId(Long userId);
 
     List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable);
 
@@ -27,6 +27,4 @@ public interface UserService {
     boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
 
     boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest);
-
-    void createRecord();
 }
