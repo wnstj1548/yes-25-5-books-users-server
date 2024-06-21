@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
+
 public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyApply,
                                  String pointPolicyCondition, boolean pointPolicyApplyType,
                                  BigDecimal pointPolicyConditionAmount) {

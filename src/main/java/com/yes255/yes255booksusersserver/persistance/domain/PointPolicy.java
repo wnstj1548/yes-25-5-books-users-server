@@ -71,10 +71,11 @@ public class PointPolicy {
         this.pointPolicyName = pointPolicyName;
     }
 
+
     public void updatePointPolicyConditionAmount(BigDecimal pointPolicyConditionAmount) {
         this.pointPolicyConditionAmount = pointPolicyConditionAmount;
     }
-
+  
     public void updatePointPolicyApplyAmount(BigDecimal pointPolicyApplyAmount) {
         this.pointPolicyApplyAmount = pointPolicyApplyAmount;
     }
@@ -86,6 +87,7 @@ public class PointPolicy {
     public void updatePointPolicyCondition(String pointPolicyCondition) {
         this.pointPolicyCondition = pointPolicyCondition;
     }
+
 
     public void updatePointPolicyApplyType(boolean pointPolicyApplyType) {
         this.pointPolicyApplyType = pointPolicyApplyType;

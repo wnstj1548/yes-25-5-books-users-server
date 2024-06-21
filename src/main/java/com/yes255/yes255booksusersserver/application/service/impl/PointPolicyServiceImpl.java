@@ -81,10 +81,9 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
 
         pointPolicy.updatePointPolicyName(policyRequest.pointPolicyName());
-
-        if (policyRequest.pointPolicyApplyType()) {
+      
+        if (pointPolicy.isPointPolicyApplyType()) {
             pointPolicy.updatePointPolicyApplyAmount(policyRequest.pointPolicyApply());
-            pointPolicy.updatePointPolicyConditionAmount(null);
             pointPolicy.updatePointPolicyRate(null);
         }
         else {
@@ -95,6 +94,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         pointPolicy.updatePointPolicyCondition(policyRequest.pointPolicyCondition());
         pointPolicy.updatePointPolicyApplyType(policyRequest.pointPolicyApplyType());
+      
         pointPolicy.updatePointPolicyUpdatedAt();
 
         pointPolicyRepository.save(pointPolicy);

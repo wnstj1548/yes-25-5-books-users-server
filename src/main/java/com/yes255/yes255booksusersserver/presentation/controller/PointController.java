@@ -16,6 +16,7 @@ public class PointController {
 
     private final PointService pointService;
 
+
     // 특정 사용자 현재 포인트 조회
     @GetMapping("/{userId}/points")
     public ResponseEntity<PointResponse> getPoints(@PathVariable Long userId) {

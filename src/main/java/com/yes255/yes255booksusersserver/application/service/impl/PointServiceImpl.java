@@ -1,19 +1,27 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.persistance.repository.*;
+import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
+import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
+import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
@@ -29,7 +37,6 @@ public class PointServiceImpl implements PointService {
 
     // 포인트 조회
     @Transactional(readOnly = true)
-    @Override
     public PointResponse findPointByUserId(Long userId) {
 
         Point point = pointRepository.findById(userId)
@@ -39,6 +46,7 @@ public class PointServiceImpl implements PointService {
                 .point(point.getPointCurrent())
                 .build();
     }
+
 
     // 포인트 사용 및 적립
     @Override
@@ -56,8 +64,16 @@ public class PointServiceImpl implements PointService {
                 ? pointRequest.amount()
                 : BigDecimal.ZERO;
 
-        // 회원 등급에 관한 정책 가져오기
-        PointPolicy pointPolicy = pointPolicyRepository.findById(user.getUserGrade().getPointPolicy().getPointPolicyId())
+        List<String> policyNames = List.of("Normal", "Royal", "Gold", "Platinum");
+
+        // 유저가 가진 회원 등급 중에 정책 이름이 Normal, Royal, Gold, Platinum인 등급만 필터링
+        List<UserGrade> filteredUserGrades = userGradeRepository.findByUser_UserIdAndPointPolicy_PointPolicyNameIn(userId, policyNames);
+
+        if (filteredUserGrades.size() != 1) {
+            throw new IllegalArgumentException("회원 등급은 2개 이상일 수 없습니다.");
+        }
+
+        PointPolicy pointPolicy = pointPolicyRepository.findById(filteredUserGrades.getFirst().getPointPolicy().getPointPolicyId())
                 .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
 
         Point point = pointRepository.findByUser_UserId(userId);
