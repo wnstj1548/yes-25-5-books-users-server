@@ -7,5 +7,6 @@ import java.time.LocalDate;
 
 @Builder
 public record PointPolicyResponse(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyApply, String pointPolicyCondition,
-                                  boolean pointPolicyApplyType, LocalDate pointPolicyCreatedAt, String pointPolicyUpdatedAt) {
+                                  boolean pointPolicyApplyType, LocalDate pointPolicyCreatedAt, String pointPolicyUpdatedAt,
+                                  BigDecimal pointPolicyConditionAmount) {
 }

@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final JpaUserRepository userRepository;
-
     private final JpaCustomerRepository customerRepository;
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
@@ -34,7 +33,9 @@ public class UserServiceImpl implements UserService {
     private final JpaCartRepository cartRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
+    private final JpaUserTotalAmountRepository totalAmountRepository;
 
+    // 로그인을 위한 정보 반환
     @Transactional(readOnly = true)
     @Override
     public LoginUserResponse findLoginUserByEmail(LoginUserRequest userRequest) {
@@ -45,28 +46,40 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("고객 ID가 존재 하지 않습니다.");
         }
 
+        // 최근 로그인 날짜 업데이트
+        user.updateLastLoginDate();
+        userRepository.save(user);
+
         return LoginUserResponse.builder()
-                .email(user.getUserEmail())
-                .password(user.getUserPassword())
+                .userId(user.getUserId())
                 .userRole(user.getCustomer().getUserRole())
                 .loginStatusName(user.getUserState().getUserStateName())
                 .build();
     }
 
+    // 특정 유저 조회
     @Transactional(readOnly = true)
     @Override
-    public UpdateUserResponse findUserByUserId(Long userId) {
+    public UserResponse findUserByUserId(Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(userId + ": 유저 ID가 존재 하지 않습니다."));
 
-        return UpdateUserResponse.builder()
+        return UserResponse.builder()
+                .userId(user.getUserId())
                 .userName(user.getUserName())
                 .userPhone(user.getUserPhone())
-                .userBirth(user.getUserBirth())
+                .userEmail(user.getUserEmail())
+                .userRegisterDate(user.getUserRegisterDate())
+                .userLastLoginDate(user.getUserLastLoginDate())
+                .providerId(user.getProvider().getProviderId())
+                .userStateId(user.getUserState().getUserStateId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
+                .userPassword(user.getUserPassword())
                 .build();
     }
 
+    // 이메일과 전화번호로 유저 이메일 찾기
     @Transactional(readOnly = true)
     @Override
     public List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable) {
@@ -84,6 +97,8 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+
+    // 회원 가입
     @Transactional
     @Override
     public UserResponse createUser(CreateUserRequest userRequest) {
@@ -101,33 +116,32 @@ public class UserServiceImpl implements UserService {
 
         // 회원 가입 시 고객 ID(권한) 부여
         Customer customer = customerRepository.save(Customer.builder()
-                                                            .userRole("Member")
+                                                            .userRole("MEMBER")
                                                             .build());
 
         // Local 제공자
-        Provider provider = providerRepository.findByProviderName("Local");
+        Provider provider = providerRepository.findByProviderName("LOCAL");
 
         // 회원 상태 Active
-        UserState userState = userStateRepository.findByUserStateName("Active");
+        UserState userState = userStateRepository.findByUserStateName("ACTIVE");
+
+        // 회원 등급 NORMAL 부여
+        UserGrade userGrade = userGradeRepository.findByUserGradeName("NORMAL");
 
         // 유저 저장
-        User user = userRequest.toEntity(customer, provider, userState);
+        User user = userRequest.toEntity(customer, provider, userState, userGrade);
         userRepository.save(user);
 
-        // 회원 등급 Normal 생성
-        PointPolicy pointPolicy = pointPolicyRepository.findByPointPolicyName("Normal");
-        userGradeRepository.save(UserGrade.builder()
-                        .user(user)
-                        .userGradeName("Normal")
-                        .pointPolicy(pointPolicy)
-                        .build());
-
+        // 회원 총 구매 금액 테이블 생성
+        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
+                .user(user)
+                .build());
+      
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
                         .cartCreatedAt(LocalDate.now())
                         .user(user)
                         .build());
-
 
         // 회원 포인트 생성
         Point point = pointRepository.save(Point.builder()
@@ -135,9 +149,8 @@ public class UserServiceImpl implements UserService {
                         .user(user)
                         .build());
 
-
-        // 만약 정책이 존재한다면 회원 가입 포인트 지급
-        PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SignUp");
+        // 만약 회원가입 정책이 존재한다면 회원 가입 포인트 지급
+        PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SIGN-UP");
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
@@ -160,10 +173,12 @@ public class UserServiceImpl implements UserService {
                 .userLastLoginDate(user.getUserLastLoginDate())
                 .providerId(user.getProvider().getProviderId())
                 .userStateId(user.getUserState().getUserStateId())
+                .userGradeId(user.getUserGrade().getUserGradeId())
                 .userPassword(user.getUserPassword())
                 .build();
     }
 
+    // 회원 수정
     @Transactional
     @Override
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
@@ -191,6 +206,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    // 회원 탈퇴
     @Transactional
     @Override
     public void deleteUser(Long userId, DeleteUserRequest userRequest) {
@@ -203,6 +219,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    // 최근 로그인 날짜 갱신 (사용 안할 수도)
     @Transactional
     @Override
     public void updateLastLoginDate(Long userId) {
@@ -214,6 +231,8 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    // 이메일과 비밀번호로 로그인
+    @Transactional(readOnly = true)
     @Override
     public boolean loginUserByEmailByPassword(LoginUserRequest loginUserRequest) {
 
@@ -228,6 +247,8 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    // 이메일과 이름으로 비밀번호 찾기
+    @Transactional(readOnly = true)
     @Override
     public boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest) {
 
@@ -237,6 +258,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // todo : 비밀번호 찾기 서비스 작성
+    @Transactional(readOnly = true)
     @Override
     public boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest) {
 

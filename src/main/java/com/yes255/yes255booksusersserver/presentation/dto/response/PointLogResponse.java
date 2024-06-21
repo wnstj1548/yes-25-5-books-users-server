@@ -1,10 +1,12 @@
 package com.yes255.yes255booksusersserver.presentation.dto.response;
 
-import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
+
 import lombok.Builder;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Builder
-public record PointLogResponse(String pointCurrent, List<PointLog> pointLogs) {
+public record PointLogResponse(BigDecimal pointCurrent, String pointLogUpdatedType,
+                               BigDecimal pointLogAmount, LocalDateTime pointLogUpdatedAt) {
 }

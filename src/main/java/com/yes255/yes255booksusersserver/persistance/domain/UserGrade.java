@@ -35,4 +35,8 @@ public class UserGrade {
         this.pointPolicy = pointPolicy;
         this.user = user;
     }
+
+    public void updatePointPolicy() {
+        this.pointPolicy = null;
+    }
 }

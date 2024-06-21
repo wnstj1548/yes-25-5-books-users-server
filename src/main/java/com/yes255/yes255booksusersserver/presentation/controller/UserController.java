@@ -22,9 +22,6 @@ public class UserController {
 
     private final UserService userService;
 
-    private final JpaCustomerRepository customerRepository;
-    private final JpaProviderRepository providerRepository;
-
     // 인증을 위한 회원 정보 반환
     @PostMapping("/users")
     public ResponseEntity<LoginUserResponse> findLoginUserByEmail(@RequestBody LoginUserRequest userRequest) {
@@ -59,13 +56,13 @@ public class UserController {
     }
 
     // todo : 비밀번호 설정
-    @PostMapping("/auth/setPassword")
+//    @PostMapping("/auth/setPassword")
 
 
 
-    // 회원 수정 페이지
+    // 회원 조회
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> findByUserId(@PathVariable Long userId) {
+    public ResponseEntity<UserResponse> findByUserId(@PathVariable Long userId) {
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
 

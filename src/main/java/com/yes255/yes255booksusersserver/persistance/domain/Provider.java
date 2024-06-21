@@ -25,4 +25,8 @@ public class Provider {
         this.providerId = providerId;
         this.providerName = providerName;
     }
+
+    public void updateProviderName(String providerName) {
+        this.providerName = providerName;
+    }
 }
