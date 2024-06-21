@@ -57,6 +57,8 @@ public class LikesControllerTest {
 
         testUser = User.builder()
                 .userEmail("test@gmail.com")
+//                .userGrade(new UserGrade(null, "grade",null))
+
                 .userState(new UserState(null, "statename"))
                 .userPhone("010-2341-2342")
                 .userName("test")
