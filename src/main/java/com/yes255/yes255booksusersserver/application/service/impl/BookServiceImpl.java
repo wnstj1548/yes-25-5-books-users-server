@@ -6,12 +6,15 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class BookServiceImpl implements BookService {
     private final JpaBookRepository jpaBookRepository;
     private final JpaCategoryRepository jpaCategoryRepository;
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
+    private final JpaBookTagRepository jpaBookTagRepository;
 
     public BookResponse toResponse(Book book) {
         return BookResponse.builder()
@@ -97,13 +101,21 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public void deleteBook(long bookId) {
+    public void deleteBook(Long bookId) {
 
         if(!jpaBookRepository.existsById(bookId)) {
             throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
+        List<BookTag> bookTagList = jpaBookTagRepository.findByBook(book);
+
+        jpaBookCategoryRepository.deleteAll(bookCategoryList);
+        jpaBookTagRepository.deleteAll(bookTagList);
         jpaBookRepository.deleteById(bookId);
+
     }
 
     @Override
