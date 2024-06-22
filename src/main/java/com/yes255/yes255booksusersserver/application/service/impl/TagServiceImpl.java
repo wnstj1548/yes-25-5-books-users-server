@@ -11,6 +11,9 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.CreateTagReque
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateTagRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.TagResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +63,15 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<TagResponse> findAllTags() {
         return jpaTagRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public Page<TagResponse> findAllTags(Pageable pageable) {
+
+        Page<Tag> tagPage = jpaTagRepository.findAll(pageable);
+        List<TagResponse> responses = tagPage.stream().map(this::toResponse).toList();
+
+        return new PageImpl<>(responses, pageable, tagPage.getTotalElements());
     }
 
     @Transactional

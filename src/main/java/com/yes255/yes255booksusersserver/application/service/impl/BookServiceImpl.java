@@ -11,6 +11,9 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequ
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +77,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Transactional(readOnly = true)
+    @Override
+    public Page<BookResponse> findAllBooks(Pageable pageable) {
+
+        Page<Book> bookPage = jpaBookRepository.findAll(pageable);
+        List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
+
+        return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
+    }
+
     @Override
     public List<BookResponse> findAllBooks() {
         return jpaBookRepository.findAll().stream().map(this::toResponse).toList();

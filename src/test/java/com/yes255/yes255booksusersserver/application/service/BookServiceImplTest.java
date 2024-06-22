@@ -19,6 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -107,15 +111,20 @@ public class BookServiceImplTest {
         Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "Index", "Author", "Publisher",
                 sdf.parse("2014-04-02"), new BigDecimal("25.00"), new BigDecimal("19.99"), "another.jpg",
                 150, 0, 0, 0);
-        when(jpaBookRepository.findAll()).thenReturn(Arrays.asList(testBook, anotherBook));
+
+        List<Book> books = Arrays.asList(testBook, anotherBook);
+        Page<Book> bookPage = new PageImpl<>(books, PageRequest.of(0, 10), books.size());
+
+        when(jpaBookRepository.findAll(any(Pageable.class))).thenReturn(bookPage);
 
         // when
-        List<BookResponse> responses = bookService.findAllBooks();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<BookResponse> responses = bookService.findAllBooks(pageable);
 
         // then
-        assertEquals(2, responses.size());
-        assertEquals(testBook.getBookName(), responses.get(0).bookName());
-        assertEquals(anotherBook.getBookName(), responses.get(1).bookName());
+        assertEquals(2, responses.getContent().size());
+        assertEquals(testBook.getBookName(), responses.getContent().get(0).bookName());
+        assertEquals(anotherBook.getBookName(), responses.getContent().get(1).bookName());
     }
 
     @DisplayName("책 업데이트 - 성공")

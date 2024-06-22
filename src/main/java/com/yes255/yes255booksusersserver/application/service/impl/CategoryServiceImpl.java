@@ -12,6 +12,9 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategory
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.CategoryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +72,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
+    @Override
+    public Page<CategoryResponse> findAllCategories(Pageable pageable) {
+
+        Page<Category> categoryPage = jpaCategoryRepository.findAll(pageable);
+        List<CategoryResponse> responses = categoryPage.stream().map(this::toResponse).toList();
+
+        return new PageImpl<>(responses, pageable, categoryPage.getTotalElements());
+    }
+
     @Override
     public List<CategoryResponse> findAllCategories() {
         return jpaCategoryRepository.findAll().stream().map(this::toResponse).toList();

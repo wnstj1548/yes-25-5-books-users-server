@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,17 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
+
+    /**
+     * 모든 카테고리를 조회합니다.
+     *
+     * @return ResponseEntity<Page<CategoryResponse>> 형식의 카테고리 목록
+     */
+    @Operation(summary = "모든 카테고리 조회", description = "등록된 카테고리 페이지 처리하여 조회합니다.")
+    @GetMapping("/categories/page")
+    public ResponseEntity<Page<CategoryResponse>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(categoryService.findAllCategories(pageable));
+    }
 
     /**
      * 모든 카테고리를 조회합니다.
