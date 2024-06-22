@@ -5,6 +5,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressReposi
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.AddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.AddressResponse;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -53,6 +55,7 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.save(updatedAddress);
 
         return UpdateAddressResponse.builder()
+                .AddressId(updatedAddress.getAddressId())
                 .addressZip(updatedAddress.getAddressZip())
                 .addressRaw(updatedAddress.getAddressRaw())
                 .build();
@@ -66,6 +69,7 @@ public class AddressServiceImpl implements AddressService {
                 .orElseThrow(() -> new RuntimeException("Address not found"));
 
         return AddressResponse.builder()
+                .addressId(addressId)
                 .addressZip(address.getAddressZip())
                 .addressRaw(address.getAddressRaw())
                 .build();
@@ -76,6 +80,10 @@ public class AddressServiceImpl implements AddressService {
     public List<AddressResponse> findAllAddresses() {
 
         List<Address> addresses = addressRepository.findAll();
+
+        if (addresses.isEmpty()) {
+            throw new IllegalArgumentException("Addresses not found");
+        }
 
         return addresses.stream()
                 .map(address -> AddressResponse.builder()
@@ -90,5 +98,22 @@ public class AddressServiceImpl implements AddressService {
     public void deleteAddress(Long addressId) {
 
         addressRepository.deleteById(addressId);
+    }
+
+    // 주소 찾기 (우편번호나 주소를 통해)
+    @Override
+    public AddressResponse findByAddressZipOrAddressRaw(AddressRequest addressRequest) {
+
+        Address address = addressRepository.findAddressByAddressRawOrAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+
+        if (Objects.isNull(address)) {
+            throw new IllegalArgumentException("Addresses not found");
+        }
+
+        return AddressResponse.builder()
+                .addressId(address.getAddressId())
+                .addressZip(address.getAddressZip())
+                .addressRaw(address.getAddressRaw())
+                .build();
     }
 }
