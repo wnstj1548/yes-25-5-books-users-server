@@ -101,6 +101,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     // 주소 찾기 (우편번호나 주소를 통해)
+    @Transactional(readOnly = true)
     @Override
     public AddressResponse findByAddressZipOrAddressRaw(AddressRequest addressRequest) {
 
