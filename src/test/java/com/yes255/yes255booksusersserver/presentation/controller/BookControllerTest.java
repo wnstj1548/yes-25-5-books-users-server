@@ -15,6 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -52,25 +56,26 @@ public class BookControllerTest {
     @DisplayName("모든 책 조회 - 성공")
     @Test
     void findAll_success() throws ParseException {
-
-        BookResponse updatedBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
         // given
         List<BookResponse> mockBooks = List.of(
-                new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
-                        sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0),
-                new BookResponse(2L, "ISBN11111111", "Name", "Description", "Index2","Author", "Publisher",
-                        sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120,0,0,0)
+                new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index", "Updated Author", "Updated Publisher",
+                        sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0),
+                new BookResponse(2L, "ISBN11111111", "Name", "Description", "Index2", "Author", "Publisher",
+                        sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120, 0, 0, 0)
         );
-        when(bookService.findAllBooks()).thenReturn(mockBooks);
+
+        Page<BookResponse> mockPage = new PageImpl<>(mockBooks, PageRequest.of(0, 10), mockBooks.size());
+
+        when(bookService.findAllBooks(any(Pageable.class))).thenReturn(mockPage);
 
         // when
-        ResponseEntity<List<BookResponse>> responseEntity = bookController.findAll();
+        Pageable pageable = PageRequest.of(0, 10);
+        ResponseEntity<Page<BookResponse>> responseEntity = bookController.findAll(pageable);
 
         // then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(mockBooks.size(), responseEntity.getBody().size());
-        assertEquals(mockBooks, responseEntity.getBody());
+        assertEquals(mockBooks.size(), responseEntity.getBody().getContent().size());
+        assertEquals(mockBooks, responseEntity.getBody().getContent());
     }
 
     @DisplayName("특정 책 조회 - 성공")
