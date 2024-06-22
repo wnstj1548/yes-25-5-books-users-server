@@ -46,6 +46,10 @@ public class CartBookServiceImpl implements CartBookService {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
 
+        if (Objects.isNull(cart)) {
+            throw new IllegalArgumentException("카트가 존재하지 않습니다.");
+        }
+
         // 장바구니에 도서 중복 확인
         CartBook oldCartBook = cartBookRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), request.bookId());
 
@@ -72,6 +76,10 @@ public class CartBookServiceImpl implements CartBookService {
     public UpdateCartBookResponse updateCartBookByUserId(Long userId, UpdateCartBookRequest request) {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(cart)) {
+            throw new IllegalArgumentException("카트가 존재하지 않습니다.");
+        }
 
         CartBook cartBook = cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), cart.getCartId());
 
@@ -101,6 +109,10 @@ public class CartBookServiceImpl implements CartBookService {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
 
+        if (Objects.isNull(cart)) {
+            throw  new IllegalArgumentException("카트가 존재하지 않습니다.");
+        }
+
         List<CartBook> cartBooks = cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(cart.getCartId());
 
 
@@ -109,4 +121,14 @@ public class CartBookServiceImpl implements CartBookService {
                         cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
                 .collect(Collectors.toList());
     }
+
+//    // 특정 카트에 관련된 카트 장바구니 모두 삭제.
+//    @Override
+//    public void deleteAllCartBookByCartId(Long cartId) {
+//
+//        Cart cart = cartRepository.findById(cartId)
+//                        .orElseThrow(() -> new IllegalArgumentException("카트를 찾을 수 없습니다."));
+//
+//        cartBookRepository.deleteByCart(cart);
+//    }
 }
