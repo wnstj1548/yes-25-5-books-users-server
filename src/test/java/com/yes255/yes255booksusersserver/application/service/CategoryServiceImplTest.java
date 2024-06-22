@@ -3,7 +3,9 @@ package com.yes255.yes255booksusersserver.application.service;
 import com.yes255.yes255booksusersserver.application.service.impl.CategoryServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +30,9 @@ class CategoryServiceImplTest {
 
     @Mock
     private JpaCategoryRepository jpaCategoryRepository;
+
+    @Mock
+    private JpaBookCategoryRepository jpaBookCategoryRepository;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -146,12 +152,21 @@ class CategoryServiceImplTest {
     @Test
     void deleteCategory_success() {
         // given
-        when(jpaCategoryRepository.existsById(1L)).thenReturn(true);
+        Category category = new Category(1L, "Test Category", null, null);
+
+        List<BookCategory> bookCategoryList = new ArrayList<>();
+
+        // Mock 설정
+        when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(jpaBookCategoryRepository.findByCategory(category)).thenReturn(bookCategoryList);
 
         // when
         categoryService.deleteCategory(1L);
 
         // then
+        verify(jpaCategoryRepository, times(1)).findById(1L);
+        verify(jpaBookCategoryRepository, times(1)).findByCategory(category);
+        verify(jpaBookCategoryRepository, times(1)).deleteAll(bookCategoryList);
         verify(jpaCategoryRepository, times(1)).deleteById(1L);
     }
 

@@ -3,8 +3,10 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.CategoryService;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     public CategoryResponse toResponse(Category category) {
         return CategoryResponse.builder()
@@ -96,11 +99,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(long categoryId) {
 
-        if(!jpaCategoryRepository.existsById(categoryId)) {
-            throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now()));
-        }
+        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
+        jpaBookCategoryRepository.deleteAll(bookCategoryList);
         jpaCategoryRepository.deleteById(categoryId);
+
     }
 
     @Transactional(readOnly = true)
