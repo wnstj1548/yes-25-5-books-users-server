@@ -12,13 +12,13 @@ import java.util.List;
 
 public interface UserAddressService {
 
-    CreateUserAddressResponse createAddress(CreateUserAddressRequest addressRequest);
+    CreateUserAddressResponse createAddress(Long userId, Long addressId, CreateUserAddressRequest addressRequest);
 
-    UpdateUserAddressResponse updateAddress(Long addressId, UpdateUserAddressRequest addressRequest);
+    UpdateUserAddressResponse updateAddress(Long userId, Long addressId, Long userAddressId, UpdateUserAddressRequest addressRequest);
 
-    UserAddressResponse getAddressById(Long addressId);
+    UserAddressResponse findAddressById(Long userId, Long addressId, Long userAddressId);
 
-    List<UserAddressResponse> getAllAddresses();
+    List<UserAddressResponse> findAllAddresses(Long userId, Long addressId);
 
-    void deleteAddress(Long addressId);
+    void deleteAddress(Long userId, Long addressId, Long userAddressId);
 }
