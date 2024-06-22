@@ -2,7 +2,9 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.TagServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
 import com.yes255.yes255booksusersserver.persistance.domain.Tag;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaTagRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateTagRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateTagRequest;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +29,9 @@ public class TagServiceImplTest {
 
     @Mock
     private JpaTagRepository jpaTagRepository;
+
+    @Mock
+    private JpaBookTagRepository jpaBookTagRepository;
 
     @InjectMocks
     private TagServiceImpl tagService;
@@ -159,11 +165,21 @@ public class TagServiceImplTest {
     void deleteTag_success() {
         // given
         Long tagId = 1L;
+        Tag tag = new Tag(tagId, "Test Tag");
+
+        List<BookTag> bookTagList = new ArrayList<>();
+
+        // Mock 설정
+        when(jpaTagRepository.findById(tagId)).thenReturn(Optional.of(tag));
+        when(jpaBookTagRepository.findByTag(tag)).thenReturn(bookTagList);
 
         // when
         tagService.deleteTag(tagId);
 
         // then
+        verify(jpaTagRepository, times(1)).findById(tagId);
+        verify(jpaBookTagRepository, times(1)).findByTag(tag);
+        verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
         verify(jpaTagRepository, times(1)).deleteById(tagId);
     }
 

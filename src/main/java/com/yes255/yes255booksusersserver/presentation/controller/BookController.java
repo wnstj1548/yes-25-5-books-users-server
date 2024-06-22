@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +46,18 @@ public class BookController {
     /**
      * 모든 책을 가져옵니다.
      *
-     * @return ResponseEntity<BookResponse> 형식의 모든 책 정보.
+     * @return ResponseEntity<Page<BookResponse>> 형식의 모든 책 정보.
+     */
+    @Operation(summary = "모든 책 조회", description = "등록된 모든 책을 페이징 처리하여 조회합니다.")
+    @GetMapping("/books/page")
+    public ResponseEntity<Page<BookResponse>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(bookService.findAllBooks(pageable));
+    }
+
+    /**
+     * 모든 책을 가져옵니다.
+     *
+     * @return ResponseEntity<List<BookResponse>> 형식의 모든 책 정보.
      */
     @Operation(summary = "모든 책 조회", description = "등록된 모든 책을 조회합니다.")
     @GetMapping("/books")
@@ -185,9 +198,6 @@ public class BookController {
                     .bookSellingPrice(book.bookSellingPrice())
                     .bookImage(book.bookImage())
                     .quantity(updatedQuantity)
-                    .reviewCount(book.reviewCount())
-                    .hitsCount(book.hitsCount())
-                    .searchCount(book.searchCount())
                     .build();
 
             updatedBookList.add(bookService.updateBook(updatedBook));

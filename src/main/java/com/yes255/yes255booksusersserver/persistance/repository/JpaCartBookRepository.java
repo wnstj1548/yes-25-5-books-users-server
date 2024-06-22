@@ -16,5 +16,7 @@ public interface JpaCartBookRepository extends JpaRepository<CartBook, Long> {
 
     List<CartBook> findByCart_CartIdOrderByCartBookCreatedAtDesc(Long cartId);
 
+//    List<CartBook> findByBook(Book book);
+
     void deleteByCart(Cart cart);
 }

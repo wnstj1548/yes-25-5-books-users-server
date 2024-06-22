@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,11 +29,22 @@ public class TagController {
     private final TagService tagService;
 
     /**
+     * 모든 태그 목록 페이지로 조회합니다.
+     *
+     * @return ResponseEntity<Page<TagResponse>> 형식의 모든 태그 목록
+     */
+    @Operation(summary = "모든 태그 조회", description = "등록된 모든 태그를 조회합니다.")
+    @GetMapping("/tags/page")
+    public ResponseEntity<Page<TagResponse>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(tagService.findAllTags(pageable));
+    }
+
+    /**
      * 모든 태그 목록을 조회합니다.
      *
      * @return ResponseEntity<List<TagResponse>> 형식의 모든 태그 목록
      */
-    @Operation(summary = "모든 태그 조회", description = "등록된 모든 태그를 조회합니다.")
+    @Operation(summary = "모든 태그 조회", description = "등록된 모든 태그를 페이지형식으로 조회합니다.")
     @GetMapping("/tags")
     public ResponseEntity<List<TagResponse>> findAll() {
         return ResponseEntity.ok(tagService.findAllTags());
