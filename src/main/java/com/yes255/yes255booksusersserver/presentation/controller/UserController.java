@@ -75,10 +75,12 @@ public class UserController {
 
     // 회원 탈퇴
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long userId,
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
                                                    @RequestBody DeleteUserRequest userRequest) {
 
         userService.deleteUser(userId, userRequest);
+
+        // 카트 삭제, 포인트 삭제, 총 누적 금액 삭제, 회원 주소 삭제,
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -176,11 +176,6 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
-
-            userGradeRepository.save(UserGrade.builder()
-                    .userGradeName(singUpPolicy.getPointPolicyName())
-                    .pointPolicy(singUpPolicy)
-                    .build());
         }
 
         log.info("User : {}", user);
@@ -235,8 +230,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(userId + ": 고객 ID가 존재 하지 않습니다."));
 
-        if (user.getUserPassword().equals(userRequest.userPassword())) {
+        if (passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
+            totalAmountRepository.deleteByUser(user);
             userRepository.delete(user);
+        }
+        else {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
 
