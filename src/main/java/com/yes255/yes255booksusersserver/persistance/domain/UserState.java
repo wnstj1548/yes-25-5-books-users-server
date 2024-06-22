@@ -23,4 +23,8 @@ public class UserState {
         this.userStateId = userStateId;
         this.userStateName = userStateName;
     }
+
+    public void updateUserStateName(String userStateName) {
+        this.userStateName = userStateName;
+    }
 }
