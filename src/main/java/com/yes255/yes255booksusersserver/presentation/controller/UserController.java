@@ -80,8 +80,6 @@ public class UserController {
 
         userService.deleteUser(userId, userRequest);
 
-        // 카트 삭제, 포인트 삭제, 총 누적 금액 삭제, 회원 주소 삭제,
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
