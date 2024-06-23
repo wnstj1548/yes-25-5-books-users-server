@@ -59,7 +59,6 @@ public class CartBookServiceImpl implements CartBookService {
 
         CartBook cartBook = cartBookRepository.save(CartBook.builder()
                         .book(book)
-                        .user(user)
                         .bookQuantity(request.bookQuantity())
                         .cart(cart)
                         .cartBookCreatedAt(LocalDateTime.now())
