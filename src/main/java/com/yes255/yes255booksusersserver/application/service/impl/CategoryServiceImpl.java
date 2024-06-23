@@ -1,12 +1,15 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
 import com.yes255.yes255booksusersserver.application.service.CategoryService;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaBookRepository jpaBookRepository;
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     public CategoryResponse toResponse(Category category) {
@@ -140,5 +144,19 @@ public class CategoryServiceImpl implements CategoryService {
         return findAllCategories().stream()
                 .filter(category -> Objects.nonNull(category.parentCategoryId()) && category.parentCategoryId() == parentCategoryId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> findCategoryIdByBookId(long bookId) {
+
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("알맞은 책이 없습니다.", 404, LocalDateTime.now())));
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
+        List<Long> categoryIdList = new ArrayList<>();
+
+        for(BookCategory bookCategory : bookCategoryList) {
+            categoryIdList.add(bookCategory.getCategory().getCategoryId());
+        }
+
+        return categoryIdList;
     }
 }

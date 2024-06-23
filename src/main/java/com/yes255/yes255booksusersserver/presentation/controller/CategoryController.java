@@ -86,6 +86,12 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findCategoryByParentCategoryId(parentId));
     }
 
+
+    @GetMapping("/categories/book/{bookId}")
+    public ResponseEntity<List<Long>> findByBookCategoryId(@PathVariable("bookId") Long bookId) {
+        return ResponseEntity.ok(categoryService.findCategoryIdByBookId(bookId));
+    }
+
     /**
      * 새로운 카테고리를 생성합니다.
      *
