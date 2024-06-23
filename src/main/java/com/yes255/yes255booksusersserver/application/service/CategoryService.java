@@ -25,4 +25,6 @@ public interface CategoryService {
     List<CategoryResponse> findRootCategories();
 
     List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId);
+
+    List<Long> findCategoryIdByBookId(long bookId);
 }
