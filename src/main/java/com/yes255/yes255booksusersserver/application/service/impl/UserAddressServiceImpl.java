@@ -2,6 +2,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
 import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserAddressLimitExceededException;
 import com.yes255.yes255booksusersserver.common.exception.UserAddressNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
@@ -39,6 +40,12 @@ public class UserAddressServiceImpl implements UserAddressService {
     public CreateUserAddressResponse createAddress(Long userId,
                                                    Long addressId,
                                                    CreateUserAddressRequest addressRequest) {
+
+        List<UserAddress> userAddresses = userAddressRepository.findAll();
+
+        if (userAddresses.size() > 10) {
+            throw new UserAddressLimitExceededException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
