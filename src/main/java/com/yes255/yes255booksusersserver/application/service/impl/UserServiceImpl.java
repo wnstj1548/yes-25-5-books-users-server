@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.*;
@@ -41,7 +42,9 @@ public class UserServiceImpl implements UserService {
     private final JpaPointRepository pointRepository;
     private final JpaPointLogRepository pointLogRepository;
     private final JpaUserTotalAmountRepository totalAmountRepository;
+
     private final PasswordEncoder passwordEncoder;
+    private final CouponAdaptor couponAdaptor;
 
     // 로그인을 위한 정보 반환
     @Transactional(readOnly = true)
@@ -195,6 +198,9 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
         }
 
+        // 회원 가입 쿠폰 지급
+        couponAdaptor.issueWelcomeCoupon(user.getUserId());
+
         log.info("User : {}", user);
 
         return UserResponse.builder()
@@ -255,7 +261,6 @@ public class UserServiceImpl implements UserService {
             pointRepository.deleteByUser_UserId(userId);
             userAddressRepository.deleteByUserUserId(userId);
 
-            // todo : 1. 장바구니 도서 삭제 2. 장바구니 삭제 3. 포인트 이력 삭제 4. 포인트 삭제 5. 회원 주소 삭제
             userRepository.delete(user);
 
             customerRepository.delete(user.getCustomer());
