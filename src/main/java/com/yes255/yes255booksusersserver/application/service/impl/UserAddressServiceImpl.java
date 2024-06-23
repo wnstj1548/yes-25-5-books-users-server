@@ -1,6 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
+import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserAddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
@@ -17,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,10 +41,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                                                    CreateUserAddressRequest addressRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new IllegalArgumentException("주소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
                         .addressName(addressRequest.addressName())
@@ -64,10 +69,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                                                    UpdateUserAddressRequest addressRequest) {
 
         UserAddress existingUserAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new RuntimeException("User Address not found"));
+                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address Not Found"));
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         // 기존 사용자 주소 정보를 기반으로 새로운 사용자 주소 객체 생성
         UserAddress updatedUserAddress = UserAddress.builder()
@@ -94,7 +99,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                                               Long userAddressId) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new RuntimeException("User Address not found"));
+                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         return UserAddressResponse.builder()
                 .userAddressID(userAddressId)

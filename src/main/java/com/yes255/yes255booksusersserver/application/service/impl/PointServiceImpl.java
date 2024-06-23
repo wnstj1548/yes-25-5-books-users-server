@@ -1,6 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
+import com.yes255.yes255booksusersserver.common.exception.InsufficientPointsException;
+import com.yes255.yes255booksusersserver.common.exception.PointNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
@@ -42,7 +46,7 @@ public class PointServiceImpl implements PointService {
     public PointResponse findPointByUserId(Long userId) {
 
         Point point = pointRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("포인트가 존재하지 않습니다."));
+                .orElseThrow(() -> new PointNotFoundException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return PointResponse.builder()
                 .point(point.getPointCurrent())
@@ -55,7 +59,7 @@ public class PointServiceImpl implements PointService {
     public UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 입력 값 검증 및 치환
         BigDecimal usePoints = pointRequest.usePoints() != null && pointRequest.usePoints().compareTo(BigDecimal.ZERO) > 0
@@ -73,7 +77,7 @@ public class PointServiceImpl implements PointService {
                 .subtract(usePoints);
 
         if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+            throw new InsufficientPointsException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
         }
 
         point.updatePointCurrent(tempPoint);

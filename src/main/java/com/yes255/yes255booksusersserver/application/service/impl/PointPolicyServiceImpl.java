@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointPolicyService;
+import com.yes255.yes255booksusersserver.common.exception.PointPolicyNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.PointPolicyRequest;
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     public PointPolicyResponse findPointPolicyById(Long pointPolicyId) {
 
         PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
-                .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PointPolicyNotFoundException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         return PointPolicyResponse.builder()
                 .pointPolicyId(pointPolicy.getPointPolicyId())
@@ -78,7 +81,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     public PointPolicyResponse updatePointPolicyById(Long pointPolicyId, PointPolicyRequest policyRequest) {
 
         PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
-                .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PointPolicyNotFoundException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         pointPolicy.updatePointPolicyName(policyRequest.pointPolicyName());
       
