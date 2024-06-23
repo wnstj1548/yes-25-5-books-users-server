@@ -1,10 +1,13 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.AddressService;
+import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.AddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.AddressResponse;
@@ -14,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -42,7 +47,7 @@ public class AddressServiceImpl implements AddressService {
     public UpdateAddressResponse updateAddress(Long addressId, UpdateAddressRequest addressRequest) {
 
         Address existingAddress = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found"));
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 기존 주소 정보를 기반으로 새로운 주소 객체 생성
         Address updatedAddress = Address.builder()
@@ -53,6 +58,7 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.save(updatedAddress);
 
         return UpdateAddressResponse.builder()
+                .AddressId(updatedAddress.getAddressId())
                 .addressZip(updatedAddress.getAddressZip())
                 .addressRaw(updatedAddress.getAddressRaw())
                 .build();
@@ -63,9 +69,10 @@ public class AddressServiceImpl implements AddressService {
     public AddressResponse findAddressById(Long addressId) {
 
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found"));
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return AddressResponse.builder()
+                .addressId(addressId)
                 .addressZip(address.getAddressZip())
                 .addressRaw(address.getAddressRaw())
                 .build();
@@ -76,6 +83,10 @@ public class AddressServiceImpl implements AddressService {
     public List<AddressResponse> findAllAddresses() {
 
         List<Address> addresses = addressRepository.findAll();
+
+        if (addresses.isEmpty()) {
+            throw new AddressNotFoundException(ErrorStatus.toErrorStatus("주소가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
 
         return addresses.stream()
                 .map(address -> AddressResponse.builder()
@@ -90,5 +101,23 @@ public class AddressServiceImpl implements AddressService {
     public void deleteAddress(Long addressId) {
 
         addressRepository.deleteById(addressId);
+    }
+
+    // 주소 찾기 (우편번호나 주소를 통해)
+    @Transactional(readOnly = true)
+    @Override
+    public AddressResponse findByAddressZipOrAddressRaw(AddressRequest addressRequest) {
+
+        Address address = addressRepository.findAddressByAddressRawOrAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+
+        if (Objects.isNull(address)) {
+            throw new AddressNotFoundException(ErrorStatus.toErrorStatus("주소가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        return AddressResponse.builder()
+                .addressId(address.getAddressId())
+                .addressZip(address.getAddressZip())
+                .addressRaw(address.getAddressRaw())
+                .build();
     }
 }

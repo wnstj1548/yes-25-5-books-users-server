@@ -1,11 +1,14 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
+import com.yes255.yes255booksusersserver.common.exception.CustmorNotfoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
@@ -23,7 +26,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer updateCustomer(Long customerId, Customer customer) {
         Customer existingCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 기존 고객 정보를 기반으로 새로운 고객 객체 생성
         Customer updatedCustomer = Customer.builder()
@@ -39,7 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
     }
 
     @Transactional(readOnly = true)

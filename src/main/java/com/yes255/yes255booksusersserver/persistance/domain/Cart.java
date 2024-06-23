@@ -22,7 +22,7 @@ public class Cart {
     @Column(nullable = false)
     private LocalDate cartCreatedAt;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 

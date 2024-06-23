@@ -1,10 +1,16 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
+import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserAddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UserAddressResponse;
@@ -15,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,15 +32,26 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     private final JpaUserAddressRepository userAddressRepository;
     private final JpaAddressRepository addressRepository;
+    private final JpaUserRepository userRepository;
 
     @Transactional
     @Override
-    public CreateUserAddressResponse createAddress(CreateUserAddressRequest addressRequest) {
+    public CreateUserAddressResponse createAddress(Long userId,
+                                                   Long addressId,
+                                                   CreateUserAddressRequest addressRequest) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
                         .addressName(addressRequest.addressName())
                         .addressDetail(addressRequest.addressDetail())
                         .addressBased(addressRequest.addressBased())
+                        .address(address)
+                        .user(user)
                         .build());
 
         return CreateUserAddressResponse.builder()
@@ -45,13 +63,16 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Transactional
     @Override
-    public UpdateUserAddressResponse updateAddress(Long addressId, UpdateUserAddressRequest addressRequest) {
+    public UpdateUserAddressResponse updateAddress(Long userId,
+                                                   Long addressId,
+                                                   Long userAddressId,
+                                                   UpdateUserAddressRequest addressRequest) {
 
-        UserAddress existingUserAddress = userAddressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("User Address not found"));
+        UserAddress existingUserAddress = userAddressRepository.findById(userAddressId)
+                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        Address address = addressRepository.findById(addressRequest.addressId())
-                .orElseThrow(() -> new RuntimeException("Address Not Found"));
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         // 기존 사용자 주소 정보를 기반으로 새로운 사용자 주소 객체 생성
         UserAddress updatedUserAddress = UserAddress.builder()
@@ -60,8 +81,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .addressDetail(addressRequest.addressDetail())
                 .addressBased(addressRequest.addressBased())
                 .address(address)
+                .user(existingUserAddress.getUser())
                 .build();
         userAddressRepository.save(updatedUserAddress);
+
         return UpdateUserAddressResponse.builder()
                 .addressName(updatedUserAddress.getAddressName())
                 .addressDetail(updatedUserAddress.getAddressDetail())
@@ -71,10 +94,12 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserAddressResponse getAddressById(Long userAddressId) {
+    public UserAddressResponse findAddressById(Long userId,
+                                              Long addressId,
+                                              Long userAddressId) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new RuntimeException("User Address not found"));
+                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         return UserAddressResponse.builder()
                 .userAddressID(userAddressId)
@@ -88,7 +113,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserAddressResponse> getAllAddresses() {
+    public List<UserAddressResponse> findAllAddresses(Long userId, Long addressId) {
 
         List<UserAddress> userAddressList = userAddressRepository.findAll();
 
@@ -106,7 +131,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Transactional
     @Override
-    public void deleteAddress(Long userAddressId) {
+    public void deleteAddress(Long userId, Long addressId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
     }
 }

@@ -5,5 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaPointRepository extends JpaRepository<Point, Long> {
 
-    Point findByUser_UserId(long userId);
+    Point findByUser_UserId(Long userId);
+
+    void deleteByUser_UserId(Long userId);
 }

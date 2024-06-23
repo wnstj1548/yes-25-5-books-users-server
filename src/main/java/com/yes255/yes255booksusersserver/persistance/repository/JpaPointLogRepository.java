@@ -10,4 +10,5 @@ public interface JpaPointLogRepository extends JpaRepository<PointLog, Long> {
 
     List<PointLog> findByPoint_User_UserIdOrderByPointLogUpdatedAtDesc(Long userId, Pageable pageable);
 
+    void deleteByPointUserUserId(Long userId);
 }

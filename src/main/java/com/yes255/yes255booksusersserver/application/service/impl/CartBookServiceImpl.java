@@ -1,7 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.CartBookService;
-import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.Cart;
@@ -42,20 +42,23 @@ public class CartBookServiceImpl implements CartBookService {
                 .orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         Cart cart = cartRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(cart)) {
+            throw new CartNotFoundException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
 
         // 장바구니에 도서 중복 확인
         CartBook oldCartBook = cartBookRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), request.bookId());
 
         if (Objects.nonNull(oldCartBook)) {
-            throw new IllegalArgumentException("장바구니에 도서가 존재합니다.");
+            throw new CartBookAlreadyExistedException(ErrorStatus.toErrorStatus("장바구니에 같은 도서가 이미 존재합니다.", 400, LocalDateTime.now()));
         }
 
         CartBook cartBook = cartBookRepository.save(CartBook.builder()
                         .book(book)
-                        .user(user)
                         .bookQuantity(request.bookQuantity())
                         .cart(cart)
                         .cartBookCreatedAt(LocalDateTime.now())
@@ -73,10 +76,14 @@ public class CartBookServiceImpl implements CartBookService {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
 
+        if (Objects.isNull(cart)) {
+            throw new CartNotFoundException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
         CartBook cartBook = cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), cart.getCartId());
 
         if (Objects.isNull(cartBook)) {
-            throw new IllegalArgumentException("장바구니 도서가 존재하지 않습니다.");
+            throw new CartBookNotFoundException(ErrorStatus.toErrorStatus("장바구니 도서가 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         cartBook.updateCartBookQuantity(request.bookQuantity());
@@ -101,6 +108,10 @@ public class CartBookServiceImpl implements CartBookService {
 
         Cart cart = cartRepository.findByUser_UserId(userId);
 
+        if (Objects.isNull(cart)) {
+            throw new CartNotFoundException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
         List<CartBook> cartBooks = cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(cart.getCartId());
 
 
@@ -110,3 +121,5 @@ public class CartBookServiceImpl implements CartBookService {
                 .collect(Collectors.toList());
     }
 }
+
+// todo : 카트 서비스 예외 수정

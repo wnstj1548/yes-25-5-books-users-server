@@ -17,4 +17,6 @@ public interface CartBookService {
     void deleteCartBookByUserIdByCartBookId(Long userId, Long cartBookId);
 
     List<CartBookResponse> findAllCartBookById(Long userId);
+
+//    void deleteAllCartBookByCartId(Long cartId);
 }

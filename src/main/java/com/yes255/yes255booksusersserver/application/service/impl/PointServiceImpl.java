@@ -1,6 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
+import com.yes255.yes255booksusersserver.common.exception.InsufficientPointsException;
+import com.yes255.yes255booksusersserver.common.exception.PointNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
@@ -42,7 +46,7 @@ public class PointServiceImpl implements PointService {
     public PointResponse findPointByUserId(Long userId) {
 
         Point point = pointRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("포인트가 존재하지 않습니다."));
+                .orElseThrow(() -> new PointNotFoundException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return PointResponse.builder()
                 .point(point.getPointCurrent())
@@ -55,7 +59,7 @@ public class PointServiceImpl implements PointService {
     public UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 입력 값 검증 및 치환
         BigDecimal usePoints = pointRequest.usePoints() != null && pointRequest.usePoints().compareTo(BigDecimal.ZERO) > 0
@@ -66,28 +70,14 @@ public class PointServiceImpl implements PointService {
                 ? pointRequest.amount()
                 : BigDecimal.ZERO;
 
-//        List<String> policyNames = List.of("Normal", "Royal", "Gold", "Platinum");
-//
-//        // 유저가 가진 회원 등급 중에 정책 이름이 Normal, Royal, Gold, Platinum인 등급만 필터링
-//        List<UserGrade> filteredUserGrades = userGradeRepository.findByUser_UserIdAndPointPolicy_PointPolicyNameIn(userId, policyNames);
-//
-//        if (filteredUserGrades.size() != 1) {
-//            throw new IllegalArgumentException("회원 등급은 2개 이상일 수 없습니다.");
-//        }
-//
-//        PointPolicy pointPolicy = pointPolicyRepository.findById(filteredUserGrades.getFirst().getPointPolicy().getPointPolicyId())
-//                .orElseThrow(() -> new IllegalArgumentException("포인트 정책을 찾을 수 없습니다."));
-
         Point point = pointRepository.findByUser_UserId(userId);
 
-        UserGrade userGrade = user.getUserGrade();
-
         BigDecimal tempPoint = point.getPointCurrent()
-                .add(amount.multiply(userGrade.getPointPolicy().getPointPolicyRate()))
+                .add(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
                 .subtract(usePoints);
 
         if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+            throw new InsufficientPointsException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
         }
 
         point.updatePointCurrent(tempPoint);
@@ -98,29 +88,6 @@ public class PointServiceImpl implements PointService {
         userTotalAmount.updateTotalAmount(pointRequest.amount());
 
         totalAmountRepository.save(userTotalAmount);
-
-
-        // todo : 갱신 체크 및 적용 추가 (밖에 구현, for 문 이용) , 최소와 최대 추가?
-        // 회원 등급 갱신 체크 및 적용
-//        UserTotalAmount totalAmount = totalAmountRepository.findByUser_UserId(userId);
-//
-//        List<UserGrade> userGrades = userGradeRepository.findAll();
-//        for (UserGrade userGrade : userGrades) {
-//
-//            PointPolicy policy = userGrade.getPointPolicy();
-//
-//            if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
-//                totalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
-//
-//                user.updateUserGrade(userGrade);
-//            }
-//        }
-
-
-//        if (Objects.nonNull(totalAmount.getUserTotalAmount())&&
-//                totalAmount.getUserTotalAmount().compareTo(user.getUserGrade().getPointPolicy().getPointPolicyApplyAmount()) >= 0) {
-//            User.
-//        }
 
         // 포인트로 구매 시 포인트 이력 추가
         if (usePoints.compareTo(BigDecimal.ZERO) > 0) {
@@ -139,9 +106,23 @@ public class PointServiceImpl implements PointService {
             pointLogRepository.save(PointLog.builder()
                             .pointLogUpdatedAt(LocalDateTime.now())
                             .pointLogUpdatedType("적립")
-                            .pointLogAmount(amount.multiply(userGrade.getPointPolicy().getPointPolicyRate()))
+                            .pointLogAmount(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
                             .point(point)
                             .build());
+        }
+
+        // 회원 등급 갱신 체크 및 적용
+        List<UserGrade> userGrades = userGradeRepository.findAll();
+        for (UserGrade userGrade : userGrades) {
+
+            PointPolicy policy = userGrade.getPointPolicy();
+
+            if (Objects.nonNull(userTotalAmount.getUserTotalAmount()) && policy.getPointPolicyConditionAmount().compareTo(BigDecimal.ZERO) != 0 &&
+                    !policy.isPointPolicyApplyType() &&
+                    userTotalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
+
+                user.updateUserGrade(userGrade);
+            }
         }
 
         return UpdatePointResponse.builder()
