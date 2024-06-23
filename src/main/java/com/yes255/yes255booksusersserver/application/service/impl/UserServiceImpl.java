@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserEmail(userRequest.email());
 
         if (Objects.isNull(user)) {
-            throw new UserNotFoundException(ErrorStatus.toErrorStatus("회원 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
@@ -145,14 +145,14 @@ public class UserServiceImpl implements UserService {
         UserState userState = userStateRepository.findByUserStateName("ACTIVE");
 
         if (Objects.isNull(userState)) {
-            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("유저 상태가 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 회원 등급 NORMAL 부여
         UserGrade userGrade = userGradeRepository.findByUserGradeName("NORMAL");
 
         if (Objects.isNull(userGrade)) {
-            throw new UserGradeNotFoundException(ErrorStatus.toErrorStatus("유저 등급이 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserGradeNotFoundException(ErrorStatus.toErrorStatus("회원 등급이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 비밀번호 인코딩
@@ -309,14 +309,25 @@ public class UserServiceImpl implements UserService {
         return !Objects.isNull(user);
     }
 
-    // todo : 비밀번호 찾기 서비스 작성
+    // 비밀번호 재설정
     @Transactional(readOnly = true)
     @Override
-    public boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest) {
+    public boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest) {
 
-        // todo : userId는 어디서 받는지?
-//        User user = userRepository.findById()
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now())));
 
-        return false;
+        // 비밀번호 검증 오류
+        if (!passwordRequest.password().equals(passwordRequest.confirmPassword())) {
+            throw new UserPasswordMismatchException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        user.updateUserPassword(passwordRequest.confirmPassword());
+
+        userRepository.save(user);
+
+        return true;
     }
+
+
 }

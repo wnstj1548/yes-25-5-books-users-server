@@ -26,5 +26,5 @@ public interface UserService {
 
     boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
 
-    boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest);
+    boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest);
 }
