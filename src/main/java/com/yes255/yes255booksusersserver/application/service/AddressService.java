@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
+import com.yes255.yes255booksusersserver.presentation.dto.request.AddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.AddressResponse;
@@ -20,4 +21,6 @@ public interface AddressService {
     List<AddressResponse> findAllAddresses();
 
     void deleteAddress(Long addressId);
+
+    AddressResponse findByAddressZipOrAddressRaw(AddressRequest addressRequest);
 }

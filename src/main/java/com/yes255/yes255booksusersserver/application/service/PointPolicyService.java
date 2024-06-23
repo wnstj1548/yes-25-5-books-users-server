@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface PointPolicyService {
 
-    // todo : 포인트 정책 관련 서비스 작성
-
     // 포인트 정책 작성 (적립 금액)
     PointPolicyResponse createPointPolicy(PointPolicyRequest policyRequest);
 

@@ -30,20 +30,15 @@ public class CartBook {
     @Column(nullable = false)
     private int bookQuantity;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false, name = "user_id")
-    private User user;
-
     @NotNull(message = "장바구니 도서 추가일은 필수입니다.")
     @Column(nullable = false)
     private LocalDateTime cartBookCreatedAt;
 
     @Builder
-    public CartBook(Cart cart, Book book, int bookQuantity, User user, LocalDateTime cartBookCreatedAt) {
+    public CartBook(Cart cart, Book book, int bookQuantity, LocalDateTime cartBookCreatedAt) {
         this.cart = cart;
         this.book = book;
         this.bookQuantity = bookQuantity;
-        this.user = user;
         this.cartBookCreatedAt = cartBookCreatedAt;
     }
 

@@ -1,8 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
+import com.yes255.yes255booksusersserver.presentation.dto.response.UserTotalAmountResponse;
 
 public interface UserTotalAmountService {
 
-    UserTotalAmount findUserTotalAmountByUserId(Long userId);
+    UserTotalAmountResponse findUserTotalAmountByUserId(Long userId);
+
+    void deleteUserTotalAmountByUserId(Long userId);
 }
