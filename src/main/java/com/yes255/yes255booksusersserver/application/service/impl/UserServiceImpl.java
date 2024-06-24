@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    // todo : jwt 토큰으로 변경
+
     private final JpaUserRepository userRepository;
     private final JpaCustomerRepository customerRepository;
     private final JpaProviderRepository providerRepository;
@@ -229,7 +231,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
-
 
         user.updateUserName(userRequest.userName());
         user.updateUserPhone(userRequest.userPhone());

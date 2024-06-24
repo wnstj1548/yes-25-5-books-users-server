@@ -19,6 +19,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 포인트 내역 관련 API를 제공하는 PointLogController
+ */
+
 @Tag(name = "포인트 내역 API", description = "포인트 내역 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +33,12 @@ public class PointLogController {
 
     private final PointLogService pointLogService;
 
+    /**
+     * 특정 회원의 포인트 내역을 조회합니다.
+     *
+     * @param pageable 페이지네이션 정보를 포함하는 Pageable 객체
+     * @return 포인트 내역 리스트와 상태 코드 200(OK)
+     */
     @Operation(summary = "포인트 내역 조회", description = "특정 회원의 포인트 내역을 조회합니다.")
     @GetMapping("/point-logs")
     public ResponseEntity<List<PointLogResponse>> getPointLogs(Pageable pageable) {

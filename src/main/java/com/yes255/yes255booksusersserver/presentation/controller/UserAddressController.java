@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 회원 주소 관련 API를 제공하는 UserAddressController
+ */
+
 @Tag(name = "회원 주소 API", description = "회원 주소 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +26,13 @@ public class UserAddressController { // todo : addressId 제거
 
     private final UserAddressService userAddressService;
 
+    /**
+     * 회원의 주소를 등록합니다.
+     *
+     * @param userId            회원 ID
+     * @param userAddressRequest 회원 주소 생성 요청 데이터
+     * @return 생성된 회원 주소 응답 데이터와 상태 코드 200(OK)
+     */
     @Operation(summary = "회원 주소 등록", description = "회원의 주소를 등록합니다.")
     @PostMapping
     public ResponseEntity<CreateUserAddressResponse> createUserAddress(@PathVariable Long userId,
@@ -29,6 +40,14 @@ public class UserAddressController { // todo : addressId 제거
         return ResponseEntity.ok(userAddressService.createAddress(userId, userAddressRequest));
     }
 
+    /**
+     * 특정 회원의 주소를 수정합니다.
+     *
+     * @param userId             회원 ID
+     * @param userAddressId      수정할 회원 주소 ID
+     * @param userAddressRequest 회원 주소 수정 요청 데이터
+     * @return 수정된 회원 주소 응답 데이터와 상태 코드 200(OK)
+     */
     @Operation(summary = "회원 주소 수정", description = "특정 회원의 주소를 수정합니다.")
     @PutMapping("/{userAddressId}")
     public ResponseEntity<UpdateUserAddressResponse> updateUserAddress(@PathVariable Long userId,
@@ -37,6 +56,13 @@ public class UserAddressController { // todo : addressId 제거
         return ResponseEntity.ok(userAddressService.updateAddress(userId, userAddressId, userAddressRequest));
     }
 
+    /**
+     * 특정 회원의 주소를 조회합니다.
+     *
+     * @param userId         회원 ID
+     * @param userAddressId  조회할 회원 주소 ID
+     * @return 조회된 회원 주소 응답 데이터와 상태 코드 200(OK)
+     */
     @Operation(summary = "회원 주소 조회", description = "특정 회원의 주소를 조회합니다.")
     @GetMapping("/{userAddressId}")
     public ResponseEntity<UserAddressResponse> findUserAddressById(@PathVariable Long userId,
@@ -44,12 +70,25 @@ public class UserAddressController { // todo : addressId 제거
         return ResponseEntity.ok(userAddressService.findAddressById(userId, userAddressId));
     }
 
+    /**
+     * 회원의 모든 주소 목록을 조회합니다.
+     *
+     * @param userId 회원 ID
+     * @return 회원 주소 목록 응답 데이터와 상태 코드 200(OK)
+     */
     @Operation(summary = "회원 주소 목록 조회", description = "회원의 모든 주소 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<UserAddressResponse>> findAllUserAddresses(@PathVariable Long userId) {
         return ResponseEntity.ok(userAddressService.findAllAddresses(userId));
     }
 
+    /**
+     * 특정 회원의 주소를 삭제합니다.
+     *
+     * @param userId         회원 ID
+     * @param userAddressId  삭제할 회원 주소 ID
+     * @return 상태 코드 204(NO CONTENT)
+     */
     @Operation(summary = "회원 주소 삭제", description = "특정 회원의 주소를 삭제합니다.")
     @DeleteMapping("/{userAddressId}")
     public ResponseEntity<Void> deleteUserAddress(@PathVariable Long userId,

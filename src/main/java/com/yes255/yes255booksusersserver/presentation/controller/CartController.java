@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 회원의 장바구니 관련 API를 제공하는 CartController
+ */
+
 @Tag(name = "장바구니 API", description = "장바구니 관련 API 입니다.")
 @RequiredArgsConstructor
 @RestController
@@ -20,6 +24,12 @@ public class CartController {
 
     private final CartService cartService;
 
+    /**
+     * 회원 장바구니를 삭제합니다.
+     *
+     * @param userId 장바구니를 삭제할 회원의 ID
+     * @return No Content 상태의 응답
+     */
     @Operation(summary = "장바구니 삭제", description = "회원 장바구니를 삭제합니다.")
     @DeleteMapping
     public ResponseEntity<Void> deleteCart(@PathVariable Long userId) {
