@@ -2,7 +2,7 @@ name: Java CI with Maven
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "main" ]
 
 permissions: write-all
 
@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Verify Dockerfile exists
         run: |
@@ -23,21 +22,19 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --no-cache -t books-app-ci .
+          docker build --no-cache -t books-users-app .
 
-      - name: Execute SonarQube Analysis in Docker
+      - name: Run Maven tests in Docker
         run: |
-          docker run --rm books-app-ci mvn clean verify sonar:sonar \
-          -Dspring.profiles.active=ci \
+          docker run --rm books-users-app mvn clean verify sonar:sonar \
           -Dsonar.projectKey=yes-25-5-books-user  \
           -Dsonar.projectName='yes-25-5-books-user' \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
-      - name: Build with Maven in Docker
+      - name: Build Maven project in Docker
         run: |
-          docker run --rm -v "$(pwd)":/app -w /app books-app-ci mvn package \
-          -Dspring.profiles.active=ci 
+          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package
 
       - name: Check if JAR file exists
         run: |
@@ -65,14 +62,6 @@ jobs:
           chmod 400 ~/.ssh/github_rsa
           ssh-keyscan ${REMOTE_HOST} >> ~/.ssh/known_hosts
           scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no target/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
-
-      - name: Merge to main branch
-        if: success() && github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'develop'
-        run: |
-          git checkout main
-          git pull origin main
-          git merge --ff-only develop
-          git push origin main
 
       - name: Send Dooray Webhook on Success
         if: success()
