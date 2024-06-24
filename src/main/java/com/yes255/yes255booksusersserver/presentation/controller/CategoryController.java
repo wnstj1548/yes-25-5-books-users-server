@@ -88,7 +88,7 @@ public class CategoryController {
 
 
     @GetMapping("/categories/book/{bookId}")
-    public ResponseEntity<List<Long>> findByBookCategoryId(@PathVariable("bookId") Long bookId) {
+    public ResponseEntity<List<Long>> findByBookId(@PathVariable("bookId") Long bookId) {
         return ResponseEntity.ok(categoryService.findCategoryIdByBookId(bookId));
     }
 
