@@ -58,10 +58,7 @@ jobs:
             docker build -t books-app .
             docker stop books-app || true
             docker rm books-app || true
-            docker run -d -p 8060:8060 --name books-app books-app \
-              -e YES25_5_MYSQL_PASSWORD=${YES25_5_MYSQL_PASSWORD} \
-              -e EUREKA_GATEWAY_PORT=${EUREKA_GATEWAY_PORT} \
-              -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}
+            docker run -d -p 8060:8060 --name books-app books-app 
           EOF
 
       - name: Send Deployment Status to Dooray
