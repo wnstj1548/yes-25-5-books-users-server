@@ -48,6 +48,9 @@ jobs:
           REMOTE_USER: ${{ secrets.SSH_USER }}
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+          YES25_5_MYSQL_PASSWORD: ${{ secrets.YES25_5_MYSQL_PASSWORD }}
+          EUREKA_SERVER_HOSTNAME: ${{ secrets.EUREKA_SERVER_HOSTNAME }}
+          EUREKA_GATEWAY_PORT: ${{ secrets.EUREKA_GATEWAY_PORT }}
         run: |
           ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
             cd ${REMOTE_DIR}
