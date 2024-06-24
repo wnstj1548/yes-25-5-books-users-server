@@ -74,7 +74,7 @@ jobs:
           script: |
             const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
             const payload = {
-              botName: "주문 결제 서버 Bot",
+              botName: "도서 회원 서버 Bot",
               botIconImage: "https://www.tistory.com/favicon.ico",
               text: "도서 회원 서버의 Pull Request가 성공적으로 올라갔어요!",
               attachments: [
@@ -111,7 +111,7 @@ jobs:
           script: |
             const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
             const payload = {
-              botName: "주문 결제 서버 Bot",
+              botName: "도서 회원 서버 Bot",
               botIconImage: "https://www.tistory.com/favicon.ico",
               text: "도서 회원 서버의 Pull Request가 실패했어요...",
               attachments: [
