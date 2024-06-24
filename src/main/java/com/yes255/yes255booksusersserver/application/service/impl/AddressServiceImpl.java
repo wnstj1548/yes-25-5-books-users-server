@@ -2,6 +2,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.AddressService;
 import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
@@ -30,10 +31,17 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public CreateAddressResponse createAddress(CreateAddressRequest addressRequest) {
 
+        Address checkAddress = addressRepository.findAddressByAddressRawOrAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+
+        if (checkAddress != null) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("이미 주소가 존재합니다.", 400, LocalDateTime.now()));
+        }
+
         Address address = addressRepository.save(Address.builder()
                         .addressZip(addressRequest.addressZip())
                         .addressRaw(addressRequest.addressRaw())
                         .build());
+
 
         return CreateAddressResponse.builder()
                 .addressZip(address.getAddressZip())

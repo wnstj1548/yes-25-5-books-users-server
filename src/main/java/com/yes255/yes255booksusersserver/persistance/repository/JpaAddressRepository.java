@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface JpaAddressRepository extends JpaRepository<Address, Long>{
 
     Address findAddressByAddressRawOrAddressZip(String addressRaw, String addressZip);
+
+    Address findAddressByAddressRawAndAddressZip(String addressRaw, String addressZip);
 }

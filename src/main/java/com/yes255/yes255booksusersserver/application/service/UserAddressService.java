@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface UserAddressService {
 
-    CreateUserAddressResponse createAddress(Long userId, Long addressId, CreateUserAddressRequest addressRequest);
+    CreateUserAddressResponse createAddress(Long userId, CreateUserAddressRequest addressRequest);
 
-    UpdateUserAddressResponse updateAddress(Long userId, Long addressId, Long userAddressId, UpdateUserAddressRequest addressRequest);
+    UpdateUserAddressResponse updateAddress(Long userId, Long userAddressId, UpdateUserAddressRequest addressRequest);
 
-    UserAddressResponse findAddressById(Long userId, Long addressId, Long userAddressId);
+    UserAddressResponse findAddressById(Long userId, Long userAddressId);
 
-    List<UserAddressResponse> findAllAddresses(Long userId, Long addressId);
+    List<UserAddressResponse> findAllAddresses(Long userId);
 
-    void deleteAddress(Long userId, Long addressId, Long userAddressId);
+    void deleteAddress(Long userId, Long userAddressId);
 }

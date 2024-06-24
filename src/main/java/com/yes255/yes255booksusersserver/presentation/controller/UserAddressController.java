@@ -12,52 +12,47 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/users/{userId}/addresses/{addressId}/user-addresses")
+@RequestMapping("/users/{userId}/user-addresses")
 @RequiredArgsConstructor
 @RestController
-public class UserAddressController {
+public class UserAddressController { // todo : addressId 제거
 
     private final UserAddressService userAddressService;
 
     // 유저 주소 등록
     @PostMapping
     public ResponseEntity<CreateUserAddressResponse> createUserAddress(@PathVariable Long userId,
-                                                                       @PathVariable Long addressId,
                                                                        @RequestBody CreateUserAddressRequest userAddressRequest) {
-        return ResponseEntity.ok(userAddressService.createAddress(userId, addressId, userAddressRequest));
+        return ResponseEntity.ok(userAddressService.createAddress(userId, userAddressRequest));
     }
 
     // 유저 주소 수정
     @PutMapping("/{userAddressId}")
     public ResponseEntity<UpdateUserAddressResponse> updateUserAddress(@PathVariable Long userId,
-                                                                       @PathVariable Long addressId,
                                                                        @PathVariable Long userAddressId,
                                                                        @RequestBody UpdateUserAddressRequest userAddressRequest) {
-        return ResponseEntity.ok(userAddressService.updateAddress(userId, addressId, userAddressId, userAddressRequest));
+        return ResponseEntity.ok(userAddressService.updateAddress(userId, userAddressId, userAddressRequest));
     }
 
     // 특정 유저 주소 조회
     @GetMapping("/{userAddressId}")
     public ResponseEntity<UserAddressResponse> findUserAddressById(@PathVariable Long userId,
-                                                                  @PathVariable Long addressId,
                                                                   @PathVariable Long userAddressId) {
-        return ResponseEntity.ok(userAddressService.findAddressById( userId, addressId, userAddressId));
+        return ResponseEntity.ok(userAddressService.findAddressById(userId, userAddressId));
     }
 
     // 유저 주소 목록 조회
     @GetMapping
-    public ResponseEntity<List<UserAddressResponse>> findAllUserAddresses(@PathVariable Long userId,
-                                                                         @PathVariable Long addressId) {
-        return ResponseEntity.ok(userAddressService.findAllAddresses(userId, addressId));
+    public ResponseEntity<List<UserAddressResponse>> findAllUserAddresses(@PathVariable Long userId) {
+        return ResponseEntity.ok(userAddressService.findAllAddresses(userId));
     }
 
     // 유저 주소 삭제
     @DeleteMapping("/{userAddressId}")
     public ResponseEntity<Void> deleteUserAddress(@PathVariable Long userId,
-                                                  @PathVariable Long addressId,
                                                   @PathVariable Long userAddressId) {
 
-        userAddressService.deleteAddress(userId, addressId, userAddressId);
+        userAddressService.deleteAddress(userId, userAddressId);
 
         return ResponseEntity.noContent().build();
     }
