@@ -59,7 +59,7 @@ public class PointServiceImpl implements PointService {
     public UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 입력 값 검증 및 치환
         BigDecimal usePoints = pointRequest.usePoints() != null && pointRequest.usePoints().compareTo(BigDecimal.ZERO) > 0
@@ -112,18 +112,19 @@ public class PointServiceImpl implements PointService {
         }
 
         // 회원 등급 갱신 체크 및 적용
-        List<UserGrade> userGrades = userGradeRepository.findAll();
-        for (UserGrade userGrade : userGrades) {
-
-            PointPolicy policy = userGrade.getPointPolicy();
-
-            if (Objects.nonNull(userTotalAmount.getUserTotalAmount()) && policy.getPointPolicyConditionAmount().compareTo(BigDecimal.ZERO) != 0 &&
-                    !policy.isPointPolicyApplyType() &&
-                    userTotalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
-
-                user.updateUserGrade(userGrade);
-            }
-        }
+//        List<UserGrade> userGrades = userGradeRepository.findAll();
+//        for (UserGrade userGrade : userGrades) {
+//
+//            PointPolicy policy = userGrade.getPointPolicy();
+//
+//            if (Objects.nonNull(userTotalAmount.getUserTotalAmount()) && policy.getPointPolicyConditionAmount().compareTo(BigDecimal.ZERO) != 0 &&
+//                    !policy.isPointPolicyApplyType() &&
+//                    userTotalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
+//
+//                user.updateUserGrade(userGrade);
+//            }
+//        }
+        // todo : 갱신 로직 스케줄러로 구현
 
         return UpdatePointResponse.builder()
                 .point(point.getPointCurrent())
