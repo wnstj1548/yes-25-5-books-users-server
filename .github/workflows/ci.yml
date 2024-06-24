@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t books-app-ci .
+          docker build --no-cache -t books-app-ci .
 
       - name: Execute SonarQube Analysis in Docker
         run: |
