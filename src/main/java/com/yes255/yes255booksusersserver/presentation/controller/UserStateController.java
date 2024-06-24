@@ -1,9 +1,9 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.UserStateService;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserStateRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserStateRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UserStateResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.CreateUserStateRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.UpdateUserStateRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.userstate.UserStateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

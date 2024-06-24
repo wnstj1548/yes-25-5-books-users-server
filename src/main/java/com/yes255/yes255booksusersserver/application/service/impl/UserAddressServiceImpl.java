@@ -12,11 +12,11 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressReposi
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

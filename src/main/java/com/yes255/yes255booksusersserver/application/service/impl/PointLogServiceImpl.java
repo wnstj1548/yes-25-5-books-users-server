@@ -3,7 +3,7 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.PointLogService;
 import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointLogResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.pointlog.PointLogResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

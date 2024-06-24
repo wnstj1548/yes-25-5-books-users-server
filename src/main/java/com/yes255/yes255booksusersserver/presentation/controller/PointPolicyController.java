@@ -1,8 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.PointPolicyService;
-import com.yes255.yes255booksusersserver.presentation.dto.request.PointPolicyRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointPolicyResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

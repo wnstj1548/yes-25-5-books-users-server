@@ -7,9 +7,7 @@ import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
-import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
-import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
 import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
@@ -17,13 +15,11 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaPointReposito
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdatePointRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.point.UpdatePointRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.UpdatePointResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

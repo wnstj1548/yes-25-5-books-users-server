@@ -1,12 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.persistance.domain.Address;
-import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 
 import java.util.List;
 

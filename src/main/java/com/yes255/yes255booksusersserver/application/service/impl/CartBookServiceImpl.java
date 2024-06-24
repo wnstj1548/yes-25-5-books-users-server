@@ -11,11 +11,11 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepositor
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCartBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCartBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CartBookResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateCartBookResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateCartBookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.UpdateCartBookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

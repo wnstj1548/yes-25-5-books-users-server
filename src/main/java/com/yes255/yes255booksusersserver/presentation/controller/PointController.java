@@ -1,9 +1,9 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdatePointRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdatePointResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.point.UpdatePointRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.UpdatePointResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

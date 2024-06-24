@@ -1,7 +1,7 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.PointLogService;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointLogResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.pointlog.PointLogResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

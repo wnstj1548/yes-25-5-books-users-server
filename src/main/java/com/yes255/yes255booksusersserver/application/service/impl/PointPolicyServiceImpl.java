@@ -5,8 +5,8 @@ import com.yes255.yes255booksusersserver.common.exception.PointPolicyNotFoundExc
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.PointPolicyRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointPolicyResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

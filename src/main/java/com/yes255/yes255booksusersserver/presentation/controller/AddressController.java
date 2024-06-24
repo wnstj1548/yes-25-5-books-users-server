@@ -1,13 +1,12 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.AddressService;
-import com.yes255.yes255booksusersserver.persistance.domain.Address;
-import com.yes255.yes255booksusersserver.presentation.dto.request.AddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.AddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.address.AddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.address.CreateAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.address.UpdateAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.address.AddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.address.CreateAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.address.UpdateAddressResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
