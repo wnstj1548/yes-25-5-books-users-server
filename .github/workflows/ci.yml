@@ -1,8 +1,8 @@
-name: Java CI with Maven
+name: Java CI with Docker
 
 on:
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop" ]
 
 permissions: write-all
 
@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Verify Dockerfile exists
         run: |
@@ -27,14 +28,16 @@ jobs:
       - name: Run Maven tests in Docker
         run: |
           docker run --rm books-users-app mvn clean verify sonar:sonar \
-          -Dsonar.projectKey=yes-25-5-books-user  \
+          -Dspring.profile.active=ci \
+          -Dsonar.projectKey=yes-25-5-books-user \
           -Dsonar.projectName='yes-25-5-books-user' \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
       - name: Build Maven project in Docker
         run: |
-          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package
+          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package \
+          -Dspring.profiles.active=ci
 
       - name: Check if JAR file exists
         run: |
@@ -69,6 +72,7 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_ACTOR: ${{ github.actor }}
           DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
         with:
           script: |
