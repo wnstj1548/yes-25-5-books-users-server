@@ -11,9 +11,9 @@ import java.util.List;
 public interface TagService {
 
     TagResponse createTag(CreateTagRequest createTagRequest);
-    TagResponse findTag(Long tagId);
-    List<TagResponse> findAllTags();
-    Page<TagResponse> findAllTags(Pageable pageable);
+    TagResponse getTag(Long tagId);
+    List<TagResponse> getAllTags();
+    Page<TagResponse> getAllTags(Pageable pageable);
     TagResponse updateTag(UpdateTagRequest updateTagRequest);
-    void deleteTag(Long tagId);
+    void removeTag(Long tagId);
 }

@@ -66,7 +66,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public BookResponse findBook(long bookId) {
+    public BookResponse getBook(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book)) {
@@ -78,7 +78,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<BookResponse> findAllBooks(Pageable pageable) {
+    public Page<BookResponse> getAllBooks(Pageable pageable) {
 
         Page<Book> bookPage = jpaBookRepository.findAll(pageable);
         List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
@@ -87,7 +87,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> findAllBooks() {
+    public List<BookResponse> getAllBooks() {
         return jpaBookRepository.findAll().stream().map(this::toResponse).toList();
     }
 
@@ -103,7 +103,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public void deleteBook(Long bookId) {
+    public void removeBook(Long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
@@ -117,7 +117,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> findBookByCategoryId(Long categoryId) {
+    public List<BookResponse> getBookByCategoryId(Long categoryId) {
 
         List<BookResponse> bookList = new ArrayList<>();
         Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())));

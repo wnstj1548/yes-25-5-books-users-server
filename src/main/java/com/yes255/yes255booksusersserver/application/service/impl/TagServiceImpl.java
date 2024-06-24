@@ -48,7 +48,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public TagResponse findTag(Long tagId) {
+    public TagResponse getTag(Long tagId) {
 
         if(Objects.isNull(tagId)) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
@@ -61,12 +61,12 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<TagResponse> findAllTags() {
+    public List<TagResponse> getAllTags() {
         return jpaTagRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     @Override
-    public Page<TagResponse> findAllTags(Pageable pageable) {
+    public Page<TagResponse> getAllTags(Pageable pageable) {
 
         Page<Tag> tagPage = jpaTagRepository.findAll(pageable);
         List<TagResponse> responses = tagPage.stream().map(this::toResponse).toList();
@@ -90,7 +90,7 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public void deleteTag(Long tagId) {
+    public void removeTag(Long tagId) {
 
         Tag tag = jpaTagRepository.findById(tagId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("태그를 찾을 수 없습니다.", 404, LocalDateTime.now())));
         List<BookTag> bookTagList = jpaBookTagRepository.findByTag(tag);
