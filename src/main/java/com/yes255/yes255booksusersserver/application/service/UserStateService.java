@@ -18,4 +18,6 @@ public interface UserStateService {
     List<UserStateResponse> findAllUserStates();
 
     void deleteUserState(Long userStateId);
+
+    void updateUserStateByUser();
 }
