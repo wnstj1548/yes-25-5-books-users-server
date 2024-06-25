@@ -31,7 +31,7 @@ public class LikesController {
     @Operation(summary = "사용자의 좋아요 목록 조회", description = "사용자의 좋아요 목록을 조회합니다.")
     @GetMapping("/likes/users/{userId}")
     public ResponseEntity<List<LikesResponse>> findByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(likesService.findLikeByUserId(userId));
+        return ResponseEntity.ok(likesService.getLikeByUserId(userId));
     }
 
     /**
@@ -43,7 +43,7 @@ public class LikesController {
     @Operation(summary = "특정 책의 좋아요 조회", description = "특정 책의 좋아요 목록을 조회합니다..")
     @GetMapping("/likes/books/{bookId}")
     public ResponseEntity<List<LikesResponse>> findByBookId(@PathVariable Long bookId) {
-        return ResponseEntity.ok(likesService.findLikeByBookId(bookId));
+        return ResponseEntity.ok(likesService.getLikeByBookId(bookId));
     }
 
     /**

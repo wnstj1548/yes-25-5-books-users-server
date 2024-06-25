@@ -83,7 +83,7 @@ public class LikesServiceImplTest {
         when(jpaLikesRepository.findByUser(any())).thenReturn(List.of(new Likes(null, true, testBook, testUser)));
 
         // when
-        List<LikesResponse> responses = likesService.findLikeByUserId(1L);
+        List<LikesResponse> responses = likesService.getLikeByUserId(1L);
 
         // then
         assertNotNull(responses);
@@ -100,7 +100,7 @@ public class LikesServiceImplTest {
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.findLikeByUserId(1L));
+        assertThrows(ApplicationException.class, () -> likesService.getLikeByUserId(1L));
     }
 
     @DisplayName("책 ID로 좋아요 조회 - 성공")
@@ -111,7 +111,7 @@ public class LikesServiceImplTest {
         when(jpaLikesRepository.findByBook(any())).thenReturn(List.of(new Likes(null, true, testBook, testUser)));
 
         // when
-        List<LikesResponse> responses = likesService.findLikeByBookId(1L);
+        List<LikesResponse> responses = likesService.getLikeByBookId(1L);
 
         // then
         assertNotNull(responses);
@@ -128,7 +128,7 @@ public class LikesServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.findLikeByBookId(1L));
+        assertThrows(ApplicationException.class, () -> likesService.getLikeByBookId(1L));
     }
 
     @DisplayName("좋아요 생성 - 성공")

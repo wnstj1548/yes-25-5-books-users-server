@@ -45,7 +45,7 @@ public class TagControllerTest {
     @Test
     void findAll_success() throws Exception {
         List<TagResponse> mockResponse = Collections.emptyList();
-        doReturn(mockResponse).when(tagService).findAllTags();
+        doReturn(mockResponse).when(tagService).getAllTags();
 
         mockMvc.perform(get("/tags"))
                 .andExpect(status().isOk())
@@ -59,7 +59,7 @@ public class TagControllerTest {
         Long tagId = 1L;
         TagResponse mockResponse = new TagResponse(tagId, "Test Tag");
 
-        doReturn(mockResponse).when(tagService).findTag(tagId);
+        doReturn(mockResponse).when(tagService).getTag(tagId);
 
         mockMvc.perform(get("/tags/{tagId}", tagId))
                 .andExpect(status().isOk())

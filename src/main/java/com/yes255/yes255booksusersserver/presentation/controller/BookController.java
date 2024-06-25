@@ -51,7 +51,7 @@ public class BookController {
     @Operation(summary = "모든 책 조회", description = "등록된 모든 책을 페이징 처리하여 조회합니다.")
     @GetMapping("/books/page")
     public ResponseEntity<Page<BookResponse>> findAll(Pageable pageable) {
-        return ResponseEntity.ok(bookService.findAllBooks(pageable));
+        return ResponseEntity.ok(bookService.getAllBooks(pageable));
     }
 
     /**
@@ -62,7 +62,7 @@ public class BookController {
     @Operation(summary = "모든 책 조회", description = "등록된 모든 책을 조회합니다.")
     @GetMapping("/books")
     public ResponseEntity<List<BookResponse>> findAll() {
-        return ResponseEntity.ok(bookService.findAllBooks());
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     /**
@@ -74,7 +74,7 @@ public class BookController {
     @Operation(summary = "특정 책 조회", description = "등록된 책 중 bookId(PK)를 통해 특정 책을 조회합니다.")
     @GetMapping("/books/{bookId}")
     public ResponseEntity<BookResponse> findById(@PathVariable("bookId") Long bookId) {
-        return ResponseEntity.ok(bookService.findBook(bookId));
+        return ResponseEntity.ok(bookService.getBook(bookId));
     }
 
     /**
@@ -130,15 +130,15 @@ public class BookController {
             throw new ValidationFailedException(bindingResult);
         }
 
-        List<BookCategoryResponse> bookCategoryList = bookCategoryService.findBookCategoryByBookId(request.bookId());
-        List<BookTagResponse> bookTagList = bookTagService.findBookTagByBookId(request.bookId());
+        List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(request.bookId());
+        List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(request.bookId());
 
         for(BookCategoryResponse bookCategory : bookCategoryList) {
-            bookCategoryService.deleteBookCategory(bookCategory.bookCategoryId());
+            bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
         }
 
         for(BookTagResponse bookTag : bookTagList) {
-            bookTagService.deleteBookTag(bookTag.bookTagId());
+            bookTagService.removeBookTag(bookTag.bookTagId());
         }
 
         BookResponse response = bookService.updateBook(request);
@@ -173,7 +173,7 @@ public class BookController {
 
         for(int i = 0; i< request.bookIdList().size(); i++) {
 
-            BookResponse book = bookService.findBook(request.bookIdList().get(i));
+            BookResponse book = bookService.getBook(request.bookIdList().get(i));
 
             Integer updatedQuantity;
 
@@ -216,7 +216,7 @@ public class BookController {
     @DeleteMapping("/books/{bookId}")
     public ResponseEntity<Void> delete(@PathVariable Long bookId) {
 
-        bookService.deleteBook(bookId);
+        bookService.removeBook(bookId);
 
         return ResponseEntity.noContent().build();
     }

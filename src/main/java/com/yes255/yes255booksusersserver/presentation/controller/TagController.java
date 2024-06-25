@@ -36,7 +36,7 @@ public class TagController {
     @Operation(summary = "모든 태그 조회", description = "등록된 모든 태그를 조회합니다.")
     @GetMapping("/tags/page")
     public ResponseEntity<Page<TagResponse>> findAll(Pageable pageable) {
-        return ResponseEntity.ok(tagService.findAllTags(pageable));
+        return ResponseEntity.ok(tagService.getAllTags(pageable));
     }
 
     /**
@@ -47,7 +47,7 @@ public class TagController {
     @Operation(summary = "모든 태그 조회", description = "등록된 모든 태그를 페이지형식으로 조회합니다.")
     @GetMapping("/tags")
     public ResponseEntity<List<TagResponse>> findAll() {
-        return ResponseEntity.ok(tagService.findAllTags());
+        return ResponseEntity.ok(tagService.getAllTags());
     }
 
     /**
@@ -59,7 +59,7 @@ public class TagController {
     @Operation(summary = "특정 태그 조회", description = "등록된 특정 태그를 조회합니다.")
     @GetMapping("/tags/{tagId}")
     public ResponseEntity<TagResponse> find(@PathVariable Long tagId) {
-        return ResponseEntity.ok(tagService.findTag(tagId));
+        return ResponseEntity.ok(tagService.getTag(tagId));
     }
 
     /**
@@ -105,7 +105,7 @@ public class TagController {
     @DeleteMapping("/tags/{tagId}")
     public ResponseEntity<Void> delete(@PathVariable Long tagId) {
 
-        tagService.deleteTag(tagId);
+        tagService.removeTag(tagId);
 
         return ResponseEntity.noContent().build();
     }
