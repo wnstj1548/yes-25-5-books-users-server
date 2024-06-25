@@ -38,7 +38,7 @@ public class BookTagServiceImpl implements BookTagService {
 
     @Transactional
     @Override
-    public List<BookTagResponse> findBookTagByBookId(Long bookId) {
+    public List<BookTagResponse> getBookTagByBookId(Long bookId) {
         return jpaBookTagRepository.findByBook(jpaBookRepository.findById(bookId).orElseThrow(() ->
                 new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()))))
                 .stream().map(this::toResponse).toList();
@@ -71,7 +71,7 @@ public class BookTagServiceImpl implements BookTagService {
 
     @Transactional
     @Override
-    public void deleteBookTag(Long bookTagId) {
+    public void removeBookTag(Long bookTagId) {
 
         if(!jpaBookTagRepository.existsById(bookTagId)) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("알맞지 않은 북태그 값이 비어있습니다.", 400, LocalDateTime.now()));

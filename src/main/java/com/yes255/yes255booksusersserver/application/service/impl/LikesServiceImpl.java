@@ -38,7 +38,7 @@ public class LikesServiceImpl implements LikesService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<LikesResponse> findLikeByUserId(Long userId) {
+    public List<LikesResponse> getLikeByUserId(Long userId) {
 
         User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
@@ -47,7 +47,7 @@ public class LikesServiceImpl implements LikesService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<LikesResponse> findLikeByBookId(Long bookId) {
+    public List<LikesResponse> getLikeByBookId(Long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 

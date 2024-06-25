@@ -78,7 +78,7 @@ public class TagServiceImplTest {
         when(jpaTagRepository.findById(tagId)).thenReturn(Optional.of(tag));
 
         // when
-        TagResponse response = tagService.findTag(tagId);
+        TagResponse response = tagService.getTag(tagId);
 
         // then
         assertNotNull(response);
@@ -94,7 +94,7 @@ public class TagServiceImplTest {
         when(jpaTagRepository.findById(tagId)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> tagService.findTag(tagId));
+        assertThrows(ApplicationException.class, () -> tagService.getTag(tagId));
     }
 
     @DisplayName("모든 태그 조회 - 성공")
@@ -109,7 +109,7 @@ public class TagServiceImplTest {
         when(jpaTagRepository.findAll()).thenReturn(tags);
 
         // when
-        List<TagResponse> responses = tagService.findAllTags();
+        List<TagResponse> responses = tagService.getAllTags();
 
         // then
         assertNotNull(responses);
@@ -174,7 +174,7 @@ public class TagServiceImplTest {
         when(jpaBookTagRepository.findByTag(tag)).thenReturn(bookTagList);
 
         // when
-        tagService.deleteTag(tagId);
+        tagService.removeTag(tagId);
 
         // then
         verify(jpaTagRepository, times(1)).findById(tagId);
@@ -187,7 +187,7 @@ public class TagServiceImplTest {
     @Test
     void deleteTag_failure_tagIdNull() {
         // then
-        assertThrows(ApplicationException.class, () -> tagService.deleteTag(null));
+        assertThrows(ApplicationException.class, () -> tagService.removeTag(null));
     }
 
 }

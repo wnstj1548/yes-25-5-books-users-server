@@ -66,7 +66,7 @@ public class BookControllerTest {
 
         Page<BookResponse> mockPage = new PageImpl<>(mockBooks, PageRequest.of(0, 10), mockBooks.size());
 
-        when(bookService.findAllBooks(any(Pageable.class))).thenReturn(mockPage);
+        when(bookService.getAllBooks(any(Pageable.class))).thenReturn(mockPage);
 
         // when
         Pageable pageable = PageRequest.of(0, 10);
@@ -85,7 +85,7 @@ public class BookControllerTest {
         Long bookId = 1L;
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
-        when(bookService.findBook(bookId)).thenReturn(mockBook);
+        when(bookService.getBook(bookId)).thenReturn(mockBook);
 
         // when
         ResponseEntity<BookResponse> responseEntity = bookController.findById(bookId);
@@ -128,8 +128,8 @@ public class BookControllerTest {
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
 
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockResponse);
-        when(bookCategoryService.findBookCategoryByBookId(anyLong())).thenReturn(List.of());
-        when(bookTagService.findBookTagByBookId(anyLong())).thenReturn(List.of());
+        when(bookCategoryService.getBookCategoryByBookId(anyLong())).thenReturn(List.of());
+        when(bookTagService.getBookTagByBookId(anyLong())).thenReturn(List.of());
 
         // when
         ResponseEntity<BookResponse> responseEntity = bookController.update(request, categoryIdList, null, mock(BindingResult.class));
@@ -147,7 +147,7 @@ public class BookControllerTest {
         Integer quantity = 5;
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 150,0,0,0);
-        when(bookService.findBook(bookId)).thenReturn(mockBook);
+        when(bookService.getBook(bookId)).thenReturn(mockBook);
 
         List<Long> bookIdList = List.of(1L);
         List<Integer> quantityList = List.of(30);
@@ -175,7 +175,7 @@ public class BookControllerTest {
 
         // then
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
-        verify(bookService, times(1)).deleteBook(bookId);
+        verify(bookService, times(1)).removeBook(bookId);
     }
 
     @DisplayName("책 재고 업데이트 - 실패 (요청 수량이 재고보다 많음)")
@@ -186,7 +186,7 @@ public class BookControllerTest {
         List<Integer> quantityList = List.of(15);
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 10,0,0,0);
-        when(bookService.findBook(1L)).thenReturn(mockBook);
+        when(bookService.getBook(1L)).thenReturn(mockBook);
 
         // then
         assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList, OperationType.DECREASE)));

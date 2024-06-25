@@ -75,7 +75,7 @@ public class LikesControllerTest {
     void findByUserId_success() throws Exception {
         Long userId = 1L;
         List<LikesResponse> mockResponse = Collections.emptyList();
-        doReturn(mockResponse).when(likesService).findLikeByUserId(userId);
+        doReturn(mockResponse).when(likesService).getLikeByUserId(userId);
 
         mockMvc.perform(get("/likes/users/{userId}", userId))
                 .andExpect(status().isOk())
@@ -88,7 +88,7 @@ public class LikesControllerTest {
     void findByBookId_success() throws Exception {
         Long bookId = 1L;
         List<LikesResponse> mockResponse = Collections.emptyList();
-        doReturn(mockResponse).when(likesService).findLikeByBookId(bookId);
+        doReturn(mockResponse).when(likesService).getLikeByBookId(bookId);
 
         mockMvc.perform(get("/likes/books/{bookId}", bookId))
                 .andExpect(status().isOk())

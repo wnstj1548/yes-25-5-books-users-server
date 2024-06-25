@@ -37,7 +37,7 @@ public class CategoryController {
     @Operation(summary = "모든 카테고리 조회", description = "등록된 카테고리 페이지 처리하여 조회합니다.")
     @GetMapping("/categories/page")
     public ResponseEntity<Page<CategoryResponse>> findAll(Pageable pageable) {
-        return ResponseEntity.ok(categoryService.findAllCategories(pageable));
+        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     /**
@@ -48,7 +48,7 @@ public class CategoryController {
     @Operation(summary = "모든 카테고리 조회", description = "등록된 카테고리를 조회합니다.")
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryResponse>> findAll() {
-        return ResponseEntity.ok(categoryService.findAllCategories());
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     /**
@@ -60,7 +60,7 @@ public class CategoryController {
     @Operation(summary = "특정 카테고리 조회", description = "categoryId로 특정 카테고리를 조회합니다.")
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<CategoryResponse> find(@PathVariable("categoryId") Long categoryId) {
-        return ResponseEntity.ok(categoryService.findCategory(categoryId));
+        return ResponseEntity.ok(categoryService.getCategory(categoryId));
     }
 
     /**
@@ -71,7 +71,7 @@ public class CategoryController {
     @Operation(summary = "루트 카테고리(1단계) 조회", description = "모든 카테고리 중 1단계 카테고리를 조회합니다.")
     @GetMapping("/categories/root")
     public ResponseEntity<List<CategoryResponse>> findRoot() {
-        return ResponseEntity.ok(categoryService.findRootCategories());
+        return ResponseEntity.ok(categoryService.getRootCategories());
     }
 
     /**
@@ -83,13 +83,13 @@ public class CategoryController {
     @Operation(summary = "부모 카테고리로 특정 카테고리 조회", description = "parentId를 받아 하위 카테고리를 조회합니다.")
     @GetMapping("/categories/parent/{parentId}")
     public ResponseEntity<List<CategoryResponse>> findByParentCategoryId(@PathVariable("parentId") Long parentId) {
-        return ResponseEntity.ok(categoryService.findCategoryByParentCategoryId(parentId));
+        return ResponseEntity.ok(categoryService.getCategoryByParentCategoryId(parentId));
     }
 
 
     @GetMapping("/categories/book/{bookId}")
     public ResponseEntity<List<Long>> findByBookId(@PathVariable("bookId") Long bookId) {
-        return ResponseEntity.ok(categoryService.findCategoryIdByBookId(bookId));
+        return ResponseEntity.ok(categoryService.getCategoryIdByBookId(bookId));
     }
 
     /**
@@ -142,7 +142,7 @@ public class CategoryController {
     @DeleteMapping("/categories/{categoryId}")
     public ResponseEntity<Void> delete(@PathVariable("categoryId") Long categoryId) {
 
-        categoryService.deleteCategory(categoryId);
+        categoryService.removeCategory(categoryId);
 
         return ResponseEntity.noContent().build();
     }

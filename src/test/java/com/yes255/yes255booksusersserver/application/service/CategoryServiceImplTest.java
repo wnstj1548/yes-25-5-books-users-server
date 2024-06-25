@@ -84,7 +84,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
 
         // when
-        CategoryResponse response = categoryService.findCategory(1L);
+        CategoryResponse response = categoryService.getCategory(1L);
 
         // then
         assertNotNull(response);
@@ -99,7 +99,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.findCategory(1L));
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategory(1L));
     }
 
     @DisplayName("카테고리 업데이트 - 성공")
@@ -161,7 +161,7 @@ class CategoryServiceImplTest {
         when(jpaBookCategoryRepository.findByCategory(category)).thenReturn(bookCategoryList);
 
         // when
-        categoryService.deleteCategory(1L);
+        categoryService.removeCategory(1L);
 
         // then
         verify(jpaCategoryRepository, times(1)).findById(1L);
@@ -177,7 +177,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.existsById(1L)).thenReturn(false);
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.deleteCategory(1L));
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.removeCategory(1L));
 
         verify(jpaCategoryRepository, never()).deleteById(1L);
     }
@@ -190,7 +190,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findAll()).thenReturn(categories);
 
         // when
-        List<CategoryResponse> responses = categoryService.findAllCategories();
+        List<CategoryResponse> responses = categoryService.getAllCategories();
 
         // then
         assertEquals(categories.size(), responses.size());
@@ -211,7 +211,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findAll()).thenReturn(Arrays.asList(parentCategory, childCategory));
 
         // when
-        List<CategoryResponse> responses = categoryService.findCategoryByParentCategoryId(1L);
+        List<CategoryResponse> responses = categoryService.getCategoryByParentCategoryId(1L);
 
         // then
         assertEquals(1, responses.size());

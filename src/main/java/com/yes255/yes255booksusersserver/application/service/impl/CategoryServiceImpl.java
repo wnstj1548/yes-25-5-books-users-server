@@ -64,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public CategoryResponse findCategory(long categoryId) {
+    public CategoryResponse getCategory(long categoryId) {
 
         Category category = jpaCategoryRepository.findById(categoryId).orElse(null);
         if(category == null) {
@@ -77,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<CategoryResponse> findAllCategories(Pageable pageable) {
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
 
         Page<Category> categoryPage = jpaCategoryRepository.findAll(pageable);
         List<CategoryResponse> responses = categoryPage.stream().map(this::toResponse).toList();
@@ -86,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> findAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         return jpaCategoryRepository.findAll().stream().map(this::toResponse).toList();
     }
 
@@ -113,7 +113,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public void deleteCategory(long categoryId) {
+    public void removeCategory(long categoryId) {
 
         Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(ErrorStatus.toErrorStatus("카테고리를 찾을 수 없습니다.", 400, LocalDateTime.now())));
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
@@ -125,11 +125,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<CategoryResponse> findRootCategories() {
+    public List<CategoryResponse> getRootCategories() {
 
         List<CategoryResponse> rootCategories = new ArrayList<>();
 
-        for(CategoryResponse category : findAllCategories()) {
+        for(CategoryResponse category : getAllCategories()) {
             if(Objects.isNull(category.parentCategoryId())) {
                 rootCategories.add(category);
             }
@@ -140,14 +140,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId) {
-        return findAllCategories().stream()
+    public List<CategoryResponse> getCategoryByParentCategoryId(long parentCategoryId) {
+        return getAllCategories().stream()
                 .filter(category -> Objects.nonNull(category.parentCategoryId()) && category.parentCategoryId() == parentCategoryId)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Long> findCategoryIdByBookId(long bookId) {
+    public List<Long> getCategoryIdByBookId(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("알맞은 책이 없습니다.", 404, LocalDateTime.now())));
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
