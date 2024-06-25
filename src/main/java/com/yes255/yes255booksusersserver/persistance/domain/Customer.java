@@ -25,4 +25,8 @@ public class Customer {
         this.userId = userId;
         this.userRole = userRole;
     }
+
+    public void updateCustomerUserRole(String userRole) {
+        this.userRole = userRole;
+    }
 }
