@@ -41,7 +41,8 @@ public class UserGradeServiceImpl implements UserGradeService {
         List<User> users = userRepository.findAllByUserState(userState);
 
         for (User user : users) {
-            UserTotalAmount userTotalAmount = totalAmountRepository.findByUser_UserId(user.getUserId());
+
+
 
             // todo : 3개월 이내의 누적 금액 계산 (테이블 수정 필요)
         }
