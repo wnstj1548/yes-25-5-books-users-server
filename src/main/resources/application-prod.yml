@@ -38,4 +38,4 @@ eureka:
 
 api:
   order-payment: ${ORDER_PAYMENT_SERVER}
-  coupons : ${COUPON_SERVER}
+  coupons: ${COUPON_SERVER}

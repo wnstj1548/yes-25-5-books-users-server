@@ -47,4 +47,4 @@ eureka:
 
 api:
   order-payment: http://localhost:8071
-  coupons : http://localhost:8081
+  coupons: http://localhost:8081
