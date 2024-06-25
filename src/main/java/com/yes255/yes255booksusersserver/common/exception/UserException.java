@@ -2,8 +2,8 @@ package com.yes255.yes255booksusersserver.common.exception;
 
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 
-public class CartNotFoundException extends ApplicationException{
-    public CartNotFoundException(ErrorStatus errorStatus) {
+public class UserException extends ApplicationException {
+    public UserException(ErrorStatus errorStatus) {
         super(errorStatus);
     }
 }
