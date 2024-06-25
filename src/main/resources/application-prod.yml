@@ -35,3 +35,7 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://${EUREKA_SERVER_HOSTNAME}:${EUREKA_SERVER_PORT}/eureka/
+
+api:
+  order-payment: ${ORDER_PAYMENT_SERVER}
+  coupons : ${COUPON_SERVER}
