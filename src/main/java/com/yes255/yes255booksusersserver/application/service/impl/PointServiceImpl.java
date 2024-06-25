@@ -1,14 +1,12 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointService;
-import com.yes255.yes255booksusersserver.common.exception.InsufficientPointsException;
-import com.yes255.yes255booksusersserver.common.exception.PointNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.PointException;
+import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
-import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
@@ -20,6 +18,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointRe
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.UpdatePointResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,8 +40,11 @@ public class PointServiceImpl implements PointService {
     @Transactional(readOnly = true)
     public PointResponse findPointByUserId(Long userId) {
 
-        Point point = pointRepository.findById(userId)
-                .orElseThrow(() -> new PointNotFoundException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now())));
+        Point point = pointRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(point)) {
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
 
         return PointResponse.builder()
                 .point(point.getPointCurrent())
@@ -55,7 +57,7 @@ public class PointServiceImpl implements PointService {
     public UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         // 입력 값 검증 및 치환
         BigDecimal usePoints = pointRequest.usePoints() != null && pointRequest.usePoints().compareTo(BigDecimal.ZERO) > 0
@@ -73,17 +75,17 @@ public class PointServiceImpl implements PointService {
                 .subtract(usePoints);
 
         if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientPointsException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
         }
 
         point.updatePointCurrent(tempPoint);
         pointRepository.save(point);
 
-        // 구매 누적 금액 갱신
-        UserTotalAmount userTotalAmount = totalAmountRepository.findByUser_UserId(userId);
-        userTotalAmount.updateTotalAmount(pointRequest.amount());
-
-        totalAmountRepository.save(userTotalAmount);
+//        // 구매 누적 금액 갱신
+//        UserTotalAmount userTotalAmount = totalAmountRepository.findByUser_UserId(userId);
+//        userTotalAmount.updateTotalAmount(pointRequest.amount());
+//
+//        totalAmountRepository.save(userTotalAmount);
 
         // 포인트로 구매 시 포인트 이력 추가
         if (usePoints.compareTo(BigDecimal.ZERO) > 0) {

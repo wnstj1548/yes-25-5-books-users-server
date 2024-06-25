@@ -1,8 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserStateService;
-import com.yes255.yes255booksusersserver.common.exception.UserStateAlreadyExistedException;
-import com.yes255.yes255booksusersserver.common.exception.UserStateNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserStateException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserState;
@@ -36,7 +35,7 @@ public class UserStateServiceImpl implements UserStateService {
         UserState existedUserState = userStateRepository.findByUserStateName(userStateRequest.userStateName());
 
         if (Objects.nonNull(existedUserState)) {
-            throw new UserStateAlreadyExistedException(ErrorStatus.toErrorStatus("회원 상태가 이미 존재합니다.", 400, LocalDateTime.now()));
+            throw new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 이미 존재합니다.", 400, LocalDateTime.now()));
         }
 
         UserState userState = userStateRepository.save(UserState.builder()
@@ -51,7 +50,7 @@ public class UserStateServiceImpl implements UserStateService {
     public UserStateResponse updateUserState(Long userStateId, UpdateUserStateRequest userStateRequest) {
 
         UserState userState = userStateRepository.findById(userStateId)
-                .orElseThrow(() -> new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         userState.updateUserStateName(userStateRequest.userStateName());
 
@@ -67,7 +66,7 @@ public class UserStateServiceImpl implements UserStateService {
     public UserStateResponse findByUserStateId(Long userStateId) {
 
         UserState userState = userStateRepository.findById(userStateId)
-                .orElseThrow(() -> new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return UserStateResponse.builder()
                 .userStateId(userState.getUserStateId())
@@ -82,7 +81,7 @@ public class UserStateServiceImpl implements UserStateService {
         List<UserState> userStates = userStateRepository.findAll();
 
         if (userStates.isEmpty()) {
-            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         return userStates.stream()
@@ -97,7 +96,7 @@ public class UserStateServiceImpl implements UserStateService {
     public void deleteUserState(Long userStateId) {
 
         userStateRepository.findById(userStateId)
-                .orElseThrow(() -> new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         userStateRepository.deleteById(userStateId);
     }
@@ -109,10 +108,10 @@ public class UserStateServiceImpl implements UserStateService {
 
         UserState userState = userStateRepository.findByUserStateName("ACTIVE");
         
-        UserState withDrawal = userStateRepository.findByUserStateName("WITHDRAWAL");
+        UserState inActive = userStateRepository.findByUserStateName("INACTIVE");
 
         if (Objects.isNull(userState)) {
-            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         List<User> users = userRepository.findAllByUserState(userState);
@@ -122,7 +121,7 @@ public class UserStateServiceImpl implements UserStateService {
 
             // 3개월 이상 여부 확인
             if (period.getYears() > 0 || period.getMonths() >= 3) {
-                user.updateUserState(withDrawal);
+                user.updateUserState(inActive);
 
                 userRepository.save(user);
             }

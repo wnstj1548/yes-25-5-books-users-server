@@ -1,6 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
-import com.yes255.yes255booksusersserver.common.exception.CustmorNotfoundException;
+import com.yes255.yes255booksusersserver.common.exception.CustomerException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
@@ -40,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse updateCustomer(Long customerId, CustomerRequest customerRequest) {
 
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         customer.updateCustomerUserRole(customerRequest.userRole());
 
@@ -57,7 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse getCustomerById(Long customerId) {
 
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return CustomerResponse.builder()
                 .userId(customer.getUserId())
@@ -72,7 +72,7 @@ public class CustomerServiceImpl implements CustomerService {
         List<Customer> customers = customerRepository.findAll();
 
         if (customers.isEmpty()) {
-            throw new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now()));
+            throw new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         return customers.stream()
@@ -87,7 +87,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomer(Long customerId) {
 
         customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustmorNotfoundException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         customerRepository.deleteById(customerId);
     }

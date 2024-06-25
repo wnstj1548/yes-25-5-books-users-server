@@ -37,7 +37,8 @@ public class PointLog {
     private Point point;
 
     @Builder
-    public PointLog(LocalDateTime pointLogUpdatedAt, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
+    public PointLog(Long pointLogId, LocalDateTime pointLogUpdatedAt, String pointLogUpdatedType, BigDecimal pointLogAmount, Point point) {
+        this.pointLogId = pointLogId;
         this.pointLogUpdatedAt = pointLogUpdatedAt;
         this.pointLogUpdatedType = pointLogUpdatedType;
         this.pointLogAmount = pointLogAmount;

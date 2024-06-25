@@ -10,4 +10,6 @@ public interface JpaUserAddressRepository extends JpaRepository <UserAddress, Lo
     void deleteByUserUserId(Long userId);
 
     List<UserAddress> findByUserUserId(Long userId);
+
+    UserAddress findByUserAddressIdAndUserUserId(Long userAddressId, Long userId);
 }

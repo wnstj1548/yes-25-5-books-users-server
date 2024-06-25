@@ -1,7 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.PointPolicyService;
-import com.yes255.yes255booksusersserver.common.exception.PointPolicyNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.PointPolicyException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
@@ -44,13 +44,14 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     public PointPolicyResponse findPointPolicyById(Long pointPolicyId) {
 
         PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
-                .orElseThrow(() -> new PointPolicyNotFoundException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new PointPolicyException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         return PointPolicyResponse.builder()
                 .pointPolicyId(pointPolicy.getPointPolicyId())
                 .pointPolicyName(pointPolicy.getPointPolicyName())
                 .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ? pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
                 .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
+                .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
                 .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
                 .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
                 .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ? pointPolicy.getPointPolicyUpdatedAt().toString() : null)
@@ -70,6 +71,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                         .pointPolicyName(pointPolicy.getPointPolicyName())
                         .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ? pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
                         .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
+                        .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
                         .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
                         .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
                         .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ? pointPolicy.getPointPolicyUpdatedAt().toString() : null)
@@ -81,10 +83,10 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     public PointPolicyResponse updatePointPolicyById(Long pointPolicyId, PointPolicyRequest policyRequest) {
 
         PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
-                .orElseThrow(() -> new PointPolicyNotFoundException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new PointPolicyException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         pointPolicy.updatePointPolicyName(policyRequest.pointPolicyName());
-      
+
         if (pointPolicy.isPointPolicyApplyType()) {
             pointPolicy.updatePointPolicyApplyAmount(policyRequest.pointPolicyApply());
             pointPolicy.updatePointPolicyRate(null);
@@ -97,7 +99,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         pointPolicy.updatePointPolicyCondition(policyRequest.pointPolicyCondition());
         pointPolicy.updatePointPolicyApplyType(policyRequest.pointPolicyApplyType());
-      
+
         pointPolicy.updatePointPolicyUpdatedAt();
 
         pointPolicyRepository.save(pointPolicy);

@@ -1,4 +1,4 @@
-package com.yes255.yes255booksusersserver.presentation.dto.request.useraddress;
+package com.yes255.yes255booksusersserver.presentation.dto.response.useraddress;
 
 import lombok.Builder;
 

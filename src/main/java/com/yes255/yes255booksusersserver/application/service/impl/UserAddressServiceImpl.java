@@ -9,13 +9,12 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReaderOrderUserInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -123,8 +123,11 @@ public class UserAddressServiceImpl implements UserAddressService {
     public UserAddressResponse findAddressById(Long userId,
                                               Long userAddressId) {
 
-        UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        UserAddress userAddress = userAddressRepository.findByUserAddressIdAndUserUserId(userAddressId, userId);
+
+        if (Objects.isNull(userAddress)) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
 
         return UserAddressResponse.builder()
                 .userAddressId(userAddressId)
@@ -134,7 +137,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .addressName(userAddress.getAddressName())
                 .addressDetail(userAddress.getAddressDetail())
                 .addressBased(userAddress.isAddressBased())
-                .userId(userAddress.getUser().getUserId())
+                .userId(userId)
                 .build();
     }
 
@@ -157,7 +160,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                         .addressName(userAddress.getAddressName())
                         .addressDetail(userAddress.getAddressDetail())
                         .addressBased(userAddress.isAddressBased())
-                        .userId(userAddress.getUser().getUserId())
+                        .userId(userId)
                         .build())
                 .collect(Collectors.toList());
     }

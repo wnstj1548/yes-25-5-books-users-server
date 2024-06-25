@@ -1,7 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserTotalAmountService;
-import com.yes255.yes255booksusersserver.common.exception.UserTotalAmountNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserTotalAmountException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
@@ -27,7 +27,7 @@ public class UserTotalAmountServiceImpl implements UserTotalAmountService {
         UserTotalAmount userTotalAmount = userTotalAmountRepository.findByUser_UserId(userId);
 
         if (Objects.isNull(userTotalAmount)) {
-            throw new UserTotalAmountNotFoundException(ErrorStatus.toErrorStatus("유저 누적 금액이 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserTotalAmountException(ErrorStatus.toErrorStatus("유저 누적 금액이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         return UserTotalAmountResponse.builder()
@@ -43,7 +43,7 @@ public class UserTotalAmountServiceImpl implements UserTotalAmountService {
         UserTotalAmount userTotalAmount = userTotalAmountRepository.findByUser_UserId(userId);
 
         if (Objects.isNull(userTotalAmount)) {
-            throw new UserTotalAmountNotFoundException(ErrorStatus.toErrorStatus("유저 누적 금액이 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserTotalAmountException(ErrorStatus.toErrorStatus("유저 누적 금액이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         userTotalAmountRepository.delete(userTotalAmount);

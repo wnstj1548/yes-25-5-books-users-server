@@ -1,11 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.UserGradeService;
-import com.yes255.yes255booksusersserver.common.exception.UserStateNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.UserStateException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserState;
-import com.yes255.yes255booksusersserver.persistance.domain.UserTotalAmount;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepository;
@@ -26,7 +25,6 @@ public class UserGradeServiceImpl implements UserGradeService {
     final private JpaUserGradeRepository userGradeRepository;
     final private JpaUserRepository userRepository;
     final private JpaUserStateRepository userStateRepository;
-    final private JpaUserTotalAmountRepository totalAmountRepository;
 
     // 회원 등급 갱신 체크
     @Override
@@ -35,7 +33,7 @@ public class UserGradeServiceImpl implements UserGradeService {
         UserState userState = userStateRepository.findByUserStateName("ACTIVE");
 
         if (Objects.isNull(userState)) {
-            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         List<User> users = userRepository.findAllByUserState(userState);

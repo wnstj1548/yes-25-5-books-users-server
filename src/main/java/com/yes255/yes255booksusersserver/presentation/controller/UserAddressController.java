@@ -3,7 +3,7 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import io.swagger.v3.oas.annotations.Operation;
