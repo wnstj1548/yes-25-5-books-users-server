@@ -1,20 +1,23 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.PointService;
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
-import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.UserAddressLimitExceededException;
-import com.yes255.yes255booksusersserver.common.exception.UserAddressNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.AddressException;
+import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
+import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.ReaderOrderUserInfoResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     private final JpaUserAddressRepository userAddressRepository;
     private final JpaAddressRepository addressRepository;
     private final JpaUserRepository userRepository;
+    private final PointService pointService;
 
     @Transactional
     @Override
@@ -44,11 +47,11 @@ public class UserAddressServiceImpl implements UserAddressService {
         List<UserAddress> userAddresses = userAddressRepository.findAll();
 
         if (userAddresses.size() > 10) {
-            throw new UserAddressLimitExceededException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
+            throw new UserAddressException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         Address address = addressRepository.findAddressByAddressRawAndAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
 
@@ -83,10 +86,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                                                    UpdateUserAddressRequest addressRequest) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         Address address = addressRepository.findById(userAddress.getAddress().getAddressId())
-                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new AddressException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         address.updateAddressZip(addressRequest.addressZip());
         address.updateAddressRaw(addressRequest.addressRaw());
@@ -121,7 +124,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                                               Long userAddressId) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
         return UserAddressResponse.builder()
                 .userAddressId(userAddressId)
@@ -142,7 +145,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         List<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId);
 
         if (userAddressList.isEmpty()) {
-            throw new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         return userAddressList.stream()
@@ -163,5 +166,25 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     public void deleteAddress(Long userId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
+    }
+
+    // 주문 유저에게 반환
+    @Transactional(readOnly = true)
+    @Override
+    public ReaderOrderUserInfoResponse orderUserInfo(Long userId) {
+
+        List<UserAddressResponse> userAddresses = findAllAddresses(userId);
+
+        PointResponse pointResponse = pointService.findPointByUserId(userId);
+
+        return ReaderOrderUserInfoResponse.builder()
+                .userId(userId)
+                .points(pointResponse.point().intValueExact())
+                .addressRaw(userAddresses.stream().map(UserAddressResponse::addressRaw).toList())
+                .addressDetail(userAddresses.stream().map(UserAddressResponse::addressDetail).toList())
+                .addressName(userAddresses.stream().map(UserAddressResponse::addressName).toList())
+                .zipCode(userAddresses.stream().map(UserAddressResponse::addressZip).toList())
+                .addressBased(userAddresses.stream().map(UserAddressResponse::addressBased).toList())
+                .build();
     }
 }
