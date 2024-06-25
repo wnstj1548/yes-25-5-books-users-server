@@ -12,19 +12,19 @@ public interface CategoryService {
 
     CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest);
 
-    CategoryResponse findCategory(long categoryId);
+    CategoryResponse getCategory(long categoryId);
 
-    Page<CategoryResponse> findAllCategories(Pageable pageable);
+    Page<CategoryResponse> getAllCategories(Pageable pageable);
 
-    List<CategoryResponse> findAllCategories();
+    List<CategoryResponse> getAllCategories();
 
     CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest);
 
-    void deleteCategory(long categoryId);
+    void removeCategory(long categoryId);
 
-    List<CategoryResponse> findRootCategories();
+    List<CategoryResponse> getRootCategories();
 
-    List<CategoryResponse> findCategoryByParentCategoryId(long parentCategoryId);
+    List<CategoryResponse> getCategoryByParentCategoryId(long parentCategoryId);
 
-    List<Long> findCategoryIdByBookId(long bookId);
+    List<Long> getCategoryIdByBookId(long bookId);
 }

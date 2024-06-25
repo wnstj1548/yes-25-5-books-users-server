@@ -81,7 +81,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void findBookCategory_success() {
         // when
-        BookCategoryResponse response = bookCategoryService.findBookCategory(1L);
+        BookCategoryResponse response = bookCategoryService.getBookCategory(1L);
 
         // then
         assertNotNull(response);
@@ -97,14 +97,14 @@ public class BookCategoryServiceImplTest {
         when(jpaBookCategoryRepository.findById(2L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> bookCategoryService.findBookCategory(2L));
+        assertThrows(ApplicationException.class, () -> bookCategoryService.getBookCategory(2L));
     }
 
     @DisplayName("북 카테고리 조회 (책 ID로) - 성공")
     @Test
     void findBookCategoryByBookId_success() {
         // when
-        List<BookCategoryResponse> responses = bookCategoryService.findBookCategoryByBookId(1L);
+        List<BookCategoryResponse> responses = bookCategoryService.getBookCategoryByBookId(1L);
 
         // then
         assertNotNull(responses);
@@ -117,7 +117,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void findBookCategoryByCategoryId_success() {
         // when
-        List<BookCategoryResponse> responses = bookCategoryService.findBookCategoryByCategoryId(1L);
+        List<BookCategoryResponse> responses = bookCategoryService.getBookCategoryByCategoryId(1L);
 
         // then
         assertNotNull(responses);
@@ -130,7 +130,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void findAllBookCategories_success() {
         // when
-        List<BookCategoryResponse> responses = bookCategoryService.findAllBookCategories();
+        List<BookCategoryResponse> responses = bookCategoryService.getAllBookCategories();
 
         // then
         assertNotNull(responses);
@@ -172,7 +172,7 @@ public class BookCategoryServiceImplTest {
     @Test
     void deleteBookCategory_success() {
         // when
-        bookCategoryService.deleteBookCategory(1L);
+        bookCategoryService.removeBookCategory(1L);
 
         // then
         verify(jpaBookCategoryRepository, times(1)).deleteById(1L);
@@ -186,6 +186,6 @@ public class BookCategoryServiceImplTest {
                 .when(jpaBookCategoryRepository).deleteById(2L);
 
         // then
-        assertThrows(ApplicationException.class, () -> bookCategoryService.deleteBookCategory(2L));
+        assertThrows(ApplicationException.class, () -> bookCategoryService.removeBookCategory(2L));
     }
 }

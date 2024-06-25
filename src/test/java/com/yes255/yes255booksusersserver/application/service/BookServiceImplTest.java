@@ -86,7 +86,7 @@ public class BookServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.of(testBook));
 
         // when
-        BookResponse response = bookService.findBook(1L);
+        BookResponse response = bookService.getBook(1L);
 
         // then
         assertNotNull(response);
@@ -101,7 +101,7 @@ public class BookServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> bookService.findBook(1L));
+        assertThrows(ApplicationException.class, () -> bookService.getBook(1L));
     }
 
     @DisplayName("모든 책 조회")
@@ -119,7 +119,7 @@ public class BookServiceImplTest {
 
         // when
         Pageable pageable = PageRequest.of(0, 10);
-        Page<BookResponse> responses = bookService.findAllBooks(pageable);
+        Page<BookResponse> responses = bookService.getAllBooks(pageable);
 
         // then
         assertEquals(2, responses.getContent().size());
@@ -181,7 +181,7 @@ public class BookServiceImplTest {
         when(jpaBookTagRepository.findByBook(book)).thenReturn(bookTagList);
 
         // when
-        bookService.deleteBook(bookId);
+        bookService.removeBook(bookId);
 
         // then
         verify(jpaBookRepository, times(1)).findById(bookId);
@@ -199,7 +199,7 @@ public class BookServiceImplTest {
         when(jpaBookRepository.existsById(1L)).thenReturn(false);
 
         // then
-        assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(1L));
+        assertThrows(BookNotFoundException.class, () -> bookService.removeBook(1L));
         verify(jpaBookRepository, never()).deleteById(anyLong());
     }
 

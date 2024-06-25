@@ -53,7 +53,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public BookCategoryResponse findBookCategory(Long bookCategoryId) {
+    public BookCategoryResponse getBookCategory(Long bookCategoryId) {
 
         BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
 
@@ -62,21 +62,21 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookCategoryResponse> findBookCategoryByBookId(Long bookId) {
+    public List<BookCategoryResponse> getBookCategoryByBookId(Long bookId) {
 
         return jpaBookCategoryRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookCategoryResponse> findBookCategoryByCategoryId(Long categoryId) {
+    public List<BookCategoryResponse> getBookCategoryByCategoryId(Long categoryId) {
 
         return jpaBookCategoryRepository.findByCategory(jpaCategoryRepository.findById(categoryId).orElse(null)).stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookCategoryResponse> findAllBookCategories() {
+    public List<BookCategoryResponse> getAllBookCategories() {
 
         return jpaBookCategoryRepository.findAll().stream().map(this::toResponse).toList();
     }
@@ -100,7 +100,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
     @Transactional
     @Override
-    public void deleteBookCategory(Long bookCategoryId) {
+    public void removeBookCategory(Long bookCategoryId) {
 
         if(!jpaBookCategoryRepository.existsById(bookCategoryId)) {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));

@@ -43,7 +43,7 @@ public class CategoryControllerTest {
     @Test
     void findAll_success() throws Exception {
         // given
-        when(categoryService.findAllCategories()).thenReturn(Collections.emptyList());
+        when(categoryService.getAllCategories()).thenReturn(Collections.emptyList());
 
         // when + then
         mockMvc.perform(get("/categories")
@@ -57,7 +57,7 @@ public class CategoryControllerTest {
     @Test
     void find_success() throws Exception {
         // given
-        when(categoryService.findCategory(1L)).thenReturn(new CategoryResponse(1L, "Test Category", null));
+        when(categoryService.getCategory(1L)).thenReturn(new CategoryResponse(1L, "Test Category", null));
 
         // when + then
         mockMvc.perform(get("/categories/{categoryId}", 1L)
@@ -71,7 +71,7 @@ public class CategoryControllerTest {
     @Test
     void findRoot_success() throws Exception {
         // given
-        when(categoryService.findRootCategories()).thenReturn(Collections.emptyList());
+        when(categoryService.getRootCategories()).thenReturn(Collections.emptyList());
 
         // when + then
         mockMvc.perform(get("/categories/root")
@@ -86,7 +86,7 @@ public class CategoryControllerTest {
     void findByParentCategoryId_success() throws Exception {
         // given
         Long parentId = 1L;
-        when(categoryService.findCategoryByParentCategoryId(parentId)).thenReturn(Collections.emptyList());
+        when(categoryService.getCategoryByParentCategoryId(parentId)).thenReturn(Collections.emptyList());
 
         // when + then
         mockMvc.perform(get("/categories/parent/{parentId}", parentId)
@@ -135,7 +135,7 @@ public class CategoryControllerTest {
     void delete_success() throws Exception {
         // given
         Long categoryId = 1L;
-        doNothing().when(categoryService).deleteCategory(categoryId);
+        doNothing().when(categoryService).removeCategory(categoryId);
 
         // when + then
         mockMvc.perform(delete("/categories/{categoryId}", categoryId)

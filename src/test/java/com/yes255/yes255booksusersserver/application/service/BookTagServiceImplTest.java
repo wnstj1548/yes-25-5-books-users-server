@@ -72,7 +72,7 @@ public class BookTagServiceImplTest {
         when(jpaBookTagRepository.findByBook(any())).thenReturn(List.of(new BookTag(null, testBook, testTag)));
 
         // when
-        List<BookTagResponse> responses = bookTagService.findBookTagByBookId(1L);
+        List<BookTagResponse> responses = bookTagService.getBookTagByBookId(1L);
 
         // then
         assertNotNull(responses);
@@ -88,7 +88,7 @@ public class BookTagServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(java.util.Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> bookTagService.findBookTagByBookId(1L));
+        assertThrows(ApplicationException.class, () -> bookTagService.getBookTagByBookId(1L));
     }
 
     @DisplayName("북태그 생성 - 성공")
@@ -137,7 +137,7 @@ public class BookTagServiceImplTest {
         when(jpaBookTagRepository.existsById(bookTagId)).thenReturn(true);
 
         // when
-        bookTagService.deleteBookTag(bookTagId);
+        bookTagService.removeBookTag(bookTagId);
 
         // then
         verify(jpaBookTagRepository, times(1)).deleteById(bookTagId);
@@ -151,7 +151,7 @@ public class BookTagServiceImplTest {
         when(jpaBookTagRepository.existsById(invalidBookTagId)).thenReturn(false);
 
         // then
-        assertThrows(ApplicationException.class, () -> bookTagService.deleteBookTag(invalidBookTagId));
+        assertThrows(ApplicationException.class, () -> bookTagService.removeBookTag(invalidBookTagId));
         verify(jpaBookTagRepository, never()).deleteById(anyLong());
     }
 }
