@@ -84,7 +84,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
 
         // when
-        CategoryResponse response = categoryService.findCategory(1L);
+        CategoryResponse response = categoryService.getCategory(1L);
 
         // then
         assertNotNull(response);
@@ -99,7 +99,7 @@ class CategoryServiceImplTest {
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.findCategory(1L));
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategory(1L));
     }
 
     @DisplayName("카테고리 업데이트 - 성공")
