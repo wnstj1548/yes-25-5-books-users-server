@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "orderAdaptor", url = "http://localhost:8071") //"http://133.186.153.195:8071")
+@FeignClient(name = "orderAdaptor", url = "${api.order-payment}/orders")
 public interface OrderAdaptor {
 
 //    @GetMapping("/orders/??")
