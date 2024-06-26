@@ -1,8 +1,8 @@
-name: Java CI with Docker
+name: Java CI with Maven
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "main" ]
 
 permissions: write-all
 
@@ -11,33 +11,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Verify Dockerfile exists
+      - name: Verify Dockerfile-8061-8060 exists
         run: |
-          if [ ! -f Dockerfile ]; then
+          if [ ! -f Dockerfile-8060 ]; then
             echo "Dockerfile not found!"
             exit 1
           fi
 
       - name: Build Docker image
         run: |
-          docker build --no-cache -t books-users-app .
+          docker build -f Dockerfile-8060 --no-cache -t books-users-app .
 
       - name: Run Maven tests in Docker
         run: |
           docker run --rm books-users-app mvn clean verify sonar:sonar \
-          -Dspring.profile.active=ci \
-          -Dsonar.projectKey=yes-25-5-books-user \
-          -Dsonar.projectName='yes-25-5-books-user' \
+          -Dsonar.projectKey=yes25-5-books-user \
+          -Dsonar.projectName='yes25-5-books-user' \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
       - name: Build Maven project in Docker
         run: |
-          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package \
-          -Dspring.profiles.active=ci
+          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package
 
       - name: Check if JAR file exists
         run: |
@@ -72,7 +69,6 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_ACTOR: ${{ github.actor }}
           DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
         with:
           script: |
@@ -80,7 +76,7 @@ jobs:
             const payload = {
               botName: "도서 회원 서버 Bot",
               botIconImage: "https://www.tistory.com/favicon.ico",
-              text: "도서 회원 서버의 Pull Request가 성공적으로 올라갔어요!",
+              text: "도서 및 회원 서버의 Pull Request가 성공적으로 올라갔어요!",
               attachments: [
                 {
                   title: "Pull Request URL",
@@ -117,7 +113,7 @@ jobs:
             const payload = {
               botName: "도서 회원 서버 Bot",
               botIconImage: "https://www.tistory.com/favicon.ico",
-              text: "도서 회원 서버의 Pull Request가 실패했어요...",
+              text: "도서 및 회원 서버의 Pull Request가 실패했어요...",
               attachments: [
                 {
                   title: "Pull Request URL",

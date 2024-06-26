@@ -47,11 +47,11 @@ pipeline {
                     """
 
                     // Build Docker image
-                    sh "docker build -f Dockerfile-8060 --no-cache -t books_users-app ."
+                    sh "docker build -f Dockerfile-8060 --no-cache -t books-users-app ."
 
                     // Run Maven tests in Docker
                     sh """
-                    docker run --rm books_users-app mvn clean verify sonar:sonar \
+                    docker run --rm books-users-app mvn clean verify sonar:sonar \
                       -Dsonar.projectKey=yes25-5-books-user \
                       -Dsonar.projectName='yes25-5-books-user' \
                       -Dsonar.host.url=${env.SONAR_HOST_URL} \
@@ -59,7 +59,7 @@ pipeline {
                     """
 
                     // Build Maven project in Docker
-                    sh "docker run --rm -v \$(pwd):/app -w /app books_users-app mvn package"
+                    sh "docker run --rm -v \$(pwd):/app -w /app books-users-app mvn package"
 
                     // Check if JAR file exists
                     sh """
