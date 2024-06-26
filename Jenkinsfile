@@ -42,6 +42,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build --no-cache -t books-users-app .'
+
             }
         }
 
