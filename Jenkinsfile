@@ -1,10 +1,10 @@
 pipeline {
     agent {
-            docker {
-                image 'your-docker-image'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
-            }
+        docker {
+            image 'your-docker-image'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
+    }
 
     environment {
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
@@ -20,16 +20,26 @@ pipeline {
     }
 
     stages {
-        stage('Check Docker Installation') {
+        stage('Checkout') {
             steps {
-                sh 'docker --version || exit 1'
+                script {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'CleanBeforeCheckout']],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/nhnacademy-be6-yes-25-5/yes-25-5-books-users-server.git',
+                            credentialsId: 'your-credentials-id'
+                        ]]
+                    ])
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                checkout scm
-
                 script {
                     if (!fileExists('Dockerfile')) {
                         error "Dockerfile not found!"
