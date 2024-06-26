@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'your-docker-image'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
