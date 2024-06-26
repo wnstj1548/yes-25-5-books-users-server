@@ -35,6 +35,8 @@ logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.transaction.interceptor: trace
+  file:
+    path: ${user.dir}/logs/${spring.application.name}
 server:
   port: 8061
 eureka:
