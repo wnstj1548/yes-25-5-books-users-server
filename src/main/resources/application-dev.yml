@@ -32,6 +32,8 @@ spring:
     init:
       mode: always
 logging:
+  file:
+    path: ${user.dir}/logs/${spring.application.name}
   level:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.transaction.interceptor: trace
