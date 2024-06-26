@@ -149,3 +149,15 @@
 2024-06-26 17:38:54.165 [http-nio-8061-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
 2024-06-26 17:38:54.168 [http-nio-8061-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
 2024-06-26 17:38:54.524 [http-nio-8061-exec-1] INFO  c.y.y.a.service.impl.UserServiceImpl - User : asdf, 010-0000-0000, sakjgewojw@naverl.com, 2211-01-02, 2024-06-26T17:38:54.469607, null, com.yes255.yes255booksusersserver.persistance.domain.Provider@a2bf6c5, , com.yes255.yes255booksusersserver.persistance.domain.UserState@3afca946, $2a$10$IFDD488StqF8iAG155P6du0fCylEHwxnc3DklIdAxmonJWMuELnuq
+2024-06-26 17:41:11.507 [AsyncResolver-bootstrap-executor-0] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
+2024-06-26 17:41:17.914 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServiceRegistry - Unregistering application BOOK-USER-SERVER with eureka with status DOWN
+2024-06-26 17:41:17.914 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Saw local status change event StatusChangeEvent [timestamp=1719391277914, current=DOWN, previous=UP]
+2024-06-26 17:41:17.914 [DiscoveryClient-InstanceInfoReplicator-0] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061: registering service...
+2024-06-26 17:41:17.928 [DiscoveryClient-InstanceInfoReplicator-0] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 - registration status: 204
+2024-06-26 17:41:17.954 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-06-26 17:41:17.957 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-06-26 17:41:18.064 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-06-26 17:41:18.065 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Shutting down DiscoveryClient ...
+2024-06-26 17:41:21.073 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Unregistering ...
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 - deregister  status: 200
+2024-06-26 17:41:21.088 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Completed shut down of DiscoveryClient

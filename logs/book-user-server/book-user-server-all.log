@@ -21143,3 +21143,267 @@ Unconditional classes:
 2024-06-26 17:40:41.824 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - The total number of instances fetched by the delta processor : 0
 2024-06-26 17:40:41.824 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - The total number of all instances in the client now is 2
 2024-06-26 17:40:41.825 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - Completed cache refresh task for discovery. All Apps hash code is Local region apps hashcode: UP_2_, is fetching remote regions? false 
+2024-06-26 17:41:08.834 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10, active=0, idle=10, waiting=0)
+2024-06-26 17:41:08.836 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2024-06-26 17:41:11.507 [AsyncResolver-bootstrap-executor-0] INFO  c.n.d.s.r.aws.ConfigClusterResolver - Resolving eureka endpoints via configuration
+2024-06-26 17:41:11.507 [AsyncResolver-bootstrap-executor-0] DEBUG c.n.discovery.endpoint.EndpointUtils - The availability zone for the given region us-east-1 are [defaultZone]
+2024-06-26 17:41:11.508 [AsyncResolver-bootstrap-executor-0] DEBUG c.n.d.s.r.aws.ConfigClusterResolver - Config resolved to [AwsEndpoint{ serviceUrl='http://localhost:8761/eureka/', region='us-east-1', zone='defaultZone'}]
+2024-06-26 17:41:11.508 [AsyncResolver-bootstrap-executor-0] DEBUG c.n.d.s.r.a.ZoneAffinityClusterResolver - Local zone=defaultZone; resolved to: [AwsEndpoint{ serviceUrl='http://localhost:8761/eureka/', region='us-east-1', zone='defaultZone'}]
+2024-06-26 17:41:11.509 [AsyncResolver-bootstrap-executor-0] DEBUG c.n.d.shared.resolver.AsyncResolver - Resolved to [AwsEndpoint{ serviceUrl='http://localhost:8761/eureka/', region='us-east-1', zone='defaultZone'}]
+2024-06-26 17:41:11.830 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.s.web.client.RestTemplate - HTTP PUT http://localhost:8761/eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061?status=UP&lastDirtyTimestamp=1719390971632
+2024-06-26 17:41:11.830 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.s.web.client.RestTemplate - HTTP GET http://localhost:8761/eureka/apps/delta
+2024-06-26 17:41:11.831 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.s.web.client.RestTemplate - Accept=[application/json, application/*+json]
+2024-06-26 17:41:11.831 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.s.web.client.RestTemplate - Accept=[application/json, application/*+json]
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000021 preparing request execution
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000022 preparing request execution
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000022 target auth state: UNCHALLENGED
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000022 proxy auth state: UNCHALLENGED
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000021 target auth state: UNCHALLENGED
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000021 proxy auth state: UNCHALLENGED
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.impl.classic.ConnectExec - ex-0000000022 acquiring connection with route {}->http://localhost:8761
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.impl.classic.ConnectExec - ex-0000000021 acquiring connection with route {}->http://localhost:8761
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000022 acquiring endpoint (180000 MILLISECONDS)
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000021 acquiring endpoint (180000 MILLISECONDS)
+2024-06-26 17:41:11.832 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000022 endpoint lease request (180000 MILLISECONDS) [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.832 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000021 endpoint lease request (180000 MILLISECONDS) [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.833 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000022 endpoint leased [route: {}->http://localhost:8761][total available: 0; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.833 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000021 endpoint leased [route: {}->http://localhost:8761][total available: 0; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "[read] I/O error: Read timed out"
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[read] I/O error: Read timed out"
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000022 acquired ep-0000000021
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000021 acquired ep-0000000022
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000022 acquired endpoint ep-0000000021
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000021 acquired endpoint ep-0000000022
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000022 executing GET /eureka/apps/delta HTTP/1.1
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000021 executing PUT /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061?status=UP&lastDirtyTimestamp=1719390971632 HTTP/1.1
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.protocol.RequestAddCookies - ex-0000000021 Cookie spec selected: strict
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.protocol.RequestAddCookies - ex-0000000022 Cookie spec selected: strict
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000022 start execution ex-0000000021
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000021 start execution ex-0000000022
+2024-06-26 17:41:11.834 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000022 executing exchange ex-0000000021 over http-outgoing-1
+2024-06-26 17:41:11.834 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000021 executing exchange ex-0000000022 over http-outgoing-0
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> PUT /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061?status=UP&lastDirtyTimestamp=1719390971632 HTTP/1.1
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> GET /eureka/apps/delta HTTP/1.1
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept: application/json, application/*+json
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept-Encoding: gzip, x-gzip, deflate
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Content-Length: 0
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> Accept: application/json, application/*+json
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Host: localhost:8761
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> Accept-Encoding: gzip, x-gzip, deflate
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Connection: keep-alive
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> Host: localhost:8761
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> Connection: keep-alive
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "PUT /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061?status=UP&lastDirtyTimestamp=1719390971632 HTTP/1.1[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept: application/json, application/*+json[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "GET /eureka/apps/delta HTTP/1.1[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept-Encoding: gzip, x-gzip, deflate[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Content-Length: 0[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "Accept: application/json, application/*+json[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Host: localhost:8761[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "Accept-Encoding: gzip, x-gzip, deflate[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "Host: localhost:8761[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)[\r][\n]"
+2024-06-26 17:41:11.835 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "[\r][\n]"
+2024-06-26 17:41:11.836 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "HTTP/1.1 200 [\r][\n]"
+2024-06-26 17:41:11.836 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "HTTP/1.1 200 [\r][\n]"
+2024-06-26 17:41:11.836 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Content-Encoding: gzip[\r][\n]"
+2024-06-26 17:41:11.836 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Content-Length: 0[\r][\n]"
+2024-06-26 17:41:11.836 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Content-Type: application/json[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Date: Wed, 26 Jun 2024 08:41:11 GMT[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Content-Length: 87[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Keep-Alive: timeout=60[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Date: Wed, 26 Jun 2024 08:41:11 GMT[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Keep-Alive: timeout=60[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "[\r][\n]"
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "[0x1f][0xffffff8b][0x8][0x0][0x0][0x0][0x0][0x0][0x0][0xffffffff][0xffffffab]VJ,([0xffffffc8][0xffffffc9]LN,[0xffffffc9][0xffffffcc][0xffffffcf]+V[0xffffffb2][0xffffffaa]V*K-*[0x6][0xffffffb1][0xffffffe3][0xffffffe3]SRsJ[0x12][0xffffff95][0xffffffac][0xffffff94][0xc][0xffffff8d][\r][0xffffff95]t@[0xffffffea][0xffffff80]b[0x19][0xffffff89][0xffffffc5][0x19][0xffffffc9][0xfffffff9])[0xffffffa9]@[0xffffffe1][0xffffffd0][0xffffff80]x[0xffffffa3]x[0xffffff88][0x4][0xffffffcc][0x0]%[0xffffffab][0xffffffe8][0xffffffd8][0xffffffda]Z[0x0][0xffffffa8]NBaT[0x0][0x0][0x0]"
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << HTTP/1.1 200 
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Content-Length: 0
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << HTTP/1.1 200 
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Date: Wed, 26 Jun 2024 08:41:11 GMT
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Content-Encoding: gzip
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Keep-Alive: timeout=60
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Content-Type: application/json
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Connection: keep-alive
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Content-Length: 87
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Date: Wed, 26 Jun 2024 08:41:11 GMT
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Keep-Alive: timeout=60
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-0 << Connection: keep-alive
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000021 connection can be kept alive for 60 SECONDS
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000022 connection can be kept alive for 60 SECONDS
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000022 releasing valid endpoint
+2024-06-26 17:41:11.837 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.s.web.client.RestTemplate - Response 200 OK
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000022 releasing endpoint
+2024-06-26 17:41:11.837 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000022 connection http-outgoing-1 can be kept alive for 60 SECONDS
+2024-06-26 17:41:11.838 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000022 connection released [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.838 [DiscoveryClient-HeartbeatExecutor-0] DEBUG o.s.web.client.RestTemplate - Response 200 OK
+2024-06-26 17:41:11.838 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.s.web.client.RestTemplate - Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2024-06-26 17:41:11.838 [DiscoveryClient-HeartbeatExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 - Heartbeat status: 200
+2024-06-26 17:41:11.838 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000021 releasing valid endpoint
+2024-06-26 17:41:11.838 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000021 releasing endpoint
+2024-06-26 17:41:11.838 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000021 connection http-outgoing-0 can be kept alive for 60 SECONDS
+2024-06-26 17:41:11.838 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000021 connection released [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:11.839 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - Got delta update with apps hashcode UP_2_
+2024-06-26 17:41:11.839 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - The total number of instances fetched by the delta processor : 0
+2024-06-26 17:41:11.839 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - The total number of all instances in the client now is 2
+2024-06-26 17:41:11.839 [DiscoveryClient-CacheRefreshExecutor-0] DEBUG c.netflix.discovery.DiscoveryClient - Completed cache refresh task for discovery. All Apps hash code is Local region apps hashcode: UP_2_, is fetching remote regions? false 
+2024-06-26 17:41:17.912 [SpringApplicationShutdownHook] DEBUG o.s.b.a.ApplicationAvailabilityBean - Application availability state ReadinessState changed from ACCEPTING_TRAFFIC to REFUSING_TRAFFIC
+2024-06-26 17:41:17.912 [SpringApplicationShutdownHook] DEBUG o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@2f8a064e, started on Wed Jun 26 17:36:07 KST 2024
+2024-06-26 17:41:17.914 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServiceRegistry - Unregistering application BOOK-USER-SERVER with eureka with status DOWN
+2024-06-26 17:41:17.914 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Saw local status change event StatusChangeEvent [timestamp=1719391277914, current=DOWN, previous=UP]
+2024-06-26 17:41:17.914 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG c.n.discovery.InstanceInfoReplicator - Executing on-demand update of local InstanceInfo
+2024-06-26 17:41:17.914 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG c.n.discovery.InstanceInfoReplicator - Canceling the latest scheduled update, it will be rescheduled at the end of on demand update
+2024-06-26 17:41:17.914 [DiscoveryClient-InstanceInfoReplicator-0] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061: registering service...
+2024-06-26 17:41:17.915 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.s.web.client.RestTemplate - HTTP POST http://localhost:8761/eureka/apps/BOOK-USER-SERVER
+2024-06-26 17:41:17.916 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.s.web.client.RestTemplate - Accept=[application/json, application/*+json]
+2024-06-26 17:41:17.916 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.s.web.client.RestTemplate - Writing [InstanceInfo [instanceId = 10.201.180.181:book-user-server:8061, appName = BOOK-USER-SERVER, hostName = 10.201.180.181, status = DOWN, ipAddr = 10.201.180.181, port = 8061, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@7e4dc27e] as "application/json"
+2024-06-26 17:41:17.917 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000023 preparing request execution
+2024-06-26 17:41:17.917 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000023 target auth state: UNCHALLENGED
+2024-06-26 17:41:17.917 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000023 proxy auth state: UNCHALLENGED
+2024-06-26 17:41:17.917 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.impl.classic.ConnectExec - ex-0000000023 acquiring connection with route {}->http://localhost:8761
+2024-06-26 17:41:17.917 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000023 acquiring endpoint (180000 MILLISECONDS)
+2024-06-26 17:41:17.918 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000023 endpoint lease request (180000 MILLISECONDS) [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:17.918 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000023 endpoint leased [route: {}->http://localhost:8761][total available: 0; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:17.918 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase 2147483647
+2024-06-26 17:41:17.919 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'applicationTaskExecutor' completed its stop procedure
+2024-06-26 17:41:17.919 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase 2147482623
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[read] I/O error: Read timed out"
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000023 acquired ep-0000000023
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000023 acquired endpoint ep-0000000023
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000023 executing POST /eureka/apps/BOOK-USER-SERVER HTTP/1.1
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.protocol.RequestAddCookies - ex-0000000023 Cookie spec selected: strict
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000023 start execution ex-0000000023
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000023 executing exchange ex-0000000023 over http-outgoing-1
+2024-06-26 17:41:17.919 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> POST /eureka/apps/BOOK-USER-SERVER HTTP/1.1
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept: application/json, application/*+json
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept-Encoding: gzip
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Content-Type: application/json
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Content-Length: 1014
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Host: localhost:8761
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Connection: keep-alive
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "POST /eureka/apps/BOOK-USER-SERVER HTTP/1.1[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept: application/json, application/*+json[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept-Encoding: gzip[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Content-Type: application/json[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Content-Length: 1014[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Host: localhost:8761[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "[\r][\n]"
+2024-06-26 17:41:17.920 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "{"instance":{"instanceId":"10.201.180.181:book-user-server:8061","app":"BOOK-USER-SERVER","appGroupName":null,"ipAddr":"10.201.180.181","sid":"na","homePageUrl":"http://10.201.180.181:8061/","statusPageUrl":"http://10.201.180.181:8061/actuator/info","healthCheckUrl":"http://10.201.180.181:8061/actuator/health","secureHealthCheckUrl":null,"vipAddress":"book-user-server","secureVipAddress":"book-user-server","countryId":1,"dataCenterInfo":{"@class":"com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo","name":"MyOwn"},"hostName":"10.201.180.181","status":"DOWN","overriddenStatus":"UNKNOWN","leaseInfo":{"renewalIntervalInSecs":30,"durationInSecs":90,"registrationTimestamp":0,"lastRenewalTimestamp":0,"evictionTimestamp":0,"serviceUpTimestamp":0},"isCoordinatingDiscoveryServer":false,"lastUpdatedTimestamp":1719390971467,"lastDirtyTimestamp":1719391277914,"actionType":null,"asgName":null,"port":{"$":8061,"@enabled":"true"},"securePort":{"$":443,"@enabled":"false"},"metadata":{"management.port":"8061"}}}"
+2024-06-26 17:41:17.920 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'webServerGracefulShutdown' completed its stop procedure
+2024-06-26 17:41:17.920 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase 2147481599
+2024-06-26 17:41:17.924 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'webServerStartStop' completed its stop procedure
+2024-06-26 17:41:17.924 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase 0
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "HTTP/1.1 204 [\r][\n]"
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Date: Wed, 26 Jun 2024 08:41:17 GMT[\r][\n]"
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Keep-Alive: timeout=60[\r][\n]"
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << HTTP/1.1 204 
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Date: Wed, 26 Jun 2024 08:41:17 GMT
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Keep-Alive: timeout=60
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Connection: keep-alive
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000023 connection can be kept alive for 60 SECONDS
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000023 releasing valid endpoint
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000023 releasing endpoint
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000023 connection http-outgoing-1 can be kept alive for 60 SECONDS
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000023 connection released [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:17.927 [DiscoveryClient-InstanceInfoReplicator-0] DEBUG o.s.web.client.RestTemplate - Response 204 NO_CONTENT
+2024-06-26 17:41:17.928 [DiscoveryClient-InstanceInfoReplicator-0] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 - registration status: 204
+2024-06-26 17:41:17.928 [SpringApplicationShutdownHook] DEBUG io.lettuce.core.AbstractRedisClient - Initiate shutdown (100, 100, MILLISECONDS)
+2024-06-26 17:41:17.940 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'redisConnectionFactory' completed its stop procedure
+2024-06-26 17:41:17.940 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Successfully stopped bean 'refreshScopeLifecycle'
+2024-06-26 17:41:17.941 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase -2147483647
+2024-06-26 17:41:17.941 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'springBootLoggingLifecycle' completed its stop procedure
+2024-06-26 17:41:17.941 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Stopping beans in phase -2147483648
+2024-06-26 17:41:17.941 [SpringApplicationShutdownHook] DEBUG o.s.c.s.DefaultLifecycleProcessor - Bean 'rabbitConnectionFactory' completed its stop procedure
+2024-06-26 17:41:17.943 [SpringApplicationShutdownHook] DEBUG o.s.d.r.l.RedisMessageListenerContainer - Stopped RedisMessageListenerContainer
+2024-06-26 17:41:17.943 [SpringApplicationShutdownHook] DEBUG i.l.c.r.DefaultClientResources - Initiate shutdown (0, 2, SECONDS)
+2024-06-26 17:41:17.945 [SpringApplicationShutdownHook] DEBUG i.l.c.r.DefaultEventLoopGroupProvider - Initiate shutdown (0, 2, SECONDS)
+2024-06-26 17:41:17.948 [SpringApplicationShutdownHook] DEBUG o.s.b.f.s.DisposableBeanAdapter - Custom destroy method 'shutdown' on bean with name 'lettuceClientResources' completed asynchronously
+2024-06-26 17:41:17.948 [SpringApplicationShutdownHook] DEBUG o.s.s.c.ThreadPoolTaskExecutor - Shutting down ExecutorService 'applicationTaskExecutor'
+2024-06-26 17:41:17.950 [SpringApplicationShutdownHook] DEBUG o.s.b.f.s.DisposableBeanAdapter - Custom destroy method 'close' on bean with name 'eurekaServiceRegistry' completed
+2024-06-26 17:41:17.950 [SpringApplicationShutdownHook] DEBUG o.s.j.e.a.AnnotationMBeanExporter - Unregistering JMX-exposed beans on shutdown
+2024-06-26 17:41:17.951 [SpringApplicationShutdownHook] DEBUG o.s.j.e.a.AnnotationMBeanExporter - Unregistering JMX-exposed beans
+2024-06-26 17:41:17.951 [SpringApplicationShutdownHook] DEBUG o.s.c.a.AnnotationConfigApplicationContext - Closing FeignClientFactory-couponAdaptor, started on Wed Jun 26 17:36:10 KST 2024, parent: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@2f8a064e
+2024-06-26 17:41:17.954 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-06-26 17:41:17.954 [SpringApplicationShutdownHook] DEBUG o.h.internal.SessionFactoryImpl - HHH000031: Closing
+2024-06-26 17:41:17.955 [SpringApplicationShutdownHook] DEBUG o.h.type.spi.TypeConfiguration$Scope - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@35dd7ac6] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@114b6798]
+2024-06-26 17:41:17.955 [SpringApplicationShutdownHook] DEBUG o.h.s.i.AbstractServiceRegistryImpl - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2024-06-26 17:41:17.956 [SpringApplicationShutdownHook] DEBUG o.h.b.r.i.BootstrapServiceRegistryImpl - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries
+2024-06-26 17:41:17.957 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-06-26 17:41:17.957 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before shutdown stats (total=10, active=0, idle=10, waiting=0)
+2024-06-26 17:41:17.958 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4def75c0: (connection evicted)
+2024-06-26 17:41:17.971 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@bb1690e: (connection evicted)
+2024-06-26 17:41:17.984 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@4a8c6335: (connection evicted)
+2024-06-26 17:41:17.993 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@7b0c4aca: (connection evicted)
+2024-06-26 17:41:18.003 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2aa39c7a: (connection evicted)
+2024-06-26 17:41:18.014 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2eedc270: (connection evicted)
+2024-06-26 17:41:18.023 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2d571e39: (connection evicted)
+2024-06-26 17:41:18.033 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@2b5eaeed: (connection evicted)
+2024-06-26 17:41:18.044 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@144a2958: (connection evicted)
+2024-06-26 17:41:18.054 [HikariPool-1 connection closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection com.mysql.cj.jdbc.ConnectionImpl@214b5129: (connection evicted)
+2024-06-26 17:41:18.064 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After shutdown stats (total=0, active=0, idle=0, waiting=0)
+2024-06-26 17:41:18.064 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-06-26 17:41:18.065 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Shutting down DiscoveryClient ...
+2024-06-26 17:41:21.073 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Unregistering ...
+2024-06-26 17:41:21.075 [SpringApplicationShutdownHook] DEBUG o.s.web.client.RestTemplate - HTTP DELETE http://localhost:8761/eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061
+2024-06-26 17:41:21.076 [SpringApplicationShutdownHook] DEBUG o.s.web.client.RestTemplate - Accept=[application/json, application/*+json]
+2024-06-26 17:41:21.076 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000024 preparing request execution
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000024 target auth state: UNCHALLENGED
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.impl.classic.ProtocolExec - ex-0000000024 proxy auth state: UNCHALLENGED
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.impl.classic.ConnectExec - ex-0000000024 acquiring connection with route {}->http://localhost:8761
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000024 acquiring endpoint (180000 MILLISECONDS)
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000024 endpoint lease request (180000 MILLISECONDS) [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:21.077 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000024 endpoint leased [route: {}->http://localhost:8761][total available: 0; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:21.078 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[read] I/O error: Read timed out"
+2024-06-26 17:41:21.078 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ex-0000000024 acquired ep-0000000024
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ex-0000000024 acquired endpoint ep-0000000024
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000024 executing DELETE /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 HTTP/1.1
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.protocol.RequestAddCookies - ex-0000000024 Cookie spec selected: strict
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000024 start execution ex-0000000024
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000024 executing exchange ex-0000000024 over http-outgoing-1
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> DELETE /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 HTTP/1.1
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept: application/json, application/*+json
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Accept-Encoding: gzip, x-gzip, deflate
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Content-Length: 0
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Host: localhost:8761
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> Connection: keep-alive
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 >> User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "DELETE /eureka/apps/BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 HTTP/1.1[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept: application/json, application/*+json[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept-Encoding: gzip, x-gzip, deflate[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Content-Length: 0[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Host: localhost:8761[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "User-Agent: Apache-HttpClient/5.3.1 (Java/21.0.2)[\r][\n]"
+2024-06-26 17:41:21.079 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "HTTP/1.1 200 [\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Content-Length: 0[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Date: Wed, 26 Jun 2024 08:41:21 GMT[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Keep-Alive: timeout=60[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Connection: keep-alive[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << HTTP/1.1 200 
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Content-Length: 0
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Date: Wed, 26 Jun 2024 08:41:21 GMT
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Keep-Alive: timeout=60
+2024-06-26 17:41:21.081 [SpringApplicationShutdownHook] DEBUG org.apache.hc.client5.http.headers - http-outgoing-1 << Connection: keep-alive
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.classic.MainClientExec - ex-0000000024 connection can be kept alive for 60 SECONDS
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.c.InternalHttpClient - ep-0000000024 releasing valid endpoint
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000024 releasing endpoint
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000024 connection http-outgoing-1 can be kept alive for 60 SECONDS
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.a.h.c.h.i.i.PoolingHttpClientConnectionManager - ep-0000000024 connection released [route: {}->http://localhost:8761][total available: 1; route allocated: 1 of 5; total allocated: 1 of 25]
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] DEBUG o.s.web.client.RestTemplate - Response 200 OK
+2024-06-26 17:41:21.082 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - DiscoveryClient_BOOK-USER-SERVER/10.201.180.181:book-user-server:8061 - deregister  status: 200
+2024-06-26 17:41:21.088 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient - Completed shut down of DiscoveryClient
