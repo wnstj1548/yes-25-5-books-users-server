@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+            jdk 'jdk-21'
+            maven 'maven-3.8.8'
+        }
+
+
     environment {
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
         REMOTE_USER = credentials('SSH_USER')
