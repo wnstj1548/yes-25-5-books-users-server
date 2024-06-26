@@ -1,7 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.presentation.dto.request.*;
-import com.yes255.yes255booksusersserver.presentation.dto.response.*;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -26,5 +29,5 @@ public interface UserService {
 
     boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
 
-    boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest);
+    boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest);
 }

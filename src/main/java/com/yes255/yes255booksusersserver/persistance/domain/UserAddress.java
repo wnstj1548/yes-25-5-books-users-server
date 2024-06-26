@@ -47,5 +47,19 @@ public class UserAddress {
     }
 
 
+    public void updateUserAddressName(String addressName) {
+        this.addressName = addressName;
+    }
 
+    public void updateUserAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
+    }
+
+    public void updateUserAddressBased(boolean addressBased) {
+        this.addressBased = addressBased;
+    }
+
+    public void updateUserAddress(Address address) {
+        this.address = address;
+    }
 }

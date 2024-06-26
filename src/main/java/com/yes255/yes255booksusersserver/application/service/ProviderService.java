@@ -1,11 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.persistance.domain.Provider;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateProviderRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateProviderRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateProviderResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.ProviderResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateProviderResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.provider.CreateProviderRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.provider.UpdateProviderRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.provider.CreateProviderResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.provider.ProviderResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.provider.UpdateProviderResponse;
 
 import java.util.List;
 

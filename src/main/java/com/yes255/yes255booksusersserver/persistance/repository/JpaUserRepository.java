@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.persistance.repository;
 
 import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.UserState;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,4 +16,6 @@ public interface JpaUserRepository extends JpaRepository<User, Long> {
     User findByUserEmail(String userEmail);
 
     User findByUserEmailAndUserName(String userEmail, String userName);
+
+    List<User> findAllByUserState(UserState state);
 }

@@ -35,7 +35,8 @@ public class CartBook {
     private LocalDateTime cartBookCreatedAt;
 
     @Builder
-    public CartBook(Cart cart, Book book, int bookQuantity, LocalDateTime cartBookCreatedAt) {
+    public CartBook(Long cartBookId, Cart cart, Book book, int bookQuantity, LocalDateTime cartBookCreatedAt) {
+        this.cartBookId = cartBookId;
         this.cart = cart;
         this.book = book;
         this.bookQuantity = bookQuantity;

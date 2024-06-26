@@ -6,11 +6,11 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.*;
-import com.yes255.yes255booksusersserver.presentation.dto.response.FindUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.LoginUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+    // todo : jwt 토큰으로 변경
 
     private final JpaUserRepository userRepository;
     private final JpaCustomerRepository customerRepository;
@@ -54,11 +56,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserEmail(userRequest.email());
 
         if (Objects.isNull(user)) {
-            throw new UserNotFoundException(ErrorStatus.toErrorStatus("회원 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
-            throw new UserPasswordMismatchException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 최근 로그인 날짜 업데이트
@@ -78,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse findUserByUserId(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now())));
 
         return UserResponse.builder()
                 .userId(user.getUserId())
@@ -102,7 +104,7 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAllByUserNameAndUserPhone(emailRequest.name(), emailRequest.phone(), pageable);
 
         if (Objects.isNull(users)) {
-            throw new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         return users.stream()
@@ -121,12 +123,12 @@ public class UserServiceImpl implements UserService {
         User checkUser = userRepository.findByUserEmail(userRequest.userEmail());
 
         if (Objects.nonNull(checkUser)) {
-            throw new UserEmailAlreadyExistedException(ErrorStatus.toErrorStatus("이미 사용중인 이메일입니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("이미 사용중인 이메일입니다.", 400, LocalDateTime.now()));
         }
 
         // 비밀번호 검증 오류
         if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
-            throw new UserPasswordMismatchException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 회원 가입 시 고객 ID(권한) 부여
@@ -138,21 +140,21 @@ public class UserServiceImpl implements UserService {
         Provider provider = providerRepository.findByProviderName("LOCAL");
 
         if (Objects.isNull(provider)) {
-            throw new ProviderNotFoundException(ErrorStatus.toErrorStatus("제공자가 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new ProviderException(ErrorStatus.toErrorStatus("제공자가 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 회원 상태 Active
         UserState userState = userStateRepository.findByUserStateName("ACTIVE");
 
         if (Objects.isNull(userState)) {
-            throw new UserStateNotFoundException(ErrorStatus.toErrorStatus("유저 상태가 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserStateException(ErrorStatus.toErrorStatus("회원 상태가 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 회원 등급 NORMAL 부여
         UserGrade userGrade = userGradeRepository.findByUserGradeName("NORMAL");
 
         if (Objects.isNull(userGrade)) {
-            throw new UserGradeNotFoundException(ErrorStatus.toErrorStatus("유저 등급이 존재 하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserGradeException(ErrorStatus.toErrorStatus("회원 등급이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         // 비밀번호 인코딩
@@ -173,11 +175,11 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        // 회원 총 구매 금액 테이블 생성
-        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
-                .user(user)
-                .userTotalAmount(BigDecimal.valueOf(0))
-                .build());
+//        // 회원 총 구매 금액 테이블 생성
+//        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
+//                .user(user)
+//                .userTotalAmount(BigDecimal.valueOf(0))
+//                .build());
       
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
@@ -199,7 +201,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 회원 가입 쿠폰 지급
-        couponAdaptor.issueWelcomeCoupon(user.getUserId());
+//        couponAdaptor.issueWelcomeCoupon(user.getUserId());
 
         log.info("User : {}", user);
 
@@ -224,12 +226,11 @@ public class UserServiceImpl implements UserService {
 
         // 비밀번호 검증 오류
         if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
-            throw new UserPasswordMismatchException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
-
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         user.updateUserName(userRequest.userName());
         user.updateUserPhone(userRequest.userPhone());
@@ -251,22 +252,34 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId, DeleteUserRequest userRequest) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         if (passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
-            totalAmountRepository.deleteByUser(user);
-            cartBookRepository.deleteByCartUserUserId(userId);
-            cartRepository.deleteByUser_UserId(userId);
-            pointLogRepository.deleteByPointUserUserId(userId);
-            pointRepository.deleteByUser_UserId(userId);
-            userAddressRepository.deleteByUserUserId(userId);
+//            totalAmountRepository.deleteByUser(user);
+//            cartBookRepository.deleteByCartUserUserId(userId);
+//            cartRepository.deleteByUser_UserId(userId);
+//            pointLogRepository.deleteByPointUserUserId(userId);
+//            pointRepository.deleteByUser_UserId(userId);
+//            userAddressRepository.deleteByUserUserId(userId);
+//
+//            userRepository.delete(user);
+//
+//            customerRepository.delete(user.getCustomer());
 
-            userRepository.delete(user);
+            // 회원 상태를 ACTIVE(활성) -> WITHDRAWAL(탈퇴) 전환
+            UserState userState = userStateRepository.findByUserStateName("WITHDRAWAL");
 
-            customerRepository.delete(user.getCustomer());
+            if (Objects.isNull(userState)) {
+                throw new UserGradeException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            }
+
+            user.updateUserState(userState);
+            userRepository.save(user);
+
+            // todo : 회원 상태 '탈퇴'로 변경
         }
         else {
-            throw new UserPasswordMismatchException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
     }
 
@@ -276,7 +289,7 @@ public class UserServiceImpl implements UserService {
     public void updateLastLoginDate(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         user.updateLastLoginDate();
         userRepository.save(user);
@@ -309,14 +322,25 @@ public class UserServiceImpl implements UserService {
         return !Objects.isNull(user);
     }
 
-    // todo : 비밀번호 찾기 서비스 작성
+    // 비밀번호 재설정
     @Transactional(readOnly = true)
     @Override
-    public boolean setUserPasswordByUserId(UpdatePasswordRequest passwordRequest) {
+    public boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest) {
 
-        // todo : userId는 어디서 받는지?
-//        User user = userRepository.findById()
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now())));
 
-        return false;
+        // 비밀번호 검증 오류
+        if (!passwordRequest.password().equals(passwordRequest.confirmPassword())) {
+            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        user.updateUserPassword(passwordRequest.confirmPassword());
+
+        userRepository.save(user);
+
+        return true;
     }
+
+
 }

@@ -1,7 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.presentation.dto.request.PointPolicyRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.PointPolicyResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 
 import java.util.List;
 

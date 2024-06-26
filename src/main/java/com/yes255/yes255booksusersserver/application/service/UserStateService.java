@@ -1,9 +1,8 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.persistance.domain.UserState;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserStateRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserStateRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UserStateResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.CreateUserStateRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.UpdateUserStateRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.userstate.UserStateResponse;
 
 import java.util.List;
 
@@ -18,4 +17,6 @@ public interface UserStateService {
     List<UserStateResponse> findAllUserStates();
 
     void deleteUserState(Long userStateId);
+
+    void updateUserStateByUser();
 }

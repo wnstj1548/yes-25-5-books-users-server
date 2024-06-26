@@ -114,6 +114,10 @@ public class User {
         this.userGrade = userGrade;
     }
 
+    public void updateUserState(UserState userState) {
+        this.userState = userState;
+    }
+
     @Override
     public String toString() {
         return userName + ", " + userPhone + ", " + userEmail + ", " + userBirth + ", "
