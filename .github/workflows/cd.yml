@@ -61,6 +61,7 @@ jobs:
               exit 1
             fi
             docker build -t books-users-app .
+            docker network connect yes255-network books-users-app
             docker stop books-users-app || true
             docker rm books-users-app || true
             docker run -d -p 8060:8060 --name books-users-app \
