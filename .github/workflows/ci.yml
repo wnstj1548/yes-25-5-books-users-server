@@ -29,8 +29,8 @@ jobs:
         run: |
           docker run --rm books-users-app mvn clean verify sonar:sonar \
           -Dspring.profile.active=ci \
-          -Dsonar.projectKey=yes-25-5-books-user \
-          -Dsonar.projectName='yes-25-5-books-user' \
+          -Dsonar.projectKey=yes-25-5-books-users \
+          -Dsonar.projectName='yes-25-5-books-users' \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
