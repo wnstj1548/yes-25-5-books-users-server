@@ -255,16 +255,26 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         if (passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
-            totalAmountRepository.deleteByUser(user);
-            cartBookRepository.deleteByCartUserUserId(userId);
-            cartRepository.deleteByUser_UserId(userId);
-            pointLogRepository.deleteByPointUserUserId(userId);
-            pointRepository.deleteByUser_UserId(userId);
-            userAddressRepository.deleteByUserUserId(userId);
+//            totalAmountRepository.deleteByUser(user);
+//            cartBookRepository.deleteByCartUserUserId(userId);
+//            cartRepository.deleteByUser_UserId(userId);
+//            pointLogRepository.deleteByPointUserUserId(userId);
+//            pointRepository.deleteByUser_UserId(userId);
+//            userAddressRepository.deleteByUserUserId(userId);
+//
+//            userRepository.delete(user);
+//
+//            customerRepository.delete(user.getCustomer());
 
-            userRepository.delete(user);
+            // 회원 상태를 ACTIVE(활성) -> WITHDRAWAL(탈퇴) 전환
+            UserState userState = userStateRepository.findByUserStateName("WITHDRAWAL");
 
-            customerRepository.delete(user.getCustomer());
+            if (Objects.isNull(userState)) {
+                throw new UserGradeException(ErrorStatus.toErrorStatus("회원 상태가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            }
+
+            user.updateUserState(userState);
+            userRepository.save(user);
 
             // todo : 회원 상태 '탈퇴'로 변경
         }
