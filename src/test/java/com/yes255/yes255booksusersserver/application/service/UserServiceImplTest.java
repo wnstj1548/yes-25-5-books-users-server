@@ -1,6 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.UserServiceImpl;
+import com.yes255.yes255booksusersserver.common.exception.ProviderException;
+import com.yes255.yes255booksusersserver.common.exception.UserException;
+import com.yes255.yes255booksusersserver.common.exception.UserGradeException;
+import com.yes255.yes255booksusersserver.common.exception.UserStateException;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
@@ -122,6 +126,45 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("이메일과 비밀번호로 로그인 - 실패 (사용자 없음)")
+    void testFindLoginUserByEmailByPassword_UserNotFound() {
+
+        String userEmail = "test@example.com";
+        String password = "encodedPassword";
+        LoginUserRequest request = LoginUserRequest.builder()
+                .email(userEmail)
+                .password(password)
+                .build();
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(null);
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.findLoginUserByEmailByPassword(request));
+
+        assertEquals("회원이 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("이메일과 비밀번호로 로그인 - 실패 (비밀번호 불일치)")
+    void testFindLoginUserByEmailByPassword_PasswordMismatch() {
+
+        String userEmail = "test@example.com";
+        String password = "wrongPassword";
+        LoginUserRequest request = LoginUserRequest.builder()
+                .email(userEmail)
+                .password(password)
+                .build();
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(testUser);
+        when(passwordEncoder.matches(password, testUser.getUserPassword())).thenReturn(false);
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.findLoginUserByEmailByPassword(request));
+
+        assertEquals("비밀번호가 일치하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
     @DisplayName("특정 회원 조회 - 성공")
     void testFindUserByUserId() {
 
@@ -144,6 +187,21 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("특정 회원 조회 - 실패 (회원 없음)")
+    void testFindUserByUserId_UserNotFound() {
+
+        Long userId = 1L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.findUserByUserId(userId));
+
+        assertEquals("회원이 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+
+    @Test
     @DisplayName("이름과 전화번호로 이메일 조회 - 성공")
     void testFindAllUserEmailByUserNameByUserPhone() {
 
@@ -162,6 +220,27 @@ public class UserServiceImplTest {
         assertFalse(responses.isEmpty());
         assertEquals(testUser.getUserEmail(), responses.getFirst().userEmail());
     }
+
+    @Test
+    @DisplayName("이름과 전화번호로 이메일 조회 - 실패 (회원 없음)")
+    void testFindAllUserEmailByUserNameByUserPhone_UserNotFound() {
+
+        String userName = "Nonexistent User";
+        String userPhone = "010-0000-0000";
+        FindEmailRequest request = FindEmailRequest.builder()
+                .name(userName)
+                .phone(userPhone)
+                .build();
+
+        when(userRepository.findAllByUserNameAndUserPhone(userName, userPhone, Pageable.unpaged()))
+                .thenReturn(null);
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.findAllUserEmailByUserNameByUserPhone(request, Pageable.unpaged()));
+
+        assertEquals("회원이 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
 
     @Test
     @DisplayName("회원 가입 - 성공")
@@ -217,6 +296,111 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("회원 가입 - 실패 (비밀번호 불일치)")
+    void testCreateUser_PasswordMismatch() {
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password456")
+                .build();
+
+        assertThrows(UserException.class,
+                () -> userService.createUser(request),
+                "비밀번호가 일치하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (이미 가입된 이메일)")
+    void testCreateUser_DuplicateEmail() {
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password123")
+                .build();
+
+        when(userRepository.findByUserEmail(request.userEmail())).thenReturn(testUser);
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.createUser(request));
+
+        assertEquals("이미 사용중인 이메일입니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (제공자 정보 없음)")
+    void testCreateUser_NoProviderInformation() {
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password123")
+                .build();
+
+        when(providerRepository.findByProviderName("LOCAL")).thenReturn(null);
+
+        ProviderException exception = assertThrows(ProviderException.class,
+                () -> userService.createUser(request));
+
+        assertEquals("제공자가 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (회원 상태 정보 없음)")
+    void testCreateUser_NoUserStateInformation() {
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password123")
+                .build();
+
+        when(providerRepository.findByProviderName(anyString())).thenReturn(Provider.builder().providerName("LOCAL").build());
+        when(userStateRepository.findByUserStateName(anyString())).thenReturn(null);
+
+        UserStateException exception = assertThrows(UserStateException.class,
+                () -> userService.createUser(request));
+
+        assertEquals("회원 상태가 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (회원 등급 정보 없음)")
+    void testCreateUser_NoUserGradeInformation() {
+
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password123")
+                .build();
+
+        when(providerRepository.findByProviderName(anyString())).thenReturn(Provider.builder().providerName("LOCAL").build());
+        when(userStateRepository.findByUserStateName(anyString())).thenReturn(UserState.builder().userStateName("ACTIVE").build());
+        when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(null);
+
+        UserGradeException exception = assertThrows(UserGradeException.class,
+                () -> userService.createUser(request));
+
+        assertEquals("회원 등급이 존재 하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
     @DisplayName("회원 정보 업데이트 - 성공")
     void testUpdateUser() {
 
@@ -240,6 +424,46 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("회원 정보 수정 - 실패 (비밀번호 불일치)")
+    void testUpdateUser_PasswordMismatch() {
+
+        Long userId = 1L;
+        UpdateUserRequest request = UpdateUserRequest.builder()
+                .userName("Updated User")
+                .userPhone("010-1234-5678")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userPassword("newPassword123")
+                .userConfirmPassword("oldPassword123")
+                .build();
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.updateUser(userId, request));
+
+        assertEquals("비밀번호가 일치하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 - 실패 (회원 없음)")
+    void testUpdateUser_UserNotFound() {
+
+        Long userId = 1L;
+        UpdateUserRequest request = UpdateUserRequest.builder()
+                .userName("Updated User")
+                .userPhone("010-1234-5678")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userPassword("newPassword123")
+                .userConfirmPassword("newPassword123")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.updateUser(userId, request));
+
+        assertEquals("회원이 존재하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
     @DisplayName("회원 삭제 - 성공")
     void testDeleteUser() {
 
@@ -250,8 +474,60 @@ public class UserServiceImplTest {
 
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userStateRepository.findByUserStateName("WITHDRAWAL")).thenReturn(UserState.builder().userStateName("WITHDRAWAL").build());
 
         assertDoesNotThrow(() -> userService.deleteUser(userId, request));
+    }
+
+    @Test
+    @DisplayName("회원 삭제 - 실패 (회원이 존재하지 않음)")
+    void testDeleteUser_UserNotFound() {
+
+        Long userId = 1L;
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .password("encodedPassword")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserException exception = assertThrows(UserException.class, () -> userService.deleteUser(userId, request));
+
+        assertEquals("회원이 존재하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 삭제 - 실패 (비밀번호 불일치)")
+    void testDeleteUser_PasswordMismatch() {
+
+        Long userId = 1L;
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .password("wrongPassword")
+                .build();
+
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+
+        UserException exception = assertThrows(UserException.class, () -> userService.deleteUser(userId, request));
+
+        assertEquals("비밀번호가 일치하지 않습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("회원 삭제 - 실패 (회원 상태 존재하지 않음)")
+    void testDeleteUser_UserStateNotFound() {
+
+        Long userId = 1L;
+        DeleteUserRequest request = DeleteUserRequest.builder()
+                .password("encodedPassword")
+                .build();
+
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userStateRepository.findByUserStateName("WITHDRAWAL")).thenReturn(null);
+
+        UserGradeException exception = assertThrows(UserGradeException.class, () -> userService.deleteUser(userId, request));
+
+        assertEquals("회원 상태가 존재하지 않습니다.", exception.getErrorStatus().message());
     }
 
     @Test
