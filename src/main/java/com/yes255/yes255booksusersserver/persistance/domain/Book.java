@@ -35,9 +35,6 @@ public class Book {
     @Column(name = "book_index")
     private String bookIndex;
 
-    @Column(name = "book_author")
-    private String bookAuthor;
-
     @Column(name = "book_publisher")
     private String bookPublisher;
 
@@ -70,7 +67,7 @@ public class Book {
 
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
-                String bookIndex, String bookAuthor, String bookPublisher, Date bookPublishDate,
+                String bookIndex, String bookPublisher, Date bookPublishDate,
                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
                 Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount) {
         this.bookId = bookId;
@@ -78,7 +75,6 @@ public class Book {
         this.bookName = bookName;
         this.bookDescription = bookDescription;
         this.bookIndex = bookIndex;
-        this.bookAuthor = bookAuthor;
         this.bookPublisher = bookPublisher;
         this.bookPublishDate = bookPublishDate;
         this.bookPrice = bookPrice;
@@ -95,7 +91,6 @@ public class Book {
         this.bookName = Optional.ofNullable(book.getBookName()).orElse(this.bookName);
         this.bookDescription = Optional.ofNullable(book.getBookDescription()).orElse(this.bookDescription);
         this.bookIndex = Optional.ofNullable(book.getBookIndex()).orElse(this.bookIndex);
-        this.bookAuthor = Optional.ofNullable(book.getBookAuthor()).orElse(this.bookAuthor);
         this.bookPublisher = Optional.ofNullable(book.getBookPublisher()).orElse(this.bookPublisher);
         this.bookPublishDate = Optional.ofNullable(book.getBookPublishDate()).orElse(this.bookPublishDate);
         this.bookPrice = Optional.ofNullable(book.getBookPrice()).orElse(this.bookPrice);

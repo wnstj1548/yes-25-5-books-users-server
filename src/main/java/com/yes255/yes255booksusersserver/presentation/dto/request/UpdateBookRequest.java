@@ -27,8 +27,6 @@ public record UpdateBookRequest(
 
         String index,
 
-        String bookAuthor,
-
         String bookPublisher,
 
         @PastOrPresent(message = "책 출간일은 미래일 수 없습니다.")
@@ -52,7 +50,6 @@ public record UpdateBookRequest(
                 .bookName(bookName)
                 .bookDescription(bookDescription)
                 .bookIndex(index)
-                .bookAuthor(bookAuthor)
                 .bookPublisher(bookPublisher)
                 .bookPublishDate(bookPublishDate)
                 .bookPrice(bookPrice)
