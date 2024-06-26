@@ -191,7 +191,6 @@ public class BookController {
                     .bookIsbn(book.bookIsbn())
                     .bookName(book.bookName())
                     .bookDescription(book.bookDescription())
-                    .bookAuthor(book.bookAuthor())
                     .bookPublisher(book.bookPublisher())
                     .bookPublishDate(book.bookPublishDate())
                     .bookPrice(book.bookPrice())
