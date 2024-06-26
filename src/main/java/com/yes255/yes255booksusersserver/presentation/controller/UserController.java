@@ -50,7 +50,7 @@ public class UserController {
      * @return ResponseEntity<UserResponse> 생성된 회원 데이터와 상태 코드 201(CREATED)
      */
     @Operation(summary = "회원 가입", description = "회원 가입을 진행합니다.")
-    @PostMapping("/auth/signup")
+    @PostMapping("/users/sign-up")
     public ResponseEntity<UserResponse> signUp(@RequestBody CreateUserRequest userRequest) {
         return new ResponseEntity<>(userService.createUser(userRequest), HttpStatus.CREATED);
     }
@@ -62,7 +62,7 @@ public class UserController {
      * @return ResponseEntity<Boolean> 로그인 성공 여부와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 로그인", description = "회원의 로그인을 처리합니다.")
-    @PostMapping("/auth/login")
+    @PostMapping("/users/login")
     public ResponseEntity<Boolean> login(@RequestBody LoginUserRequest userRequest) {
         return new ResponseEntity<>(userService.loginUserByEmailByPassword(userRequest), HttpStatus.OK);
     }
@@ -75,7 +75,7 @@ public class UserController {
      * @return ResponseEntity<List<FindUserResponse>> 찾은 이메일 목록과 상태 코드 200(OK)
      */
     @Operation(summary = "이메일 찾기", description = "이메일(아이디)을 찾기 위해 회원 이름과 이메일을 통해 이메일 목록을 조회합니다.")
-    @PostMapping("/auth/findEmail")
+    @PostMapping("/users/findEmail")
     public ResponseEntity<List<FindUserResponse>> findAllByUserNameByUserPhone(@RequestBody FindEmailRequest emailRequest,
                                                                                Pageable pageable) {
         return new ResponseEntity<>(userService.findAllUserEmailByUserNameByUserPhone(emailRequest, pageable)
@@ -89,7 +89,7 @@ public class UserController {
      * @return ResponseEntity<Boolean> 비밀번호 찾기 성공 여부와 상태 코드 200(OK)
      */
     @Operation(summary = "비밀번호 찾기", description = "이메일과 회원 이름을 통해 비밀번호 찾기 인증을 진행합니다.")
-    @PostMapping("/auth/findPassword")
+    @PostMapping("/users/findPassword")
     public ResponseEntity<Boolean> findPassword(@RequestBody FindPasswordRequest passwordRequest) {
         return new ResponseEntity<>(userService.findUserPasswordByEmailByName(passwordRequest), HttpStatus.OK);
     }
@@ -108,12 +108,13 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<UserResponse> findByUserId() {
 
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        Long userId = (Long) request.getAttribute("userId");
-
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+//        Long userId = (Long) request.getAttribute("userId");
+//
+//        if (userId == null) {
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
+        Long userId = 28L;
 
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }

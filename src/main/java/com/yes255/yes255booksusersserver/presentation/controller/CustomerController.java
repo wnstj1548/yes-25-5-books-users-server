@@ -84,4 +84,6 @@ public class CustomerController {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
     }
+
+    // todo : 비회원을 위한 고객 정보 반환
 }
