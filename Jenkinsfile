@@ -17,14 +17,12 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                checkout scm
-
                 script {
+                    checkout scm
                     if (!fileExists('Dockerfile')) {
                         error "Dockerfile not found!"
                     }
                 }
-
                 sh 'docker build --no-cache -t books-users-app .'
             }
         }
@@ -69,48 +67,20 @@ pipeline {
             }
         }
 
-        stage('Send Dooray Webhook on Success') {
-            when {
-                success()
-            }
+        stage('Send Dooray Webhook') {
             steps {
                 script {
+                    def statusColor = currentBuild.result == 'SUCCESS' ? 'green' : 'red'
+                    def statusText = currentBuild.result == 'SUCCESS' ? '성공적으로 올라갔어요!' : '실패했어요...'
                     def payload = [
                         botName: '도서 회원 서버 Bot',
                         botIconImage: 'https://www.tistory.com/favicon.ico',
-                        text: '도서 회원 서버의 Pull Request가 성공적으로 올라갔어요!',
+                        text: "도서 회원 서버의 Pull Request가 ${statusText}",
                         attachments: [
                             [
                                 title: 'Pull Request URL',
                                 titleLink: env.PR_URL,
-                                color: 'green',
-                                text: "PR 제목: ${env.PR_TITLE}, PR 작성자: ${env.PR_ACTOR}"
-                            ]
-                        ]
-                    ]
-
-                    httpRequest contentType: 'APPLICATION_JSON',
-                                url: "${DOORAY_WEBHOOK_URL}",
-                                requestBody: groovy.json.JsonOutput.toJson(payload)
-                }
-            }
-        }
-
-        stage('Send Dooray Webhook on Failure') {
-            when {
-                failure()
-            }
-            steps {
-                script {
-                    def payload = [
-                        botName: '도서 회원 서버 Bot',
-                        botIconImage: 'https://www.tistory.com/favicon.ico',
-                        text: '도서 회원 서버의 Pull Request가 실패했어요...',
-                        attachments: [
-                            [
-                                title: 'Pull Request URL',
-                                titleLink: env.PR_URL,
-                                color: 'red',
+                                color: statusColor,
                                 text: "PR 제목: ${env.PR_TITLE}, PR 작성자: ${env.PR_ACTOR}"
                             ]
                         ]
@@ -139,8 +109,6 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "ls -la ${REMOTE_DIR}/Dockerfile"
                             ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "ls -la ${REMOTE_DIR}/pom.xml"
                             ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "ls -la ${REMOTE_DIR}/src"
-                            ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "ls -la ${REMOTE_DIR}/src/main/resources/application-prod.yml"
-
                             ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
                                 cd ${REMOTE_DIR}
                                 if [ ! -f Dockerfile ]; then
@@ -161,61 +129,44 @@ pipeline {
                 }
             }
         }
+    }
 
-        stage('Send Deployment Status to Dooray') {
-            when {
-                branch 'main'
-                success()
+    post {
+        success {
+            script {
+                currentBuild.result = 'SUCCESS'
             }
-            steps {
-                script {
-                    def payload = [
-                        botName: '도서 회원 서버 Bot',
-                        botIconImage: 'https://www.tistory.com/favicon.ico',
-                        text: '도서 회원 서버의 배포가 성공적으로 완료되었습니다!',
-                        attachments: [
-                            [
-                                title: 'Pull Request URL',
-                                titleLink: env.PR_URL,
-                                color: 'green',
-                                text: "PR 제목: ${env.PR_TITLE}, PR 작성자: ${env.PR_ACTOR}"
-                            ]
-                        ]
-                    ]
-
-                    httpRequest contentType: 'APPLICATION_JSON',
-                                url: "${DOORAY_WEBHOOK_URL}",
-                                requestBody: groovy.json.JsonOutput.toJson(payload)
-                }
-            }
+            sendDoorayWebhook()
         }
-
-        stage('Send Deployment Failure to Dooray') {
-            when {
-                branch 'main'
-                failure()
+        failure {
+            script {
+                currentBuild.result = 'FAILURE'
             }
-            steps {
-                script {
-                    def payload = [
-                        botName: '도서 회원 서버 Bot',
-                        botIconImage: 'https://www.tistory.com/favicon.ico',
-                        text: '도서 회원 서버의 배포가 실패했습니다...',
-                        attachments: [
-                            [
-                                title: 'Pull Request URL',
-                                titleLink: env.PR_URL,
-                                color: 'red',
-                                text: "PR 제목: ${env.PR_TITLE}, PR 작성자: ${env.PR_ACTOR}"
-                            ]
-                        ]
-                    ]
-
-                    httpRequest contentType: 'APPLICATION_JSON',
-                                url: "${DOORAY_WEBHOOK_URL}",
-                                requestBody: groovy.json.JsonOutput.toJson(payload)
-                }
-            }
+            sendDoorayWebhook()
         }
+    }
+}
+
+def sendDoorayWebhook() {
+    script {
+        def statusColor = currentBuild.result == 'SUCCESS' ? 'green' : 'red'
+        def statusText = currentBuild.result == 'SUCCESS' ? '성공적으로 완료되었습니다!' : '실패했습니다...'
+        def payload = [
+            botName: '도서 회원 서버 Bot',
+            botIconImage: 'https://www.tistory.com/favicon.ico',
+            text: "도서 회원 서버의 배포가 ${statusText}",
+            attachments: [
+                [
+                    title: 'Pull Request URL',
+                    titleLink: env.PR_URL,
+                    color: statusColor,
+                    text: "PR 제목: ${env.PR_TITLE}, PR 작성자: ${env.PR_ACTOR}"
+                ]
+            ]
+        ]
+
+        httpRequest contentType: 'APPLICATION_JSON',
+                    url: "${DOORAY_WEBHOOK_URL}",
+                    requestBody: groovy.json.JsonOutput.toJson(payload)
     }
 }

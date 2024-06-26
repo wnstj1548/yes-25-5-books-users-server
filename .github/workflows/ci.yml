@@ -1,141 +1,141 @@
-name: Java CI with Docker
-
-on:
-  pull_request:
-    branches: [ "develop" ]
-
-permissions: write-all
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Verify Dockerfile exists
-        run: |
-          if [ ! -f Dockerfile ]; then
-            echo "Dockerfile not found!"
-            exit 1
-          fi
-
-      - name: Build Docker image
-        run: |
-          docker build --no-cache -t books-users-app .
-
-      - name: Run Maven tests in Docker
-        run: |
-          docker run --rm books-users-app mvn clean verify sonar:sonar \
-          -Dspring.profile.active=ci \
-          -Dsonar.projectKey=yes-25-5-books-users \
-          -Dsonar.projectName='yes-25-5-books-users' \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-
-      - name: Build Maven project in Docker
-        run: |
-          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package \
-          -Dspring.profiles.active=ci
-
-      - name: Check if JAR file exists
-        run: |
-          if [ ! -f target/*.jar ]; then
-            echo "JAR file not found!"
-            exit 1
-          fi
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: 'Maven Test Results'
-          junit_files: target/surefire-reports/**/*.xml
-
-      - name: Upload JAR to Remote Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_USER: ${{ secrets.SSH_USER }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/github_rsa
-          chmod 400 ~/.ssh/github_rsa
-          ssh-keyscan ${REMOTE_HOST} >> ~/.ssh/known_hosts
-          scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no target/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
-
-      - name: Send Dooray Webhook on Success
-        if: success()
-        uses: actions/github-script@v6
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_ACTOR: ${{ github.actor }}
-          DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
-        with:
-          script: |
-            const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
-            const payload = {
-              botName: "도서 회원 서버 Bot",
-              botIconImage: "https://www.tistory.com/favicon.ico",
-              text: "도서 회원 서버의 Pull Request가 성공적으로 올라갔어요!",
-              attachments: [
-                {
-                  title: "Pull Request URL",
-                  titleLink: process.env.PR_URL,
-                  color: "green",
-                  text: `PR 제목: ${process.env.PR_TITLE}, PR 작성자: ${process.env.PR_ACTOR}`
-                }
-              ]
-            };
-
-            const response = await fetch(webhookUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to send webhook: ${response.statusText}`);
-            }
-
-      - name: Send Dooray Webhook on Failure
-        if: failure()
-        uses: actions/github-script@v6
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_ACTOR: ${{ github.actor }}
-          DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
-        with:
-          script: |
-            const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
-            const payload = {
-              botName: "도서 회원 서버 Bot",
-              botIconImage: "https://www.tistory.com/favicon.ico",
-              text: "도서 회원 서버의 Pull Request가 실패했어요...",
-              attachments: [
-                {
-                  title: "Pull Request URL",
-                  titleLink: process.env.PR_URL,
-                  color: "red",
-                  text: `PR 제목: ${process.env.PR_TITLE}, PR 작성자: ${process.env.PR_ACTOR}`
-                }
-              ]
-            };
-
-            const response = await fetch(webhookUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to send webhook: ${response.statusText}`);
-            }
+#name: Java CI with Docker
+#
+#on:
+#  pull_request:
+#    branches: [ "develop" ]
+#
+#permissions: write-all
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Verify Dockerfile exists
+#        run: |
+#          if [ ! -f Dockerfile ]; then
+#            echo "Dockerfile not found!"
+#            exit 1
+#          fi
+#
+#      - name: Build Docker image
+#        run: |
+#          docker build --no-cache -t books-users-app .
+#
+#      - name: Run Maven tests in Docker
+#        run: |
+#          docker run --rm books-users-app mvn clean verify sonar:sonar \
+#          -Dspring.profile.active=ci \
+#          -Dsonar.projectKey=yes-25-5-books-users \
+#          -Dsonar.projectName='yes-25-5-books-users' \
+#          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+#          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+#
+#      - name: Build Maven project in Docker
+#        run: |
+#          docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package \
+#          -Dspring.profiles.active=ci
+#
+#      - name: Check if JAR file exists
+#        run: |
+#          if [ ! -f target/*.jar ]; then
+#            echo "JAR file not found!"
+#            exit 1
+#          fi
+#
+#      - name: Publish Unit Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v2
+#        if: always()
+#        with:
+#          check_name: 'Maven Test Results'
+#          junit_files: target/surefire-reports/**/*.xml
+#
+#      - name: Upload JAR to Remote Server
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          REMOTE_USER: ${{ secrets.SSH_USER }}
+#          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+#          REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/github_rsa
+#          chmod 400 ~/.ssh/github_rsa
+#          ssh-keyscan ${REMOTE_HOST} >> ~/.ssh/known_hosts
+#          scp -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no target/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
+#
+#      - name: Send Dooray Webhook on Success
+#        if: success()
+#        uses: actions/github-script@v6
+#        env:
+#          PR_URL: ${{ github.event.pull_request.html_url }}
+#          PR_TITLE: ${{ github.event.pull_request.title }}
+#          PR_ACTOR: ${{ github.actor }}
+#          DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
+#        with:
+#          script: |
+#            const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
+#            const payload = {
+#              botName: "도서 회원 서버 Bot",
+#              botIconImage: "https://www.tistory.com/favicon.ico",
+#              text: "도서 회원 서버의 Pull Request가 성공적으로 올라갔어요!",
+#              attachments: [
+#                {
+#                  title: "Pull Request URL",
+#                  titleLink: process.env.PR_URL,
+#                  color: "green",
+#                  text: `PR 제목: ${process.env.PR_TITLE}, PR 작성자: ${process.env.PR_ACTOR}`
+#                }
+#              ]
+#            };
+#
+#            const response = await fetch(webhookUrl, {
+#              method: 'POST',
+#              headers: {
+#                'Content-Type': 'application/json'
+#              },
+#              body: JSON.stringify(payload)
+#            });
+#
+#            if (!response.ok) {
+#              throw new Error(`Failed to send webhook: ${response.statusText}`);
+#            }
+#
+#      - name: Send Dooray Webhook on Failure
+#        if: failure()
+#        uses: actions/github-script@v6
+#        env:
+#          PR_URL: ${{ github.event.pull_request.html_url }}
+#          PR_TITLE: ${{ github.event.pull_request.title }}
+#          PR_ACTOR: ${{ github.actor }}
+#          DOORAY_WEBHOOK_URL: ${{ secrets.DOORAY_WEBHOOK_URL }}
+#        with:
+#          script: |
+#            const webhookUrl = process.env.DOORAY_WEBHOOK_URL;
+#            const payload = {
+#              botName: "도서 회원 서버 Bot",
+#              botIconImage: "https://www.tistory.com/favicon.ico",
+#              text: "도서 회원 서버의 Pull Request가 실패했어요...",
+#              attachments: [
+#                {
+#                  title: "Pull Request URL",
+#                  titleLink: process.env.PR_URL,
+#                  color: "red",
+#                  text: `PR 제목: ${process.env.PR_TITLE}, PR 작성자: ${process.env.PR_ACTOR}`
+#                }
+#              ]
+#            };
+#
+#            const response = await fetch(webhookUrl, {
+#              method: 'POST',
+#              headers: {
+#                'Content-Type': 'application/json'
+#              },
+#              body: JSON.stringify(payload)
+#            });
+#
+#            if (!response.ok) {
+#              throw new Error(`Failed to send webhook: ${response.statusText}`);
+#            }
