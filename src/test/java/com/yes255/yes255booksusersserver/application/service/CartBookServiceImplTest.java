@@ -131,7 +131,7 @@ public class CartBookServiceImplTest {
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.empty());
 
-        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> {
+        assertThrows(BookNotFoundException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -148,7 +148,7 @@ public class CartBookServiceImplTest {
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.empty());
 
-        UserException exception = assertThrows(UserException.class, () -> {
+        assertThrows(UserException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -166,7 +166,7 @@ public class CartBookServiceImplTest {
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
         when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
 
-        CartException exception = assertThrows(CartException.class, () -> {
+        assertThrows(CartException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -185,7 +185,7 @@ public class CartBookServiceImplTest {
         when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(testCartBook);
 
-        CartBookException exception = assertThrows(CartBookException.class, () -> {
+        assertThrows(CartBookException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -220,7 +220,7 @@ public class CartBookServiceImplTest {
 
         when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
 
-        CartException exception = assertThrows(CartException.class, () -> {
+        assertThrows(CartException.class, () -> {
             cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -237,7 +237,7 @@ public class CartBookServiceImplTest {
         when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(null);
 
-        CartBookException exception = assertThrows(CartBookException.class, () -> {
+        assertThrows(CartBookException.class, () -> {
             cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -281,7 +281,7 @@ public class CartBookServiceImplTest {
 
         when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
 
-        CartException exception = assertThrows(CartException.class, () -> {
+        assertThrows(CartException.class, () -> {
             cartBookService.findAllCartBookById(testUser.getUserId());
         });
     }

@@ -80,7 +80,7 @@ public class AddressServiceImplTest {
 
         when(addressRepository.findAddressByAddressRawOrAddressZip(request.addressRaw(), request.addressZip())).thenReturn(existingAddress);
 
-        ApplicationException exception = assertThrows(ApplicationException.class, () -> {
+        assertThrows(ApplicationException.class, () -> {
             addressService.createAddress(request);
         });
     }
@@ -130,7 +130,7 @@ public class AddressServiceImplTest {
 
         when(addressRepository.findById(addressId)).thenReturn(Optional.empty());
 
-        AddressException exception = assertThrows(AddressException.class, () -> {
+        assertThrows(AddressException.class, () -> {
             addressService.updateAddress(addressId, request);
         });
     }
@@ -164,7 +164,7 @@ public class AddressServiceImplTest {
 
         when(addressRepository.findById(addressId)).thenReturn(Optional.empty());
 
-        AddressException exception = assertThrows(AddressException.class, () -> {
+        assertThrows(AddressException.class, () -> {
             addressService.findAddressById(addressId);
         });
     }
@@ -201,7 +201,7 @@ public class AddressServiceImplTest {
 
         when(addressRepository.findAll()).thenReturn(Collections.emptyList());
 
-        AddressException exception = assertThrows(AddressException.class, () -> {
+        assertThrows(AddressException.class, () -> {
             addressService.findAllAddresses();
         });
     }
@@ -253,7 +253,7 @@ public class AddressServiceImplTest {
 
         when(addressRepository.findAddressByAddressRawOrAddressZip(request.addressRaw(), request.addressZip())).thenReturn(null);
 
-        AddressException exception = assertThrows(AddressException.class, () -> {
+        assertThrows(AddressException.class, () -> {
             addressService.findByAddressZipOrAddressRaw(request);
         });
     }

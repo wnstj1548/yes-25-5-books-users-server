@@ -130,7 +130,7 @@ public class PointServiceImplTest {
     void testFindPointByUserId_Failure_NoPoint() {
         when(pointRepository.findByUser_UserId(eq(userId))).thenReturn(null);
 
-        PointException exception = assertThrows(PointException.class, () -> pointService.findPointByUserId(userId));
+        assertThrows(PointException.class, () -> pointService.findPointByUserId(userId));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class PointServiceImplTest {
                 .amount(BigDecimal.valueOf(0))
                 .build();
 
-        PointException exception = assertThrows(PointException.class, () -> pointService.updatePointByUserId(userId, request));
+        assertThrows(PointException.class, () -> pointService.updatePointByUserId(userId, request));
     }
 
     @Test

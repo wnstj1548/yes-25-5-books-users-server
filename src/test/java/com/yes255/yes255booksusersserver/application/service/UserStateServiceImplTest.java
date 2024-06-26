@@ -74,7 +74,7 @@ public class UserStateServiceImplTest {
 
         when(userStateRepository.findByUserStateName(request.userStateName())).thenReturn(existedUserState);
 
-        UserStateException exception = assertThrows(UserStateException.class, () -> {
+        assertThrows(UserStateException.class, () -> {
             userStateService.createUserState(request);
         });
     }
@@ -119,7 +119,7 @@ public class UserStateServiceImplTest {
 
         when(userStateRepository.findById(userStateId)).thenReturn(Optional.empty());
 
-        UserStateException exception = assertThrows(UserStateException.class, () -> {
+        assertThrows(UserStateException.class, () -> {
             userStateService.updateUserState(userStateId, request);
         });
     }
@@ -150,7 +150,7 @@ public class UserStateServiceImplTest {
         Long userStateId = 1L;
         when(userStateRepository.findById(userStateId)).thenReturn(Optional.empty());
 
-        UserStateException exception = assertThrows(UserStateException.class, () -> {
+        assertThrows(UserStateException.class, () -> {
             userStateService.findByUserStateId(userStateId);
         });
     }
@@ -185,7 +185,7 @@ public class UserStateServiceImplTest {
 
         when(userStateRepository.findAll()).thenReturn(new ArrayList<>());
 
-        UserStateException exception = assertThrows(UserStateException.class, () -> {
+        assertThrows(UserStateException.class, () -> {
             userStateService.findAllUserStates();
         });
     }
@@ -209,7 +209,7 @@ public class UserStateServiceImplTest {
         Long userStateId = 1L;
         when(userStateRepository.findById(userStateId)).thenReturn(Optional.empty());
 
-        UserStateException exception = assertThrows(UserStateException.class, () -> {
+        assertThrows(UserStateException.class, () -> {
             userStateService.deleteUserState(userStateId);
         });
     }

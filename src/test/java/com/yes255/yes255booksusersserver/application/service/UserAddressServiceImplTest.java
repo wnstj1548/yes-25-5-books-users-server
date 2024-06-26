@@ -61,7 +61,6 @@ public class UserAddressServiceImplTest {
     private User testUser;
     private Address testAddress;
     private UserAddress testUserAddress;
-    private Point testPoint;
 
     @BeforeEach
     void setup() {
@@ -118,7 +117,7 @@ public class UserAddressServiceImplTest {
                 .build();
 
 
-        testPoint = Point.builder()
+        Point testPoint = Point.builder()
                 .pointCurrent(BigDecimal.valueOf(100))
                 .user(testUser)
                 .build();
@@ -200,7 +199,7 @@ public class UserAddressServiceImplTest {
     void testFindAddressById_Failure() {
         when(userAddressRepository.findByUserAddressIdAndUserUserId(anyLong(), anyLong())).thenReturn(null);
 
-        UserAddressException exception = assertThrows(UserAddressException.class, () ->
+        assertThrows(UserAddressException.class, () ->
                 userAddressService.findAddressById(1L, 1L));
     }
 

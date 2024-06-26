@@ -99,6 +99,6 @@ public class CartServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        CartException exception = assertThrows(CartException.class, () -> cartService.deleteByUserId(userId));
+        assertThrows(CartException.class, () -> cartService.deleteByUserId(userId));
     }
 }

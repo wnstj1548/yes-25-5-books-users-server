@@ -50,7 +50,7 @@ class CustomerServiceImplTest {
                 .build();
 
         Customer savedCustomer = Customer.builder()
-                .userId(1L)  // Simulate the auto-incremented ID returned by the database
+                .userId(1L)
                 .userRole("USER")
                 .build();
 
