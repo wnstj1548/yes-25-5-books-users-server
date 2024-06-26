@@ -50,7 +50,7 @@ public class BookCategoryServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        testBook = new Book(1L, "Test Book ISBN", "Test Author", "description", "index", "author", "publisher", null, new BigDecimal("12345"), new BigDecimal("10000"), "image", 10, 0,0,0);
+        testBook = new Book(1L, "Test Book ISBN", "description", "index", "author", "publisher", null, new BigDecimal("12345"), new BigDecimal("10000"), "image", 10, 0,0,0);
         testCategory = new Category(1L, "Test Category", null, null);
         testBookCategory = new BookCategory(1L, testBook, testCategory);
 

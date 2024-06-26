@@ -38,7 +38,6 @@ public class BookServiceImpl implements BookService {
                 .bookIsbn(book.getBookIsbn())
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
-                .bookAuthor(book.getBookAuthor())
                 .bookPublisher(book.getBookPublisher())
                 .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
