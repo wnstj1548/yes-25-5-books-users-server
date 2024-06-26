@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout code') {
+        stage('Checkout Code') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/develop']],
                           doGenerateSubmoduleConfigurations: false,
@@ -23,33 +23,95 @@ pipeline {
                           submoduleCfg: [],
                           userRemoteConfigs: [[
                               url: 'https://github.com/nhnacademy-be6-yes-25-5/yes-25-5-books-users-server.git',
-                              credentialsId: 'username'
+                              credentialsId: 'GITHUB_CREDENTIALS'
                           ]]
                 ])
             }
         }
 
-        // 나머지 단계...
+        stage('Verify Dockerfile Exists') {
+            steps {
+                script {
+                    if (!fileExists('Dockerfile')) {
+                        error('Dockerfile not found!')
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build --no-cache -t books-users-app .'
+            }
+        }
+
+        stage('Run Maven Tests in Docker') {
+            steps {
+                sh '''
+                docker run --rm books-users-app mvn clean verify sonar:sonar \
+                    -Dspring.profiles.active=ci \
+                    -Dsonar.projectKey=yes-25-5-books-users \
+                    -Dsonar.projectName="yes-25-5-books-users" \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.token=${SONAR_TOKEN}
+                '''
+            }
+        }
+
+        stage('Build Maven Project in Docker') {
+            steps {
+                sh '''
+                docker run --rm -v "$(pwd)":/app -w /app books-users-app mvn package \
+                    -Dspring.profiles.active=ci
+                '''
+            }
+        }
+
+        stage('Check if JAR File Exists') {
+            steps {
+                script {
+                    if (!fileExists('target/*.jar')) {
+                        error('JAR file not found!')
+                    }
+                }
+            }
+        }
+
+        stage('Publish Unit Test Results') {
+            steps {
+                junit '**/target/surefire-reports/**/*.xml'
+            }
+        }
+
+        stage('Upload JAR to Remote Server') {
+            steps {
+                sshagent(credentials: ['SSH_PRIVATE_KEY']) {
+                    sh '''
+                    scp -o StrictHostKeyChecking=no target/*.jar ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
+                    '''
+                }
+            }
+        }
 
         stage('Deploy JAR on Remote Server') {
             steps {
-                script {
+                sshagent(credentials: ['SSH_PRIVATE_KEY']) {
                     sh '''
-                        ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
-                            cd ${REMOTE_DIR}
-                            if [ ! -f Dockerfile ]; then
-                                echo "Dockerfile not found!"
-                                exit 1
-                            fi
-                            docker build -t books-users-app .
-                            docker stop books-users-app || true
-                            docker rm books-users-app || true
-                            docker run -d -p 8060:8060 --name books-users-app \
-                                -e YES25_5_MYSQL_PASSWORD=${YES25_5_MYSQL_PASSWORD} \
-                                -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
-                                -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                                books-users-app
-                        EOF
+                    ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
+                        cd ${REMOTE_DIR}
+                        if [ ! -f Dockerfile ]; then
+                            echo "Dockerfile not found!"
+                            exit 1
+                        fi
+                        docker build -t books-users-app .
+                        docker stop books-users-app || true
+                        docker rm books-users-app || true
+                        docker run -d -p 8060:8060 --name books-users-app \
+                            -e YES25_5_MYSQL_PASSWORD=${YES25_5_MYSQL_PASSWORD} \
+                            -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                            -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
+                            books-users-app
+                    EOF
                     '''
                 }
             }
