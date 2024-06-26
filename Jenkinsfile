@@ -23,7 +23,7 @@ pipeline {
                           submoduleCfg: [],
                           userRemoteConfigs: [[
                               url: 'https://github.com/nhnacademy-be6-yes-25-5/yes-25-5-books-users-server.git',
-                              credentialsId: 'GITHUB_CREDENTIALS'
+                              credentialsId: 'jenkins-test'
                           ]]
                 ])
             }
