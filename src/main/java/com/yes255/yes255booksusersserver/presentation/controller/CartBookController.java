@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.CartBookService;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
@@ -99,5 +100,18 @@ public class CartBookController {
         Long userId = jwtUserDetails.userId();
 
         return new ResponseEntity<>(cartBookService.findAllCartBookById(userId), HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "구매 도서 장바구니 갱신", description = "장바구니에서 도서를 구해하면 장바구니 도서를 갱신합니다.")
+    @PutMapping("/cart-books/orders")
+    public ResponseEntity<Void> updateCartBookOrder(@RequestBody List<UpdateCartBookOrderRequest> cartBookRequest,
+                                                                            @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        cartBookService.updateCartBookOrderByUserId(userId, cartBookRequest);
+
+        return ResponseEntity.noContent().build();
     }
 }
