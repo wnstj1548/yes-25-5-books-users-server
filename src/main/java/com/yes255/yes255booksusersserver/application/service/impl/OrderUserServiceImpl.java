@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 // 주문 유저에게 반환하는 클래스
 @Service
@@ -41,8 +42,11 @@ public class OrderUserServiceImpl implements OrderUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        Point point = pointRepository.findById(userId)
-                .orElseThrow(() -> new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now())));
+        Point point = pointRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(point)) {
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
 
         return ReadOrderUserInfoResponse.builder()
                 .userId(userId)
@@ -50,7 +54,7 @@ public class OrderUserServiceImpl implements OrderUserService {
                 .email(user.getUserEmail())
                 .phoneNumber(user.getUserPhone())
                 .role(customer.getUserRole())
-                .points(Integer.parseInt(String.valueOf(point.getPointCurrent())))
+                .points(point.getPointCurrent().intValue())
                 .build();
     }
 

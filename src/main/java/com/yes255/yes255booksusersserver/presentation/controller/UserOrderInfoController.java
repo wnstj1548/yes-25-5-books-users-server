@@ -24,7 +24,7 @@ public class UserOrderInfoController {
     @GetMapping("/orders/info")
     public ResponseEntity<ReadOrderUserInfoResponse> getUserInfo(@CurrentUser JwtUserDetails jwtUserDetails) {
 
-        Long userId = jwtUserDetails.userId();;
+        Long userId = jwtUserDetails.userId();
 
         return ResponseEntity.ok(orderUserService.orderUserInfo(userId));
     }
