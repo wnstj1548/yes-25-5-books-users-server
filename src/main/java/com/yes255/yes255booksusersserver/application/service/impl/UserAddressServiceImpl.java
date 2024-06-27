@@ -15,8 +15,6 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepositor
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.ReaderOrderUserInfoResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;
@@ -169,25 +167,5 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     public void deleteAddress(Long userId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
-    }
-
-    // 주문 유저에게 반환
-    @Transactional(readOnly = true)
-    @Override
-    public ReaderOrderUserInfoResponse orderUserInfo(Long userId) {
-
-        List<UserAddressResponse> userAddresses = findAllAddresses(userId);
-
-        PointResponse pointResponse = pointService.findPointByUserId(userId);
-
-        return ReaderOrderUserInfoResponse.builder()
-                .userId(userId)
-                .points(pointResponse.point().intValueExact())
-                .addressRaw(userAddresses.stream().map(UserAddressResponse::addressRaw).toList())
-                .addressDetail(userAddresses.stream().map(UserAddressResponse::addressDetail).toList())
-                .addressName(userAddresses.stream().map(UserAddressResponse::addressName).toList())
-                .zipCode(userAddresses.stream().map(UserAddressResponse::addressZip).toList())
-                .addressBased(userAddresses.stream().map(UserAddressResponse::addressBased).toList())
-                .build();
     }
 }

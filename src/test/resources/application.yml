@@ -1,3 +1,6 @@
 api:
   order-payment: http://localhost:8071
   coupons: http://localhost:8081
+
+jwt:
+  secret: this-is-secret-key-signature-verified

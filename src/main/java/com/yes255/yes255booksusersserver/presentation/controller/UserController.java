@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.UserService;
+import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
+import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
@@ -102,19 +104,16 @@ public class UserController {
     /**
      * 회원 조회를 처리합니다.
      *
+//     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<UserResponse> 조회된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
     @GetMapping("/users")
-    public ResponseEntity<UserResponse> findByUserId() {
+    public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-//        Long userId = (Long) request.getAttribute("userId");
-//
-//        if (userId == null) {
-//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-//        }
-        Long userId = 28L;
+//        Long userId = jwtUserDetails.userId();
+
+        Long userId = 275L;
 
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
@@ -123,38 +122,36 @@ public class UserController {
      * 회원 정보를 수정합니다.
      *
      * @param userRequest 회원 수정 요청 데이터
+     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<UpdateUserResponse> 수정된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 수정", description = "특정 회원 정보를 수정합니다.")
     @PutMapping("/users")
-    public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest) {
+    public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest,
+                                                         @CurrentUser JwtUserDetails jwtUserDetails) {
 
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        Long userId = (Long) request.getAttribute("userId");
+//        Long userId = jwtUserDetails.userId();
+        Long userId = 275L;
 
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
+//        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
+        return ResponseEntity.ok(userService.updateUser(userId, userRequest));
     }
 
     /**
      * 회원 탈퇴를 처리합니다.
      *
      * @param userRequest 회원 탈퇴 요청 데이터
+     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<Void> 회원 탈퇴 성공 여부와 상태 코드 204(NO_CONTENT)
      */
     @Operation(summary = "회원 탈퇴", description = "특정 회원이 탈퇴합니다.")
     @DeleteMapping("/users")
-    public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest) {
+    public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest,
+                                           @CurrentUser JwtUserDetails jwtUserDetails) {
 
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        Long userId = (Long) request.getAttribute("userId");
+//        Long userId = jwtUserDetails.userId();
 
-        if (userId == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+        Long userId = 275L;
 
         userService.deleteUser(userId, userRequest);
 
