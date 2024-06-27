@@ -30,20 +30,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    // todo : jwt 토큰으로 변경
-
     private final JpaUserRepository userRepository;
     private final JpaCustomerRepository customerRepository;
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
     private final JpaUserStateRepository userStateRepository;
     private final JpaCartRepository cartRepository;
-    private final JpaCartBookRepository cartBookRepository;
-    private final JpaUserAddressRepository userAddressRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
-    private final JpaPointLogRepository pointLogRepository;
-    private final JpaUserTotalAmountRepository totalAmountRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final CouponAdaptor couponAdaptor;
@@ -200,6 +194,7 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
         }
 
+        // todo : 웰컴 쿠폰 주석 해제
         // 회원 가입 쿠폰 지급
 //        couponAdaptor.issueWelcomeCoupon(user.getUserId());
 
@@ -224,25 +219,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
 
-        // 비밀번호 검증 오류
-        if (Objects.nonNull(userRequest.userPassword()) && Objects.nonNull(userRequest.userConfirmPassword())
-               && !userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
-            throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        if (!passwordEncoder.matches(userRequest.oldUserPassword(), user.getUserPassword())) {
+        if (!passwordEncoder.matches(userRequest.userPassword(), user.getUserPassword())) {
             throw new UserException(ErrorStatus.toErrorStatus("현재 비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        // 비밀번호 검증 오류
+        if (Objects.nonNull(userRequest.newUserPassword()) && Objects.nonNull(userRequest.newUserConfirmPassword())
+               && !userRequest.newUserPassword().equals(userRequest.newUserConfirmPassword())) {
+            throw new UserException(ErrorStatus.toErrorStatus("새 비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+        }
+        else if (!userRequest.newUserPassword().isEmpty() && !userRequest.newUserConfirmPassword().isEmpty()
+                && userRequest.newUserPassword().equals(userRequest.newUserConfirmPassword())) {
+            user.updateUserPassword(passwordEncoder.encode(userRequest.newUserPassword()));
         }
 
         user.updateUserName(userRequest.userName());
         user.updateUserPhone(userRequest.userPhone());
         user.updateUserBirth(userRequest.userBirth());
-
-//        if (Objects.nonNull(userRequest.userPassword()) && Objects.nonNull(userRequest.userConfirmPassword()))
-//        user.updateUserPassword(passwordEncoder.encode(userRequest.userPassword()));
 
         userRepository.save(user);
 
@@ -330,7 +326,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // 비밀번호 재설정
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest) {
 
