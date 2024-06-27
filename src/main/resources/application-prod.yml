@@ -23,11 +23,11 @@ spring:
     init:
       mode: always
 logging:
+  file:
+    path: ${user.home}/logs/${spring.application.name}
   level:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.transaction.interceptor: trace
-  file:
-    path: ${user.home}/logs/${spring.application.name}
 server:
   port: 8060
 eureka:
