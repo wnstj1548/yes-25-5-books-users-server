@@ -403,17 +403,18 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 정보 업데이트 - 성공")
     void testUpdateUser() {
-
         Long userId = 1L;
         UpdateUserRequest request = UpdateUserRequest.builder()
                 .userName("Updated User")
                 .userPhone("010-1234-5678")
                 .userBirth(LocalDate.of(2000, 1, 1))
-                .userPassword("newPassword123")
-                .userConfirmPassword("newPassword123")
+                .userPassword("currentPassword123")
+                .newUserPassword("newPassword123")
+                .newUserConfirmPassword("newPassword123")
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword123", testUser.getUserPassword())).thenReturn(true);
 
         UpdateUserResponse response = userService.updateUser(userId, request);
 
@@ -426,33 +427,36 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 정보 수정 - 실패 (비밀번호 불일치)")
     void testUpdateUser_PasswordMismatch() {
-
         Long userId = 1L;
         UpdateUserRequest request = UpdateUserRequest.builder()
                 .userName("Updated User")
                 .userPhone("010-1234-5678")
                 .userBirth(LocalDate.of(2000, 1, 1))
-                .userPassword("newPassword123")
-                .userConfirmPassword("oldPassword123")
+                .userPassword("currentPassword123")
+                .newUserPassword("newPassword123")
+                .newUserConfirmPassword("differentPassword123")
                 .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("currentPassword123", testUser.getUserPassword())).thenReturn(true);
 
         UserException exception = assertThrows(UserException.class,
                 () -> userService.updateUser(userId, request));
 
-        assertEquals("비밀번호가 일치하지 않습니다.", exception.getErrorStatus().message());
+        assertEquals("새 비밀번호가 일치하지 않습니다.", exception.getErrorStatus().message());
     }
 
     @Test
     @DisplayName("회원 정보 수정 - 실패 (회원 없음)")
     void testUpdateUser_UserNotFound() {
-
         Long userId = 1L;
         UpdateUserRequest request = UpdateUserRequest.builder()
                 .userName("Updated User")
                 .userPhone("010-1234-5678")
                 .userBirth(LocalDate.of(2000, 1, 1))
-                .userPassword("newPassword123")
-                .userConfirmPassword("newPassword123")
+                .userPassword("currentPassword123")
+                .newUserPassword("newPassword123")
+                .newUserConfirmPassword("newPassword123")
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -466,10 +470,9 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 삭제 - 성공")
     void testDeleteUser() {
-
         Long userId = 1L;
         DeleteUserRequest request = DeleteUserRequest.builder()
-                .password("encodedPassword")
+                .userPassword("encodedPassword")
                 .build();
 
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
@@ -482,10 +485,9 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 삭제 - 실패 (회원이 존재하지 않음)")
     void testDeleteUser_UserNotFound() {
-
         Long userId = 1L;
         DeleteUserRequest request = DeleteUserRequest.builder()
-                .password("encodedPassword")
+                .userPassword("encodedPassword")
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -498,10 +500,9 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 삭제 - 실패 (비밀번호 불일치)")
     void testDeleteUser_PasswordMismatch() {
-
         Long userId = 1L;
         DeleteUserRequest request = DeleteUserRequest.builder()
-                .password("wrongPassword")
+                .userPassword("wrongPassword")
                 .build();
 
         when(passwordEncoder.matches(any(), any())).thenReturn(false);
@@ -515,10 +516,9 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("회원 삭제 - 실패 (회원 상태 존재하지 않음)")
     void testDeleteUser_UserStateNotFound() {
-
         Long userId = 1L;
         DeleteUserRequest request = DeleteUserRequest.builder()
-                .password("encodedPassword")
+                .userPassword("encodedPassword")
                 .build();
 
         when(passwordEncoder.matches(any(), any())).thenReturn(true);
