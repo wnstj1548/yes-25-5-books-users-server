@@ -22,6 +22,8 @@ public record CreateBookRequest(
 
         String index,
 
+        String bookAuthor,
+
         String bookPublisher,
 
         @PastOrPresent(message = "출판 일자는 미래일 수 없습니다.")

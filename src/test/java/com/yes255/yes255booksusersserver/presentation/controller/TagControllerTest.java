@@ -47,7 +47,7 @@ public class TagControllerTest {
         List<TagResponse> mockResponse = Collections.emptyList();
         doReturn(mockResponse).when(tagService).getAllTags();
 
-        mockMvc.perform(get("/tags"))
+        mockMvc.perform(get("/books/tags"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -61,7 +61,7 @@ public class TagControllerTest {
 
         doReturn(mockResponse).when(tagService).getTag(tagId);
 
-        mockMvc.perform(get("/tags/{tagId}", tagId))
+        mockMvc.perform(get("/books/tags/{tagId}", tagId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.tagId").value(mockResponse.tagId()))
@@ -76,7 +76,7 @@ public class TagControllerTest {
 
         doReturn(mockResponse).when(tagService).createTag(any(CreateTagRequest.class));
 
-        mockMvc.perform(post("/tags")
+        mockMvc.perform(post("/books/tags")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -93,7 +93,7 @@ public class TagControllerTest {
 
         doReturn(mockResponse).when(tagService).updateTag(any(UpdateTagRequest.class));
 
-        mockMvc.perform(put("/tags")
+        mockMvc.perform(put("/books/tags")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -106,7 +106,7 @@ public class TagControllerTest {
     @Test
     void delete_success() throws Exception {
         Long tagId = 1L;
-        mockMvc.perform(delete("/tags/{tagId}", tagId))
+        mockMvc.perform(delete("/books/tags/{tagId}", tagId))
                 .andExpect(status().isNoContent());
     }
 }
