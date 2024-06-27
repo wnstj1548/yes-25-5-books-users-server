@@ -2,9 +2,7 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.PointServiceImpl;
 import com.yes255.yes255booksusersserver.application.service.impl.UserAddressServiceImpl;
-import com.yes255.yes255booksusersserver.common.exception.AddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
-import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
@@ -12,8 +10,6 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRe
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.ReaderOrderUserInfoResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
@@ -23,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
