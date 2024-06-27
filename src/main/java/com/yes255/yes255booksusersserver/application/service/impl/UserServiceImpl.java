@@ -225,17 +225,24 @@ public class UserServiceImpl implements UserService {
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest) {
 
         // 비밀번호 검증 오류
-        if (!userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
+        if (Objects.nonNull(userRequest.userPassword()) && Objects.nonNull(userRequest.userConfirmPassword())
+               && !userRequest.userPassword().equals(userRequest.userConfirmPassword())) {
             throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
+        if (!passwordEncoder.matches(userRequest.oldUserPassword(), user.getUserPassword())) {
+            throw new UserException(ErrorStatus.toErrorStatus("현재 비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
         user.updateUserName(userRequest.userName());
         user.updateUserPhone(userRequest.userPhone());
         user.updateUserBirth(userRequest.userBirth());
-        user.updateUserPassword(userRequest.userPassword());
+
+//        if (Objects.nonNull(userRequest.userPassword()) && Objects.nonNull(userRequest.userConfirmPassword()))
+//        user.updateUserPassword(passwordEncoder.encode(userRequest.userPassword()));
 
         userRepository.save(user);
 

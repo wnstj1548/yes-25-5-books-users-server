@@ -104,12 +104,12 @@ public class UserController {
     /**
      * 회원 조회를 처리합니다.
      *
-     * @param jwtUserDetails 유저 토큰 정보
+//     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<UserResponse> 조회된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
     @GetMapping("/users")
-    public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
+    public ResponseEntity<UserResponse> findByUserId(){//@CurrentUser JwtUserDetails jwtUserDetails) {
 
 //        Long userId = jwtUserDetails.userId();
 
@@ -130,9 +130,11 @@ public class UserController {
     public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest,
                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
-        Long userId = jwtUserDetails.userId();
+//        Long userId = jwtUserDetails.userId();
+        Long userId = 28L;
 
-        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
+//        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
+        return ResponseEntity.ok(userService.updateUser(userId, userRequest));
     }
 
     /**

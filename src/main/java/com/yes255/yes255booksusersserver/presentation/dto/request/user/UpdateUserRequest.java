@@ -5,6 +5,6 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record UpdateUserRequest(String userName, String userPhone, LocalDate userBirth,
+public record UpdateUserRequest(String userName, String userPhone, LocalDate userBirth, String oldUserPassword,
                                 String userPassword, String userConfirmPassword) {
 }
