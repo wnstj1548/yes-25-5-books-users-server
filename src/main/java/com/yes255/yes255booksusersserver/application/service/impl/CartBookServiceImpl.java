@@ -12,12 +12,14 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepos
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.UpdateCartBookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -121,5 +123,33 @@ public class CartBookServiceImpl implements CartBookService {
                 .map(cartBook -> new CartBookResponse(userId, cartBook.getCartBookId(), cartBook.getBook().getBookId(),
                         cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public void updateCartBookOrderByUserId(Long userId, List<UpdateCartBookOrderRequest> request) {
+
+        Cart cart = cartRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(cart)) {
+            throw new CartException(ErrorStatus.toErrorStatus("장바구니가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        for (UpdateCartBookOrderRequest cartBookOrderRequest : request) {
+            CartBook cartBook = cartBookRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), cartBookOrderRequest.bookId());
+
+            if (Objects.isNull(cartBook)) {
+                throw new CartBookException(ErrorStatus.toErrorStatus("장바구니에 도서가 존재하지 않습니다.", 400, LocalDateTime.now()));
+
+            }
+
+            if (cartBook.getBookQuantity() - cartBookOrderRequest.quantity() < 1) {
+                cartBookRepository.delete(cartBook);
+            }
+            else {
+                cartBook.updateCartBookQuantity(cartBook.getBookQuantity() - cartBookOrderRequest.quantity());
+                cartBookRepository.save(cartBook);
+            }
+        }
     }
 }

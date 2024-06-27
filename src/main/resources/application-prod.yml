@@ -44,6 +44,8 @@ eureka:
     serviceUrl:
       defaultZone: http://${EUREKA_SERVER_HOSTNAME}:${EUREKA_SERVER_PORT}/eureka/
 
+jwt:
+  secret: ${JWT_SECRET}
 api:
   order-payment: ${ORDER_PAYMENT_SERVER}
   coupons: ${COUPON_SERVER}

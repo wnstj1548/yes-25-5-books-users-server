@@ -2,6 +2,8 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.CartBookService;
 import com.yes255.yes255booksusersserver.application.service.CartService;
+import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
+import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +28,14 @@ public class CartController {
 
     /**
      * 회원 장바구니를 삭제합니다.
-     *
-     * @param userId 장바구니를 삭제할 회원의 ID
+     * @param jwtUserDetails 유저 토큰 정보
      * @return No Content 상태의 응답
      */
     @Operation(summary = "장바구니 삭제", description = "회원 장바구니를 삭제합니다.")
     @DeleteMapping
-    public ResponseEntity<Void> deleteCart(@PathVariable Long userId) {
+    public ResponseEntity<Void> deleteCart(@CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
 
         cartService.deleteByUserId(userId);
 
