@@ -27,7 +27,8 @@ public class Cart {
     private User user;
 
     @Builder
-    public Cart(LocalDate cartCreatedAt, User user) {
+    public Cart(Long cartId, LocalDate cartCreatedAt, User user) {
+        this.cartId = cartId;
         this.cartCreatedAt = cartCreatedAt;
         this.user = user;
     }

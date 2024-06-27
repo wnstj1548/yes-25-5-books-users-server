@@ -33,8 +33,13 @@ public class Address {
 
     }
 
-    //@OneToMany(mappedBy = "address")
-    //private List<UserAddress> userAddresses = new ArrayList<>();
+    public void updateAddressZip(String addressZip) {
+        this.addressZip = addressZip;
+    }
+
+    public void updateAddressRaw(String addressRaw) {
+        this.addressRaw = addressRaw;
+    }
 }
 
 

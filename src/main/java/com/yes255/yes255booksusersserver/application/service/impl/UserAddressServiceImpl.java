@@ -1,9 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.PointService;
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
-import com.yes255.yes255booksusersserver.common.exception.AddressNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.UserAddressNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.UserNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.AddressException;
+import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
+import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Address;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
@@ -11,11 +12,13 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaAddressReposi
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateUserAddressRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.CreateUserAddressResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.UpdateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.ReaderOrderUserInfoResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -33,18 +37,30 @@ public class UserAddressServiceImpl implements UserAddressService {
     private final JpaUserAddressRepository userAddressRepository;
     private final JpaAddressRepository addressRepository;
     private final JpaUserRepository userRepository;
+    private final PointService pointService;
 
     @Transactional
     @Override
     public CreateUserAddressResponse createAddress(Long userId,
-                                                   Long addressId,
                                                    CreateUserAddressRequest addressRequest) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+        List<UserAddress> userAddresses = userAddressRepository.findAll();
 
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        if (userAddresses.size() > 10) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        Address address = addressRepository.findAddressByAddressRawAndAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+
+        if (address == null) {
+            address = addressRepository.save(Address.builder()
+                            .addressZip(addressRequest.addressZip())
+                            .addressRaw(addressRequest.addressRaw())
+                            .build());
+        }
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
                         .addressName(addressRequest.addressName())
@@ -55,6 +71,8 @@ public class UserAddressServiceImpl implements UserAddressService {
                         .build());
 
         return CreateUserAddressResponse.builder()
+                .addressZip(address.getAddressZip())
+                .addressRaw(address.getAddressRaw())
                 .addressName(userAddress.getAddressName())
                 .addressDetail(userAddress.getAddressDetail())
                 .addressBased(userAddress.isAddressBased())
@@ -64,74 +82,112 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Transactional
     @Override
     public UpdateUserAddressResponse updateAddress(Long userId,
-                                                   Long addressId,
                                                    Long userAddressId,
                                                    UpdateUserAddressRequest addressRequest) {
 
-        UserAddress existingUserAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        UserAddress userAddress = userAddressRepository.findById(userAddressId)
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new AddressNotFoundException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        Address address = addressRepository.findById(userAddress.getAddress().getAddressId())
+                .orElseThrow(() -> new AddressException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        // 기존 사용자 주소 정보를 기반으로 새로운 사용자 주소 객체 생성
-        UserAddress updatedUserAddress = UserAddress.builder()
-                .userAddressId(existingUserAddress.getUserAddressId())
-                .addressName(addressRequest.addressName())
-                .addressDetail(addressRequest.addressDetail())
-                .addressBased(addressRequest.addressBased())
-                .address(address)
-                .user(existingUserAddress.getUser())
-                .build();
-        userAddressRepository.save(updatedUserAddress);
+        address.updateAddressZip(addressRequest.addressZip());
+        address.updateAddressRaw(addressRequest.addressRaw());
+
+        Address checkAddress = addressRepository.findAddressByAddressRawAndAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+        if (checkAddress == null) {
+            addressRepository.save(address);
+            userAddress.updateUserAddress(address);
+        }
+        else {
+            userAddress.updateUserAddress(checkAddress);
+        }
+
+        userAddress.updateUserAddressName(addressRequest.addressName());
+        userAddress.updateUserAddressDetail(addressRequest.addressDetail());
+        userAddress.updateUserAddressBased(addressRequest.addressBased());
+
+        userAddressRepository.save(userAddress);
 
         return UpdateUserAddressResponse.builder()
-                .addressName(updatedUserAddress.getAddressName())
-                .addressDetail(updatedUserAddress.getAddressDetail())
-                .addressBased(updatedUserAddress.isAddressBased())
+                .addressZip(address.getAddressZip())
+                .addressRaw(address.getAddressRaw())
+                .addressName(userAddress.getAddressName())
+                .addressDetail(userAddress.getAddressDetail())
+                .addressBased(userAddress.isAddressBased())
                 .build();
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserAddressResponse findAddressById(Long userId,
-                                              Long addressId,
                                               Long userAddressId) {
 
-        UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressNotFoundException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+        UserAddress userAddress = userAddressRepository.findByUserAddressIdAndUserUserId(userAddressId, userId);
+
+        if (Objects.isNull(userAddress)) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
 
         return UserAddressResponse.builder()
-                .userAddressID(userAddressId)
+                .userAddressId(userAddressId)
                 .addressId(userAddress.getAddress().getAddressId())
+                .addressZip(userAddress.getAddress().getAddressZip())
+                .addressRaw(userAddress.getAddress().getAddressRaw())
                 .addressName(userAddress.getAddressName())
                 .addressDetail(userAddress.getAddressDetail())
                 .addressBased(userAddress.isAddressBased())
-                .userId(userAddress.getUser().getUserId())
+                .userId(userId)
                 .build();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserAddressResponse> findAllAddresses(Long userId, Long addressId) {
+    public List<UserAddressResponse> findAllAddresses(Long userId) {
 
-        List<UserAddress> userAddressList = userAddressRepository.findAll();
+        List<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId);
+
+        if (userAddressList.isEmpty()) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
 
         return userAddressList.stream()
                 .map(userAddress -> UserAddressResponse.builder()
-                        .userAddressID(userAddress.getUserAddressId())
+                        .userAddressId(userAddress.getUserAddressId())
                         .addressId(userAddress.getAddress().getAddressId())
+                        .addressZip(userAddress.getAddress().getAddressZip())
+                        .addressRaw(userAddress.getAddress().getAddressRaw())
                         .addressName(userAddress.getAddressName())
                         .addressDetail(userAddress.getAddressDetail())
                         .addressBased(userAddress.isAddressBased())
-                        .userId(userAddress.getUser().getUserId())
+                        .userId(userId)
                         .build())
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public void deleteAddress(Long userId, Long addressId, Long userAddressId) {
+    public void deleteAddress(Long userId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
+    }
+
+    // 주문 유저에게 반환
+    @Transactional(readOnly = true)
+    @Override
+    public ReaderOrderUserInfoResponse orderUserInfo(Long userId) {
+
+        List<UserAddressResponse> userAddresses = findAllAddresses(userId);
+
+        PointResponse pointResponse = pointService.findPointByUserId(userId);
+
+        return ReaderOrderUserInfoResponse.builder()
+                .userId(userId)
+                .points(pointResponse.point().intValueExact())
+                .addressRaw(userAddresses.stream().map(UserAddressResponse::addressRaw).toList())
+                .addressDetail(userAddresses.stream().map(UserAddressResponse::addressDetail).toList())
+                .addressName(userAddresses.stream().map(UserAddressResponse::addressName).toList())
+                .zipCode(userAddresses.stream().map(UserAddressResponse::addressZip).toList())
+                .addressBased(userAddresses.stream().map(UserAddressResponse::addressBased).toList())
+                .build();
     }
 }
