@@ -8,10 +8,10 @@ spring:
     password: ${YES25_5_MYSQL_PASSWORD}
     type: org.apache.commons.dbcp2.BasicDataSource
     dbcp2:
-      initial-size: 5
+      initial-size: 10
       max-total: 10
-      max-idle: 5
-      min-idle: 2
+      max-idle: 10
+      min-idle: 10
   jpa:
     open-in-view: false
     show-sql: true
