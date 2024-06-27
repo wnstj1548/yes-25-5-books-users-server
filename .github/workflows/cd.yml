@@ -63,6 +63,7 @@ jobs:
           EUREKA_SERVER_PORT: ${{ secrets.EUREKA_SERVER_PORT }}
           ORDER_PAYMENT_SERVER: ${{ secrets.ORDER_PAYMENT_SERVER }}
           COUPON_SERVER: ${{ secrets.COUPON_SERVER }}
+          JWT_SECRET: ${{secrets.JWT_SECRET}}
         run: |
           ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
             cd ${REMOTE_DIR}
@@ -80,6 +81,7 @@ jobs:
               -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
               -e ORDER_PAYMENT_SERVER=${ORDER_PAYMENT_SERVER} \
               -e COUPON_SERVER=${COUPON_SERVER} \
+              -e JWT_SECRET=${JWT_SECRET} \
               books-users-app
           EOF
 
