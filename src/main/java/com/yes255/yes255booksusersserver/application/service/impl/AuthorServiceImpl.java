@@ -39,11 +39,12 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public AuthorResponse getAuthorByName(String authorName) {
 
-        return AuthorResponse.fromEntity(
-                jpaAuthorRepository.findByAuthorName(authorName)
+        Author author = jpaAuthorRepository.findByAuthorName(authorName)
                 .orElseThrow(() -> new ApplicationException(
                         ErrorStatus.toErrorStatus("해당 작가를 찾을 수 없습니다.", 404, LocalDateTime.now())
-                )));
+                ));
+
+        return AuthorResponse.fromEntity(author);
     }
 
     @Transactional

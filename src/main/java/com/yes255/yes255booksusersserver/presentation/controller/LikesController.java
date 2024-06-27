@@ -19,6 +19,7 @@ import java.util.List;
 @Tag(name = "좋아요 API", description = "좋아요 관리 API")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/books/likes")
 public class LikesController {
     private final LikesService likesService;
 
@@ -29,7 +30,7 @@ public class LikesController {
      * @return ResponseEntity<List<LikesResponse>> 형식의 좋아요 목록
      */
     @Operation(summary = "사용자의 좋아요 목록 조회", description = "사용자의 좋아요 목록을 조회합니다.")
-    @GetMapping("/books/likes/users/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<List<LikesResponse>> findByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(likesService.getLikeByUserId(userId));
     }
@@ -41,7 +42,7 @@ public class LikesController {
      * @return ResponseEntity<List<LikesResponse>> 형식의 책에 대한 좋아요 목록
      */
     @Operation(summary = "특정 책의 좋아요 조회", description = "특정 책의 좋아요 목록을 조회합니다..")
-    @GetMapping("/books/likes/books/{bookId}")
+    @GetMapping("/books/{bookId}")
     public ResponseEntity<List<LikesResponse>> findByBookId(@PathVariable Long bookId) {
         return ResponseEntity.ok(likesService.getLikeByBookId(bookId));
     }
@@ -54,7 +55,7 @@ public class LikesController {
      */
     @Operation(summary = "좋아요 상태 업데이트", description = "좋아요 상태를 업데이트합니다.")
     @Parameter(name = "request", description = "bookId(도서 PK), userId(유저 PK) 를 포함합니다.")
-    @PutMapping("/books/likes")
+    @PutMapping
     public ResponseEntity<LikesResponse> update(@RequestBody UpdateLikesRequest request) {
         return ResponseEntity.ok(likesService.updateLikeStatus(request));
     }
@@ -67,7 +68,7 @@ public class LikesController {
      */
     @Operation(summary = "새로운 좋아요 생성", description = "새로운 좋아요를 생성합니다.")
     @Parameter(name = "request", description = "bookId(도서 PK), userId(유저 PK) 를 포함합니다.")
-    @PostMapping("/books/likes")
+    @PostMapping
     public ResponseEntity<LikesResponse> create(@RequestBody CreateLikesRequest request) {
         return ResponseEntity.ok(likesService.createLike(request));
     }

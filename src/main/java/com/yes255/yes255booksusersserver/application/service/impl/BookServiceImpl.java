@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +35,11 @@ public class BookServiceImpl implements BookService {
 
     public BookResponse toResponse(Book book) {
 
-        List<BookAuthor> bookAuthor = jpaBookAuthorRepository.findByBook(book);
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < bookAuthor.size(); i++) {
-            stringBuilder.append(bookAuthor.get(i).getAuthor().getAuthorName());
-            if (i < bookAuthor.size() - 1) {
-                stringBuilder.append(", ");
-            }
-        }
-        String authorString = stringBuilder.toString();
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
 
         return BookResponse.builder()
                 .bookId(book.getBookId())
