@@ -257,17 +257,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        if (passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
-//            totalAmountRepository.deleteByUser(user);
-//            cartBookRepository.deleteByCartUserUserId(userId);
-//            cartRepository.deleteByUser_UserId(userId);
-//            pointLogRepository.deleteByPointUserUserId(userId);
-//            pointRepository.deleteByUser_UserId(userId);
-//            userAddressRepository.deleteByUserUserId(userId);
-//
-//            userRepository.delete(user);
-//
-//            customerRepository.delete(user.getCustomer());
+        if (passwordEncoder.matches(userRequest.userPassword(), user.getUserPassword())) {
 
             // 회원 상태를 ACTIVE(활성) -> WITHDRAWAL(탈퇴) 전환
             UserState userState = userStateRepository.findByUserStateName("WITHDRAWAL");
@@ -279,7 +269,6 @@ public class UserServiceImpl implements UserService {
             user.updateUserState(userState);
             userRepository.save(user);
 
-            // todo : 회원 상태 '탈퇴'로 변경
         }
         else {
             throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));

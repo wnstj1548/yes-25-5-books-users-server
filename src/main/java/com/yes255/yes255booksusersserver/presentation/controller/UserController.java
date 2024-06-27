@@ -109,11 +109,11 @@ public class UserController {
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
     @GetMapping("/users")
-    public ResponseEntity<UserResponse> findByUserId(){//@CurrentUser JwtUserDetails jwtUserDetails) {
+    public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
 //        Long userId = jwtUserDetails.userId();
 
-        Long userId = 28L;
+        Long userId = 275L;
 
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
@@ -131,7 +131,7 @@ public class UserController {
                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
 //        Long userId = jwtUserDetails.userId();
-        Long userId = 28L;
+        Long userId = 275L;
 
 //        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
         return ResponseEntity.ok(userService.updateUser(userId, userRequest));
@@ -149,7 +149,9 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest,
                                            @CurrentUser JwtUserDetails jwtUserDetails) {
 
-        Long userId = jwtUserDetails.userId();
+//        Long userId = jwtUserDetails.userId();
+
+        Long userId = 275L;
 
         userService.deleteUser(userId, userRequest);
 
