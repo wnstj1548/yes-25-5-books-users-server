@@ -1,12 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.OrderUserService;
-import com.yes255.yes255booksusersserver.common.exception.CustomerException;
 import com.yes255.yes255booksusersserver.common.exception.PointException;
 import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
@@ -27,7 +25,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class OrderUserServiceImpl implements OrderUserService {
 
-    private final JpaCustomerRepository customerRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserRepository userRepository;
     private final JpaUserAddressRepository userAddressRepository;
@@ -35,9 +32,6 @@ public class OrderUserServiceImpl implements OrderUserService {
     @Transactional(readOnly = true)
     @Override
     public ReadOrderUserInfoResponse orderUserInfo(Long userId) {
-
-        Customer customer = customerRepository.findById(userId)
-                .orElseThrow(() -> new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
@@ -53,7 +47,7 @@ public class OrderUserServiceImpl implements OrderUserService {
                 .name(user.getUserName())
                 .email(user.getUserEmail())
                 .phoneNumber(user.getUserPhone())
-                .role(customer.getUserRole())
+                .role(user.getCustomer().getUserRole())
                 .points(point.getPointCurrent().intValue())
                 .build();
     }
