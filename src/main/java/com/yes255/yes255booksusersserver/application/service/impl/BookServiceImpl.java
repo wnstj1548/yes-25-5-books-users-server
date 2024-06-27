@@ -8,7 +8,6 @@ import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +31,22 @@ public class BookServiceImpl implements BookService {
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
     private final JpaBookTagRepository jpaBookTagRepository;
     private final JpaCartBookRepository jpaCartBookRepository;
+    private final JpaBookAuthorRepository jpaBookAuthorRepository;
 
     public BookResponse toResponse(Book book) {
+
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
+
         return BookResponse.builder()
                 .bookId(book.getBookId())
                 .bookIsbn(book.getBookIsbn())
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
+                .bookAuthor(authorString)
                 .bookPublisher(book.getBookPublisher())
                 .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
@@ -108,13 +117,18 @@ public class BookServiceImpl implements BookService {
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
         List<BookTag> bookTagList = jpaBookTagRepository.findByBook(book);
+        List<CartBook> cartBookList = jpaCartBookRepository.findByBook(book);
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
 
         jpaBookCategoryRepository.deleteAll(bookCategoryList);
         jpaBookTagRepository.deleteAll(bookTagList);
+        jpaCartBookRepository.deleteAll(cartBookList);
+        jpaBookAuthorRepository.deleteAll(bookAuthorList);
         jpaBookRepository.deleteById(bookId);
 
     }
 
+    @Transactional
     @Override
     public List<BookResponse> getBookByCategoryId(Long categoryId) {
 

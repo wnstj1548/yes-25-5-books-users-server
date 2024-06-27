@@ -1,26 +1,20 @@
 
 package com.yes255.yes255booksusersserver.presentation.controller;
 
-import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
-import com.yes255.yes255booksusersserver.application.service.BookService;
-import com.yes255.yes255booksusersserver.application.service.BookTagService;
+import com.yes255.yes255booksusersserver.application.service.*;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookTagRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookCategoryResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookTagResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 도서에 관련된 API 처리를 하는 RestController
@@ -37,11 +33,14 @@ import java.util.List;
 @Tag(name = "도서 API", description = "도서 관리 API")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class BookController {
 
     private final BookService bookService;
     private final BookCategoryService bookCategoryService;
     private final BookTagService bookTagService;
+    private final AuthorService authorService;
+    private final BookAuthorService bookAuthorService;
 
     /**
      * 모든 책을 가져옵니다.
@@ -96,7 +95,22 @@ public class BookController {
             throw new ValidationFailedException(bindingResult);
         }
 
+        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
+                .map(String::trim)
+                .distinct()
+                .toList();
+
         BookResponse response = bookService.createBook(request);
+
+        for(String authorString : authorStringList) {
+
+            if(authorService.isExistAuthorByName(authorString)) {
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
+            } else {
+                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
+            }
+        }
 
         for(Long categoryId : categoryIdList) {
             bookCategoryService.createBookCategory(response.bookId(), categoryId);
@@ -132,6 +146,7 @@ public class BookController {
 
         List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(request.bookId());
         List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(request.bookId());
+        List<BookAuthorResponse> bookAuthorList = bookAuthorService.getBookAuthorByBookId(request.bookId());
 
         for(BookCategoryResponse bookCategory : bookCategoryList) {
             bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
@@ -141,12 +156,31 @@ public class BookController {
             bookTagService.removeBookTag(bookTag.bookTagId());
         }
 
+        for(BookAuthorResponse bookAuthor : bookAuthorList) {
+            bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
+        }
+
         BookResponse response = bookService.updateBook(request);
         categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
 
         if(tagIdList != null) {
             for(Long tagId : tagIdList) {
                 bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
+            }
+        }
+
+        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
+                .map(String::trim)
+                .distinct()
+                .toList();
+
+        for(String authorString : authorStringList) {
+
+            if(authorService.isExistAuthorByName(authorString)) {
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
+            } else {
+                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
             }
         }
 
