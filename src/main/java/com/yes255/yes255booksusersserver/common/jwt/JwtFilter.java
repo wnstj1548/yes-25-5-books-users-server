@@ -25,10 +25,18 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
         FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        String path = request.getServletPath();
+
+        if ("/users".equals(path)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         String token = getToken((HttpServletRequest) servletRequest);
 
         if (jwtProvider.isValidToken(token)) {
-            String userName = jwtProvider.getUserNameFromToken(token);
+            Long userName = jwtProvider.getUserNameFromToken(token);
             String role = jwtProvider.getRolesFromToken(token);
 
             JwtUserDetails jwtUserDetails = JwtUserDetails.of(userName, role);
