@@ -27,22 +27,13 @@ public class LikesServiceImpl implements LikesService {
     private final JpaUserRepository jpaUserRepository;
     private final JpaBookRepository jpaBookRepository;
 
-    public LikesResponse toResponse(Likes likes) {
-        return LikesResponse.builder()
-                .likesId(likes.getLikesId())
-                .userId(likes.getUser().getUserId())
-                .bookId(likes.getBook().getBookId())
-                .likesStatus(likes.isLikesStatus())
-                .build();
-    }
-
     @Transactional(readOnly = true)
     @Override
     public List<LikesResponse> getLikeByUserId(Long userId) {
 
         User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
-        return jpaLikesRepository.findByUser(user).stream().map(this::toResponse).toList();
+        return jpaLikesRepository.findByUser(user).stream().map(LikesResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +42,7 @@ public class LikesServiceImpl implements LikesService {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
-        return jpaLikesRepository.findByBook(book).stream().map(this::toResponse).toList();
+        return jpaLikesRepository.findByBook(book).stream().map(LikesResponse::fromEntity).toList();
     }
 
     @Transactional
@@ -70,7 +61,7 @@ public class LikesServiceImpl implements LikesService {
 
         jpaLikesRepository.save(likes);
 
-        return toResponse(likes);
+        return LikesResponse.fromEntity(likes);
     }
 
     @Transactional
@@ -88,7 +79,7 @@ public class LikesServiceImpl implements LikesService {
                 .book(like.getBook())
                 .build();
 
-        return toResponse(jpaLikesRepository.save(updatedLike));
+        return LikesResponse.fromEntity(jpaLikesRepository.save(updatedLike));
     }
 
 }

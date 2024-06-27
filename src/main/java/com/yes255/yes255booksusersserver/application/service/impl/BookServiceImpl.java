@@ -8,6 +8,7 @@ import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -76,12 +77,25 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse getBook(long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book)) {
             throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         return toResponse(book);
+    }
+
+    @Override
+    public List<BookOrderResponse> getBooksByOrder(List<Long> bookIdList) {
+
+        List<BookOrderResponse> bookOrderResponseList = new ArrayList<>();
+
+        for(Long bookId : bookIdList) {
+            Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
+            bookOrderResponseList.add(BookOrderResponse.fromEntity(book));
+        }
+
+        return bookOrderResponseList;
     }
 
     @Transactional(readOnly = true)
@@ -104,7 +118,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
         Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId()).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
-        existingBook.from(updateBookRequest.toEntity());
+        existingBook.updateAll(updateBookRequest.toEntity());
 
         return toResponse(existingBook);
     }

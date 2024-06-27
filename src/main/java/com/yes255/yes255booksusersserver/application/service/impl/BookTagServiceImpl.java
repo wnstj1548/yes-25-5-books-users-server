@@ -28,20 +28,12 @@ public class BookTagServiceImpl implements BookTagService {
     private final JpaBookRepository jpaBookRepository;
     private final JpaTagRepository jpaTagRepository;
 
-    public BookTagResponse toResponse(BookTag bookTag) {
-        return BookTagResponse.builder()
-                .bookTagId(bookTag.getBookTagId())
-                .bookId(bookTag.getBook().getBookId())
-                .tagId(bookTag.getTag().getTagId())
-                .build();
-    }
-
     @Transactional
     @Override
     public List<BookTagResponse> getBookTagByBookId(Long bookId) {
         return jpaBookTagRepository.findByBook(jpaBookRepository.findById(bookId).orElseThrow(() ->
                 new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()))))
-                .stream().map(this::toResponse).toList();
+                .stream().map(BookTagResponse::fromEntity).toList();
     }
 
     @Transactional
@@ -65,7 +57,7 @@ public class BookTagServiceImpl implements BookTagService {
                 .tag(tag)
                 .build();
 
-        return toResponse(jpaBookTagRepository.save(bookTag));
+        return BookTagResponse.fromEntity(jpaBookTagRepository.save(bookTag));
 
     }
 
