@@ -6,10 +6,7 @@ import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
@@ -45,6 +42,12 @@ public class BookServiceImplTest {
     @Mock
     private JpaBookCategoryRepository jpaBookCategoryRepository;
 
+    @Mock
+    private JpaBookAuthorRepository jpaBookAuthorRepository;
+
+    @Mock
+    private JpaCartBookRepository jpaCartBookRepository;
+
     @InjectMocks
     private BookServiceImpl bookService;
 
@@ -64,7 +67,7 @@ public class BookServiceImplTest {
     @Test
     void createBook_success() throws ParseException {
         // given
-        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "Publisher",
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index",  "BookAuthor1, BookAuthor2", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100);
 
         when(jpaBookRepository.save(any(Book.class))).thenReturn(testBook);
@@ -134,7 +137,7 @@ public class BookServiceImplTest {
         Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description", "Old Index",  "Old Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0);
 
-        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index",  "New Publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
                 sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), "new_image.jpg", 150);
 
         existingBook.from(request.toEntity());
@@ -156,7 +159,7 @@ public class BookServiceImplTest {
     @Test
     void updateBook_failure_bookNotFound() throws ParseException {
         // given
-        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description", "index" ,"Updated Publisher", "publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description", "index" ,"Updated Publisher", "author1", "publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120);
 
         when(jpaBookRepository.existsById(1L)).thenReturn(false);
@@ -167,10 +170,10 @@ public class BookServiceImplTest {
 
     @DisplayName("책 삭제 - 성공")
     @Test
-    void deleteBook_success() {
+    void removeBook_success() {
         // given
         Long bookId = 1L;
-        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "index",  "Publisher",
+        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "index", "Publisher",
                 null, null, null, null, 0, 0, 0, 0);
 
         List<BookCategory> bookCategoryList = new ArrayList<>();
@@ -179,6 +182,8 @@ public class BookServiceImplTest {
         when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(jpaBookCategoryRepository.findByBook(book)).thenReturn(bookCategoryList);
         when(jpaBookTagRepository.findByBook(book)).thenReturn(bookTagList);
+        when(jpaBookAuthorRepository.findByBook(book)).thenReturn(null);
+        when(jpaCartBookRepository.findByBook(book)).thenReturn(null);
 
         // when
         bookService.removeBook(bookId);

@@ -46,7 +46,7 @@ public class CategoryControllerTest {
         when(categoryService.getAllCategories()).thenReturn(Collections.emptyList());
 
         // when + then
-        mockMvc.perform(get("/categories")
+        mockMvc.perform(get("/books/categories")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -60,7 +60,7 @@ public class CategoryControllerTest {
         when(categoryService.getCategory(1L)).thenReturn(new CategoryResponse(1L, "Test Category", null));
 
         // when + then
-        mockMvc.perform(get("/categories/{categoryId}", 1L)
+        mockMvc.perform(get("/books/categories/{categoryId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.categoryId").value(1L))
@@ -74,7 +74,7 @@ public class CategoryControllerTest {
         when(categoryService.getRootCategories()).thenReturn(Collections.emptyList());
 
         // when + then
-        mockMvc.perform(get("/categories/root")
+        mockMvc.perform(get("/books/categories/root")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -89,7 +89,7 @@ public class CategoryControllerTest {
         when(categoryService.getCategoryByParentCategoryId(parentId)).thenReturn(Collections.emptyList());
 
         // when + then
-        mockMvc.perform(get("/categories/parent/{parentId}", parentId)
+        mockMvc.perform(get("/books/categories/parent/{parentId}", parentId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -105,7 +105,7 @@ public class CategoryControllerTest {
         when(categoryService.createCategory(any(CreateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Test Category", null));
 
         // when + then
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/books/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryName\":\"Test Category\"}"))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ public class CategoryControllerTest {
         when(categoryService.updateCategory(any(UpdateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Updated Test Category", null));
 
         // when + then
-        mockMvc.perform(put("/categories")
+        mockMvc.perform(put("/books/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"categoryId\":1,\"categoryName\":\"Updated Test Category\"}"))
                 .andExpect(status().isOk())
@@ -138,7 +138,7 @@ public class CategoryControllerTest {
         doNothing().when(categoryService).removeCategory(categoryId);
 
         // when + then
-        mockMvc.perform(delete("/categories/{categoryId}", categoryId)
+        mockMvc.perform(delete("/books/categories/{categoryId}", categoryId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

@@ -24,7 +24,6 @@ public class BookAuthor {
     private Author author;
 
     @Builder
-
     public BookAuthor(Long bookAuthorId, Book book, Author author) {
         this.bookAuthorId = bookAuthorId;
         this.book = book;

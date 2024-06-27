@@ -1,13 +1,10 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
-import com.yes255.yes255booksusersserver.application.service.BookCategoryService;
-import com.yes255.yes255booksusersserver.application.service.BookService;
-import com.yes255.yes255booksusersserver.application.service.BookTagService;
+import com.yes255.yes255booksusersserver.application.service.*;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookQuantityRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.AuthorResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -46,6 +44,13 @@ public class BookControllerTest {
     @InjectMocks
     private BookController bookController;
 
+    @Mock
+    private AuthorService authorService;
+
+    @Mock
+    private BookAuthorService bookAuthorService;
+
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @BeforeEach
@@ -58,9 +63,9 @@ public class BookControllerTest {
     void findAll_success() throws ParseException {
         // given
         List<BookResponse> mockBooks = List.of(
-                new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index", "Updated Author", "Updated Publisher",
+                new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "author1","Index",  "Updated Publisher",
                         sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0),
-                new BookResponse(2L, "ISBN11111111", "Name", "Description", "Index2", "Author", "Publisher",
+                new BookResponse(2L, "ISBN11111111", "Name", "Description", "author1" ,"Index2", "Publisher",
                         sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120, 0, 0, 0)
         );
 
@@ -83,7 +88,7 @@ public class BookControllerTest {
     void findById_success() throws ParseException {
         // given
         Long bookId = 1L;
-        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
+        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "author1", "Index", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
         when(bookService.getBook(bookId)).thenReturn(mockBook);
 
@@ -99,14 +104,20 @@ public class BookControllerTest {
     @Test
     void create_success() throws ParseException {
         // given
-        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index",  "Publisher",
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "bookAuthor1, bookAuthor2", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100);
         List<Long> categoryIdList = List.of(1L, 2L);
 
-        BookResponse mockResponse = new BookResponse(1L, "1234567890", "Test Book", "Description", "index","Author", "Publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100,0,0,0);
+        BookResponse mockResponse = new BookResponse(1L, "1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "index", "Publisher",
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0);
 
         when(bookService.createBook(any(CreateBookRequest.class))).thenReturn(mockResponse);
+
+        // Mock authorService responses
+        when(authorService.getAuthorByName("bookAuthor1")).thenReturn(null);
+        when(authorService.createAuthor(any(CreateAuthorRequest.class))).thenReturn(new AuthorResponse(1L, "bookAuthor1"));
+        when(authorService.getAuthorByName("bookAuthor2")).thenReturn(null);
+        when(authorService.createAuthor(any(CreateAuthorRequest.class))).thenReturn(new AuthorResponse(2L, "bookAuthor2"));
 
         // when
         ResponseEntity<BookResponse> responseEntity = bookController.create(request, categoryIdList, null, mock(BindingResult.class));
@@ -114,22 +125,35 @@ public class BookControllerTest {
         // then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(mockResponse, responseEntity.getBody());
+
+        // Verify bookAuthorService interactions
+//        verify(bookAuthorService).createBookAuthor(new CreateBookAuthorRequest(1L, 2L));
+//        verify(bookAuthorService).createBookAuthor(new CreateBookAuthorRequest(1L, 1L));
+
+        // Verify bookCategoryService interactions
+        verify(bookCategoryService).createBookCategory(1L, 1L);
+        verify(bookCategoryService).createBookCategory(1L, 2L);
+
+        // Verify bookTagService is not called since tagIdList is null
+        verifyNoInteractions(bookTagService);
     }
 
     @DisplayName("책 업데이트 - 성공")
     @Test
     void update_success() throws ParseException {
         // given
-        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "index" , "Updated Publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "index", "author1", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120);
         List<Long> categoryIdList = List.of(1L, 2L);
 
-        BookResponse mockResponse = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
+        BookResponse mockResponse = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description","author1" , "index", "Updated Publisher",
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0);
 
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockResponse);
         when(bookCategoryService.getBookCategoryByBookId(anyLong())).thenReturn(List.of());
         when(bookTagService.getBookTagByBookId(anyLong())).thenReturn(List.of());
+        when(authorService.getAuthorByName("author1")).thenReturn(null);
+        when(authorService.createAuthor(any())).thenReturn(new AuthorResponse(1L, "author1"));
 
         // when
         ResponseEntity<BookResponse> responseEntity = bookController.update(request, categoryIdList, null, mock(BindingResult.class));
@@ -137,6 +161,11 @@ public class BookControllerTest {
         // then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(mockResponse, responseEntity.getBody());
+
+        // Verify interactions
+        verify(bookService, times(1)).updateBook(any(UpdateBookRequest.class));
+        verify(bookCategoryService, times(2)).createBookCategory(anyLong(), anyLong());
+        verify(authorService, times(1)).createAuthor(any());
     }
 
     @DisplayName("책 재고 업데이트 - 성공")
@@ -145,14 +174,14 @@ public class BookControllerTest {
         // given
         Long bookId = 1L;
         Integer quantity = 5;
-        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
+        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "bookAuthor1, bookAuthor2",  "Index","Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 150,0,0,0);
         when(bookService.getBook(bookId)).thenReturn(mockBook);
 
         List<Long> bookIdList = List.of(1L);
         List<Integer> quantityList = List.of(30);
 
-        BookResponse mockUpdatedBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
+        BookResponse mockUpdatedBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description","bookAuthor1, bookAuthor2",  "Index", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0);
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockUpdatedBook);
 
@@ -184,7 +213,7 @@ public class BookControllerTest {
         // given
         List<Long> bookIdList = List.of(1L);
         List<Integer> quantityList = List.of(15);
-        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "Index","Updated Author", "Updated Publisher",
+        BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "bookAuthor1, bookAuthor2", "Index","Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 10,0,0,0);
         when(bookService.getBook(1L)).thenReturn(mockBook);
 

@@ -77,7 +77,7 @@ public class LikesControllerTest {
         List<LikesResponse> mockResponse = Collections.emptyList();
         doReturn(mockResponse).when(likesService).getLikeByUserId(userId);
 
-        mockMvc.perform(get("/likes/users/{userId}", userId))
+        mockMvc.perform(get("/books/likes/users/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -90,7 +90,7 @@ public class LikesControllerTest {
         List<LikesResponse> mockResponse = Collections.emptyList();
         doReturn(mockResponse).when(likesService).getLikeByBookId(bookId);
 
-        mockMvc.perform(get("/likes/books/{bookId}", bookId))
+        mockMvc.perform(get("/books/likes/books/{bookId}", bookId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -104,7 +104,7 @@ public class LikesControllerTest {
 
         doReturn(mockResponse).when(likesService).updateLikeStatus(any(UpdateLikesRequest.class));
 
-        mockMvc.perform(put("/likes")
+        mockMvc.perform(put("/books/likes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -119,7 +119,7 @@ public class LikesControllerTest {
 
         doReturn(mockResponse).when(likesService).createLike(any(CreateLikesRequest.class));
 
-        mockMvc.perform(post("/likes")
+        mockMvc.perform(post("/books/likes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
