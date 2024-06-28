@@ -76,6 +76,11 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBook(bookId));
     }
 
+    @GetMapping("/books/orders")
+    public ResponseEntity<List<BookOrderResponse>> findByOrder(@RequestParam List<Long> bookIdList) {
+        return ResponseEntity.ok(bookService.getBooksByOrder(bookIdList));
+    }
+
     /**
      * 새로운 책을 생성합니다.
      *

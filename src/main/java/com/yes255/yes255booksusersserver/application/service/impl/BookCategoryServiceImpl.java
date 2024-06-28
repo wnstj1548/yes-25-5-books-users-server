@@ -27,14 +27,6 @@ public class BookCategoryServiceImpl implements BookCategoryService {
     private final JpaBookRepository jpaBookRepository;
     private final JpaCategoryRepository jpaCategoryRepository;
 
-    public BookCategoryResponse toResponse(BookCategory bookCategory) {
-        return BookCategoryResponse.builder()
-                .bookCategoryId(bookCategory.getBookCategoryId())
-                .bookId(bookCategory.getBook().getBookId())
-                .categoryId(bookCategory.getCategory().getCategoryId())
-                .build();
-    }
-
     @Transactional
     @Override
     public BookCategoryResponse createBookCategory(Long bookId, Long categoryId) {
@@ -48,7 +40,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
                         .category(category)
                         .build();
 
-        return toResponse(jpaBookCategoryRepository.save(bookCategory));
+        return BookCategoryResponse.fromEntity(jpaBookCategoryRepository.save(bookCategory));
     }
 
     @Override
@@ -57,28 +49,28 @@ public class BookCategoryServiceImpl implements BookCategoryService {
 
         BookCategory bookCategory = jpaBookCategoryRepository.findById(bookCategoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
 
-        return toResponse(bookCategory);
+        return BookCategoryResponse.fromEntity(bookCategory);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> getBookCategoryByBookId(Long bookId) {
 
-        return jpaBookCategoryRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(this::toResponse).toList();
+        return jpaBookCategoryRepository.findByBook(jpaBookRepository.findById(bookId).orElse(null)).stream().map(BookCategoryResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> getBookCategoryByCategoryId(Long categoryId) {
 
-        return jpaBookCategoryRepository.findByCategory(jpaCategoryRepository.findById(categoryId).orElse(null)).stream().map(this::toResponse).toList();
+        return jpaBookCategoryRepository.findByCategory(jpaCategoryRepository.findById(categoryId).orElse(null)).stream().map(BookCategoryResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<BookCategoryResponse> getAllBookCategories() {
 
-        return jpaBookCategoryRepository.findAll().stream().map(this::toResponse).toList();
+        return jpaBookCategoryRepository.findAll().stream().map(BookCategoryResponse::fromEntity).toList();
     }
 
     @Transactional
@@ -95,7 +87,7 @@ public class BookCategoryServiceImpl implements BookCategoryService {
                 .book(jpaBookRepository.findById(request.bookId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("도서가 존재하지 않습니다.", 404, LocalDateTime.now()))))
                 .build();
 
-        return toResponse(jpaBookCategoryRepository.save(bookCategory));
+        return BookCategoryResponse.fromEntity(jpaBookCategoryRepository.save(bookCategory));
     }
 
     @Transactional

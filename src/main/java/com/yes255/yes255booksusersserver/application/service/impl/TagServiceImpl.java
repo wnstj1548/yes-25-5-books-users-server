@@ -28,13 +28,6 @@ public class TagServiceImpl implements TagService {
     private final JpaTagRepository jpaTagRepository;
     private final JpaBookTagRepository jpaBookTagRepository;
 
-    public TagResponse toResponse(Tag tag) {
-        return TagResponse.builder()
-                .tagId(tag.getTagId())
-                .tagName(tag.getTagName())
-                .build();
-    }
-
     @Transactional
     @Override
     public TagResponse createTag(CreateTagRequest createTagRequest) {
@@ -43,7 +36,7 @@ public class TagServiceImpl implements TagService {
             throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
         }
 
-        return toResponse(jpaTagRepository.save(createTagRequest.toEntity()));
+        return TagResponse.fromEntity(jpaTagRepository.save(createTagRequest.toEntity()));
     }
 
     @Transactional(readOnly = true)
@@ -56,20 +49,20 @@ public class TagServiceImpl implements TagService {
 
         Tag tag = jpaTagRepository.findById(tagId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("태그를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
-        return toResponse(tag);
+        return TagResponse.fromEntity(tag);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<TagResponse> getAllTags() {
-        return jpaTagRepository.findAll().stream().map(this::toResponse).toList();
+        return jpaTagRepository.findAll().stream().map(TagResponse::fromEntity).toList();
     }
 
     @Override
     public Page<TagResponse> getAllTags(Pageable pageable) {
 
         Page<Tag> tagPage = jpaTagRepository.findAll(pageable);
-        List<TagResponse> responses = tagPage.stream().map(this::toResponse).toList();
+        List<TagResponse> responses = tagPage.stream().map(TagResponse::fromEntity).toList();
 
         return new PageImpl<>(responses, pageable, tagPage.getTotalElements());
     }
@@ -85,7 +78,7 @@ public class TagServiceImpl implements TagService {
             throw new ApplicationException(ErrorStatus.toErrorStatus("태그 아이디가 존재하지 않습니다..", 404, LocalDateTime.now()));
         }
 
-        return toResponse(jpaTagRepository.save(updateTagRequest.toEntity()));
+        return TagResponse.fromEntity(jpaTagRepository.save(updateTagRequest.toEntity()));
     }
 
     @Transactional

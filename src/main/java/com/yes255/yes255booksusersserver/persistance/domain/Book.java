@@ -86,7 +86,7 @@ public class Book {
         this.searchCount = searchCount;
     }
 
-    public void from(Book book) {
+    public void updateAll(Book book) {
         this.bookIsbn = Optional.ofNullable(book.getBookIsbn()).orElse(this.bookIsbn);
         this.bookName = Optional.ofNullable(book.getBookName()).orElse(this.bookName);
         this.bookDescription = Optional.ofNullable(book.getBookDescription()).orElse(this.bookDescription);

@@ -35,16 +35,6 @@ public class CategoryServiceImpl implements CategoryService {
     private final JpaBookRepository jpaBookRepository;
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
-    public CategoryResponse toResponse(Category category) {
-        return CategoryResponse.builder()
-                .categoryId(category.getCategoryId())
-                .categoryName(category.getCategoryName())
-                .parentCategoryId(category.getParentCategory() != null ?
-                        category.getParentCategory().getCategoryId() :
-                        null)
-                .build();
-    }
-
     @Transactional
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
@@ -59,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .parentCategory(jpaCategoryRepository.findById(createCategoryRequest.parentCategoryId()).orElse(null))
                 .build();
 
-        return toResponse(jpaCategoryRepository.save(category));
+        return CategoryResponse.fromEntity(jpaCategoryRepository.save(category));
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CategoryNotFoundException(ErrorStatus.toErrorStatus("알맞은 카테고리를 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
-        return toResponse(category);
+        return CategoryResponse.fromEntity(category);
 
     }
 
@@ -80,14 +70,14 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<CategoryResponse> getAllCategories(Pageable pageable) {
 
         Page<Category> categoryPage = jpaCategoryRepository.findAll(pageable);
-        List<CategoryResponse> responses = categoryPage.stream().map(this::toResponse).toList();
+        List<CategoryResponse> responses = categoryPage.stream().map(CategoryResponse::fromEntity).toList();
 
         return new PageImpl<>(responses, pageable, categoryPage.getTotalElements());
     }
 
     @Override
     public List<CategoryResponse> getAllCategories() {
-        return jpaCategoryRepository.findAll().stream().map(this::toResponse).toList();
+        return jpaCategoryRepository.findAll().stream().map(CategoryResponse::fromEntity).toList();
     }
 
     @Transactional
@@ -108,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .parentCategory(jpaCategoryRepository.findById(updateCategoryRequest.parentCategoryId()).orElse(null))
                 .build();
 
-        return toResponse(jpaCategoryRepository.save(category));
+        return CategoryResponse.fromEntity(jpaCategoryRepository.save(category));
     }
 
     @Transactional

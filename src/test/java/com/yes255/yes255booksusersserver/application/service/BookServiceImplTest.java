@@ -140,7 +140,7 @@ public class BookServiceImplTest {
         UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
                 sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), "new_image.jpg", 150);
 
-        existingBook.from(request.toEntity());
+        existingBook.updateAll(request.toEntity());
 
         when(jpaBookRepository.findById(1L)).thenReturn(java.util.Optional.of(existingBook));
         when(jpaBookRepository.save(any(Book.class))).thenReturn(existingBook);
