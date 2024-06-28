@@ -16,6 +16,7 @@ public class UserGrade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userGradeId;
 
+    // NORMAL, ROYAL, GOLD, PLATINUM
     @NotNull(message = "회원 등급명은 필수입니다.")
     @Column(nullable = false, length = 10)
     private String userGradeName;
