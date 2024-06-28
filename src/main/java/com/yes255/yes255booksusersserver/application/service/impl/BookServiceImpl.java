@@ -93,7 +93,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
         Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId()).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
-        existingBook.from(updateBookRequest.toEntity());
+        existingBook.updateAll(updateBookRequest.toEntity());
 
         return toResponse(existingBook);
     }
