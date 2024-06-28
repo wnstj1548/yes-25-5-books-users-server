@@ -234,7 +234,7 @@ public class BookController {
                     .bookPublishDate(book.bookPublishDate())
                     .bookPrice(book.bookPrice())
                     .bookSellingPrice(book.bookSellingPrice())
-                    .bookImage(book.bookImage())
+                    .imageURL(book.bookImage())
                     .quantity(updatedQuantity)
                     .build();
 

@@ -105,7 +105,7 @@ public class BookControllerTest {
     void create_success() throws ParseException {
         // given
         CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "bookAuthor1, bookAuthor2", "Publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100);
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100,"image.jpg");
         List<Long> categoryIdList = List.of(1L, 2L);
 
         BookResponse mockResponse = new BookResponse(1L, "1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "index", "Publisher",
@@ -126,15 +126,9 @@ public class BookControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(mockResponse, responseEntity.getBody());
 
-        // Verify bookAuthorService interactions
-//        verify(bookAuthorService).createBookAuthor(new CreateBookAuthorRequest(1L, 2L));
-//        verify(bookAuthorService).createBookAuthor(new CreateBookAuthorRequest(1L, 1L));
-
-        // Verify bookCategoryService interactions
         verify(bookCategoryService).createBookCategory(1L, 1L);
         verify(bookCategoryService).createBookCategory(1L, 2L);
 
-        // Verify bookTagService is not called since tagIdList is null
         verifyNoInteractions(bookTagService);
     }
 
@@ -143,7 +137,7 @@ public class BookControllerTest {
     void update_success() throws ParseException {
         // given
         UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "index", "author1", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), 120,"updated.jpg");
         List<Long> categoryIdList = List.of(1L, 2L);
 
         BookResponse mockResponse = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description","author1" , "index", "Updated Publisher",
