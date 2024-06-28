@@ -258,4 +258,9 @@ public class BookController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/books/search")
+    public ResponseEntity<List<BookCouponResponse>> searchByName(@RequestParam String query) {
+        return ResponseEntity.ok(bookService.getBookByName(query));
+    }
 }
