@@ -10,17 +10,13 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUs
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 회원 관련 API를 제공하는 UserController
@@ -104,16 +100,14 @@ public class UserController {
     /**
      * 회원 조회를 처리합니다.
      *
-//     * @param jwtUserDetails 유저 토큰 정보
+     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<UserResponse> 조회된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
     @GetMapping("/users")
     public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
@@ -130,10 +124,8 @@ public class UserController {
     public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest,
                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
-//        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
         return ResponseEntity.ok(userService.updateUser(userId, userRequest));
     }
 
@@ -149,9 +141,7 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest,
                                            @CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
         userService.deleteUser(userId, userRequest);
 

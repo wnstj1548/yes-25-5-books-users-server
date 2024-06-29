@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,11 +54,15 @@ public class UserGradeServiceImpl implements UserGradeService {
     }
 
     // 회원 등급 갱신
-    public void updateUserGrade(User user, BigDecimal purePrices) {
+    public void updateUserGrade(User user, BigDecimal purePrices, LocalDate currentDate) {
 
-        String gradeName = null;
+        UserGradeLog lastUserGradeLog = userGradeLogRepository.findFirstByUserUserIdOrderByUserGradeUpdatedAtDesc(user.getUserId())
+                .orElseThrow(() -> new UserGradeLogException(ErrorStatus.toErrorStatus("회원 등급 변경 이력이 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        UserGrade setUserGrade = null;
 
         List<UserGrade> userGrades = userGradeRepository.findAll();
+        userGrades.sort((grade1, grade2) -> grade2.getPointPolicy().getPointPolicyConditionAmount().compareTo(grade1.getPointPolicy().getPointPolicyConditionAmount()));
 
         if (userGrades.isEmpty()) {
             throw new UserGradeException(ErrorStatus.toErrorStatus("회원 등급이 존재하지 않습니다.", 400, LocalDateTime.now()));
@@ -68,39 +71,31 @@ public class UserGradeServiceImpl implements UserGradeService {
         for (UserGrade userGrade : userGrades) {
             if (!userGrade.getPointPolicy().isPointPolicyApplyType()
                     && purePrices.compareTo(userGrade.getPointPolicy().getPointPolicyConditionAmount()) >= 0) {
-                gradeName = userGrade.getUserGradeName();
+                setUserGrade = userGrade;
+                break;
             }
         }
 
-
-//
-//        if (purePrices.compareTo(BigDecimal.valueOf(300000)) >= 0) {
-//            gradeName = "PLATINUM";
-//        } else if (purePrices.compareTo(BigDecimal.valueOf(200000)) >= 0) {
-//            gradeName = "GOLD";
-//        } else if (purePrices.compareTo(BigDecimal.valueOf(100000)) >= 0) {
-//            gradeName = "ROYAL";
-//        } else {
-//            gradeName = "NORMAL";
-//        }
-
-        UserGrade userGrade = userGradeRepository.findByUserGradeName(gradeName);
-
-        if (Objects.isNull(userGrade)) {
+        if (Objects.isNull(setUserGrade)) {
             throw new UserGradeException(ErrorStatus.toErrorStatus("회원 등급이 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
-        if (!user.getUserGrade().getUserGradeName().equals(gradeName)) {
-            user.updateUserGrade(userGrade);
-            userRepository.save(user);
-        }
+        // 3개월이 지났는지 확인
+        boolean isThreeMonthsPassed = lastUserGradeLog.getUserGradeUpdatedAt().plusMonths(3).isBefore(currentDate);
 
-        // 등급이 유지되어도 변동 이력에 기록
-        userGradeLogRepository.save(UserGradeLog.builder()
-                .userGrade(userGrade)
-                .userGradeUpdatedAt(LocalDate.now())
-                .user(user)
-                .build());
+        // 등급이 상향되었는지 확인
+        boolean isUpgrade = user.getUserGrade().getPointPolicy().getPointPolicyConditionAmount().compareTo(setUserGrade.getPointPolicy().getPointPolicyConditionAmount()) < 0;
+
+        if (isUpgrade || isThreeMonthsPassed) {
+            user.updateUserGrade(setUserGrade);
+            userRepository.save(user);
+
+            userGradeLogRepository.save(UserGradeLog.builder()
+                    .userGrade(setUserGrade)
+                    .userGradeUpdatedAt(LocalDate.now())
+                    .user(user)
+                    .build());
+        }
     }
 
     // 매달 1일 마다 확인
@@ -108,6 +103,7 @@ public class UserGradeServiceImpl implements UserGradeService {
     public void processMonthlyGrades() {
         LocalDate currentDate = LocalDate.now();
 
+        // 주문 서버로부터 3개월 치 순수 금액 내역 반환
         List<OrderLogResponse> orderLogResponses = orderAdaptor.getOrderLogs();
 
         for (OrderLogResponse orderLogResponse : orderLogResponses) {
@@ -115,22 +111,7 @@ public class UserGradeServiceImpl implements UserGradeService {
             User user = userRepository.findById(orderLogResponse.customerId())
                     .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-            updateUserGrade(user, orderLogResponse.purePrices());
-            checkGradeExpiration(user, currentDate, orderLogResponse.purePrices());
+            updateUserGrade(user, orderLogResponse.purePrices(), currentDate);
         }
-    }
-
-    // 3개월 이내에 변동 확인
-    private void checkGradeExpiration(User user, LocalDate currentDate, BigDecimal purePrices) {
-
-        // 회원의 최근 변경 이력 반환
-        UserGradeLog userGradeLog = userGradeLogRepository.findFirstByUserUserIdOrderByUserGradeUpdatedAtDesc(user.getUserId())
-                .orElseThrow(() -> new UserGradeLogException(ErrorStatus.toErrorStatus("회원 등급 변경 이력이 존재하지 않습니다.", 400, LocalDateTime.now())));
-
-        if (!user.getUserGrade().getUserGradeName().equals("NORMAL") &&
-            userGradeLog.getUserGradeUpdatedAt().plusMonths(3).isBefore(currentDate)) {
-            updateUserGrade(user, purePrices);
-        }
-
     }
 }
