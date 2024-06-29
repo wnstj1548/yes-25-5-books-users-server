@@ -73,7 +73,7 @@ public class UserController {
      * @return ResponseEntity<List<FindUserResponse>> 찾은 이메일 목록과 상태 코드 200(OK)
      */
     @Operation(summary = "이메일 찾기", description = "이메일(아이디)을 찾기 위해 회원 이름과 이메일을 통해 이메일 목록을 조회합니다.")
-    @PostMapping("/users/findEmail")
+    @PostMapping("/users/find/email")
     public ResponseEntity<List<FindUserResponse>> findAllByUserNameByUserPhone(@RequestBody FindEmailRequest emailRequest,
                                                                                Pageable pageable) {
         return new ResponseEntity<>(userService.findAllUserEmailByUserNameByUserPhone(emailRequest, pageable)
@@ -87,7 +87,7 @@ public class UserController {
      * @return ResponseEntity<Boolean> 비밀번호 찾기 성공 여부와 상태 코드 200(OK)
      */
     @Operation(summary = "비밀번호 찾기", description = "이메일과 회원 이름을 통해 비밀번호 찾기 인증을 진행합니다.")
-    @PostMapping("/users/findPassword")
+    @PostMapping("/users/find/password")
     public ResponseEntity<Boolean> findPassword(@RequestBody FindPasswordRequest passwordRequest) {
         return new ResponseEntity<>(userService.findUserPasswordByEmailByName(passwordRequest), HttpStatus.OK);
     }
@@ -109,6 +109,8 @@ public class UserController {
 
         Long userId = jwtUserDetails.userId();
 
+
+//        Long userId = 8L;
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
 
