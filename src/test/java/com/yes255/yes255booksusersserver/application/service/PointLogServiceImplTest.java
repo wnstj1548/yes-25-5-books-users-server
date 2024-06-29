@@ -12,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
@@ -50,21 +53,23 @@ public class PointLogServiceImplTest {
             mockPointLogs.add(pointLog);
         }
 
+        Page<PointLog> pointLogPage = new PageImpl<>(mockPointLogs, PageRequest.of(0, 10), mockPointLogs.size());
+
         when(pointLogRepository.findByPoint_User_UserIdOrderByPointLogUpdatedAtDesc(eq(userId), any(Pageable.class)))
-                .thenReturn(mockPointLogs);
+                .thenReturn(pointLogPage);
     }
 
     @Test
     @DisplayName("사용자의 포인트 로그 조회 - 성공")
     void testFindAllPointLogsByUserId_Success() {
 
-        Pageable pageable = Pageable.unpaged(); // 페이징 처리 안 함
+        Pageable pageable = PageRequest.of(0, 10); // 페이징 처리
 
-        List<PointLogResponse> pointLogResponses = pointLogService.findAllPointLogsByUserId(userId, pageable);
+        Page<PointLogResponse> pointLogResponses = pointLogService.findAllPointLogsByUserId(userId, pageable);
 
-        assertEquals(10, pointLogResponses.size()); // 조회된 포인트 로그 개수가 10개인지 확인
+        assertEquals(10, pointLogResponses.getTotalElements()); // 조회된 포인트 로그 개수가 10개인지 확인
 
-        PointLogResponse firstPointLogResponse = pointLogResponses.getFirst();
+        PointLogResponse firstPointLogResponse = pointLogResponses.getContent().getFirst();
         assertEquals(BigDecimal.valueOf(101), firstPointLogResponse.pointCurrent());
         assertEquals("Type1", firstPointLogResponse.pointLogUpdatedType());
         assertEquals(BigDecimal.valueOf(10), firstPointLogResponse.pointLogAmount());
