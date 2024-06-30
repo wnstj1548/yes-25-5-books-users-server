@@ -108,8 +108,6 @@ public class CartBookServiceImpl implements CartBookService {
     @Override
     public List<CartBookResponse> findAllCartBookById(Long userId) {
 
-        // todo : header에서 userId를 가져온다
-
         Cart cart = cartRepository.findByUser_UserId(userId);
 
         if (Objects.isNull(cart)) {

@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/user-addresses")
-public class UserAddressController { // todo : addressId 제거
+public class UserAddressController {
 
     private final UserAddressService userAddressService;
 
