@@ -234,7 +234,7 @@ public class BookController {
                     .bookPublishDate(book.bookPublishDate())
                     .bookPrice(book.bookPrice())
                     .bookSellingPrice(book.bookSellingPrice())
-                    .bookImage(book.bookImage())
+                    .imageURL(book.bookImage())
                     .quantity(updatedQuantity)
                     .build();
 
@@ -257,5 +257,10 @@ public class BookController {
         bookService.removeBook(bookId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/books/search")
+    public ResponseEntity<List<BookCouponResponse>> searchByName(@RequestParam String query) {
+        return ResponseEntity.ok(bookService.getBookByName(query));
     }
 }

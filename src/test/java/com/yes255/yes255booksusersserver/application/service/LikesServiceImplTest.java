@@ -180,7 +180,6 @@ public class LikesServiceImplTest {
     @Test
     void updateLikeStatus_success() {
         // given
-        UpdateLikesRequest request = new UpdateLikesRequest(1L, 1L);
         Likes existingLike = new Likes(null, true, testBook, testUser);
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.of(testBook));
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -188,7 +187,7 @@ public class LikesServiceImplTest {
         when(jpaLikesRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        LikesResponse response = likesService.updateLikeStatus(request);
+        LikesResponse response = likesService.updateLikeStatus(1L, 1L);
 
         // then
         assertNotNull(response);
@@ -205,7 +204,7 @@ public class LikesServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(request));
+        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(1L, 1L));
     }
 
     @DisplayName("좋아요 상태 업데이트 - 실패 (유저를 찾을 수 없음)")
@@ -217,7 +216,7 @@ public class LikesServiceImplTest {
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(request));
+        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(1L, 1L));
     }
 
     @DisplayName("좋아요 상태 업데이트 - 실패 (좋아요를 찾을 수 없음)")
@@ -230,7 +229,7 @@ public class LikesServiceImplTest {
         when(jpaLikesRepository.findByUserAndBook(testUser, testBook)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(request));
+        assertThrows(ApplicationException.class, () -> likesService.updateLikeStatus(1L, 1L));
     }
 }
 

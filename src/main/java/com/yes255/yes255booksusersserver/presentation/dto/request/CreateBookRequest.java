@@ -35,10 +35,10 @@ public record CreateBookRequest(
         @NotNull(message = "책 판매 가격은 필수 입력 항목입니다.")
         BigDecimal bookSellingPrice,
 
-        String bookImage,
-
         @NotNull(message = "수량은 필수 입력 항목입니다.")
-        Integer quantity
+        Integer quantity,
+
+        String imageURL
 )
 {
     public Book toEntity() {
@@ -51,7 +51,7 @@ public record CreateBookRequest(
                 .bookPublishDate(bookPublishDate)
                 .bookPrice(bookPrice)
                 .bookSellingPrice(bookSellingPrice)
-                .bookImage(bookImage)
+                .bookImage(imageURL)
                 .quantity(quantity)
                 .reviewCount(0)
                 .hitsCount(0)

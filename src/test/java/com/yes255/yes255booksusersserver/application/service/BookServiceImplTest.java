@@ -68,7 +68,7 @@ public class BookServiceImplTest {
     void createBook_success() throws ParseException {
         // given
         CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index",  "BookAuthor1, BookAuthor2", "Publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100);
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100, "image.jpg");
 
         when(jpaBookRepository.save(any(Book.class))).thenReturn(testBook);
 
@@ -138,7 +138,7 @@ public class BookServiceImplTest {
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0);
 
         UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
-                sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), "new_image.jpg", 150);
+                sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), 150, "new_image.jpg");
 
         existingBook.updateAll(request.toEntity());
 
@@ -160,7 +160,7 @@ public class BookServiceImplTest {
     void updateBook_failure_bookNotFound() throws ParseException {
         // given
         UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description", "index" ,"Updated Publisher", "author1", "publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120);
+                sdf.parse("2020-01-01"), new BigDecimal("25.00"), new BigDecimal("20.99"), 120, "updated.jpg");
 
         when(jpaBookRepository.existsById(1L)).thenReturn(false);
 

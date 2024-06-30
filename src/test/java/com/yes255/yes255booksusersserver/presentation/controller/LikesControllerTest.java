@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -77,7 +78,7 @@ public class LikesControllerTest {
         List<LikesResponse> mockResponse = Collections.emptyList();
         doReturn(mockResponse).when(likesService).getLikeByUserId(userId);
 
-        mockMvc.perform(get("/books/likes/users/{userId}", userId))
+        mockMvc.perform(get("/books/likes/users", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -99,14 +100,14 @@ public class LikesControllerTest {
     @DisplayName("좋아요 상태 업데이트 - 성공")
     @Test
     void update_success() throws Exception {
-        UpdateLikesRequest request = new UpdateLikesRequest(1L, 1L);
         LikesResponse mockResponse = new LikesResponse(1L, 1L, 1L, false);
 
-        doReturn(mockResponse).when(likesService).updateLikeStatus(any(UpdateLikesRequest.class));
+        doReturn(mockResponse).when(likesService).updateLikeStatus(anyLong(), anyLong());
 
         mockMvc.perform(put("/books/likes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .param("bookId", String.valueOf(1L))
+                        .param("userId", String.valueOf(1L)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }

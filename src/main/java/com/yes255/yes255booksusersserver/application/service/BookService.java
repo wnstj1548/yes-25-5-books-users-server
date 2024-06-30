@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.application.service;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.springframework.data.domain.Page;
@@ -27,4 +28,6 @@ public interface BookService {
     void removeBook(Long bookId);
 
     List<BookResponse> getBookByCategoryId(Long categoryId);
+
+    List<BookCouponResponse> getBookByName(String name);
 }
