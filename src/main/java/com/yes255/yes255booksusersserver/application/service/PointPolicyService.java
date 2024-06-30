@@ -2,6 +2,8 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public interface PointPolicyService {
     PointPolicyResponse findPointPolicyById(Long pointPolicyId);
 
     // 포인트 정책 목록 조회
-    List<PointPolicyResponse> findAllPointPolicies();
+    Page<PointPolicyResponse> findAllPointPolicies(Pageable pageable);
 
     // 포인트 정책 수정 (적립 금액)
     PointPolicyResponse updatePointPolicyById(Long pointPolicyId, PointPolicyRequest policyRequest);
