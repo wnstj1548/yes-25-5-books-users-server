@@ -104,7 +104,7 @@ public class UserController {
      * @return ResponseEntity<UserResponse> 조회된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
-    @GetMapping("/users")
+    @GetMapping("/users/info")
     public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
@@ -120,7 +120,7 @@ public class UserController {
      * @return ResponseEntity<UpdateUserResponse> 수정된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 수정", description = "특정 회원 정보를 수정합니다.")
-    @PutMapping("/users")
+    @PutMapping("/users/info")
     public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest,
                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
@@ -137,7 +137,7 @@ public class UserController {
      * @return ResponseEntity<Void> 회원 탈퇴 성공 여부와 상태 코드 204(NO_CONTENT)
      */
     @Operation(summary = "회원 탈퇴", description = "특정 회원이 탈퇴합니다.")
-    @DeleteMapping("/users")
+    @DeleteMapping("/users/delete")
     public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest,
                                            @CurrentUser JwtUserDetails jwtUserDetails) {
 
