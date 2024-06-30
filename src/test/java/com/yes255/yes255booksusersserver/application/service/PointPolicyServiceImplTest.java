@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -99,7 +102,7 @@ public class PointPolicyServiceImplTest {
     @DisplayName("모든 포인트 정책 조회")
     @Test
     void testFindAllPointPolicies() {
-
+        // Given
         PointPolicy policy1 = PointPolicy.builder()
                 .pointPolicyId(1L)
                 .pointPolicyName("Policy 1")
@@ -120,11 +123,14 @@ public class PointPolicyServiceImplTest {
                 .build();
 
         List<PointPolicy> policies = Arrays.asList(policy1, policy2);
+        Page<PointPolicy> page = new PageImpl<>(policies);
 
-        when(pointPolicyRepository.findAll()).thenReturn(policies);
+        when(pointPolicyRepository. findAllBy(Pageable.unpaged())).thenReturn(page);
 
-        List<PointPolicyResponse> responses = pointPolicyService.findAllPointPolicies();
+        // When
+        List<PointPolicyResponse> responses = pointPolicyService.findAllPointPolicies(Pageable.unpaged()).getContent();
 
+        // Then
         assertNotNull(responses);
         assertEquals(policies.size(), responses.size());
 
