@@ -66,11 +66,11 @@ public class LikesServiceImpl implements LikesService {
 
     @Transactional
     @Override
-    public LikesResponse updateLikeStatus(UpdateLikesRequest request) {
+    public LikesResponse updateLikeStatus(Long bookId, Long userId) {
 
-        Book book = jpaBookRepository.findById(request.bookId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
-        User user = jpaUserRepository.findById(request.userId()).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를을 찾을 수 없습니다.", 404, LocalDateTime.now())));
-        Likes like = jpaLikesRepository.findByUserAndBook(user, book).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("좋아요를 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Likes like = jpaLikesRepository.findByUserAndBook(user, book).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("업데이트 할 좋아요를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         Likes updatedLike = Likes.builder()
                 .likesId(like.getLikesId())

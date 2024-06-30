@@ -40,7 +40,9 @@ public class BookServiceImpl implements BookService {
     public BookResponse createBook(CreateBookRequest createBookRequest) {
 
         if(Objects.isNull(createBookRequest)) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
+            throw new ApplicationException(
+                    ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())
+            );
         }
 
         Book book = jpaBookRepository.save(createBookRequest.toEntity());
@@ -54,7 +56,9 @@ public class BookServiceImpl implements BookService {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book)) {
-            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now()));
+            throw new BookNotFoundException(
+                    ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())
+            );
         }
 
         return toResponse(book);
@@ -92,7 +96,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
-        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId()).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId())
+                .orElseThrow(() -> new BookNotFoundException(
+                ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                ));
+
         existingBook.updateAll(updateBookRequest.toEntity());
 
         return toResponse(existingBook);
@@ -102,7 +110,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public void removeBook(Long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException(
+                        ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                ));
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
         List<BookTag> bookTagList = jpaBookTagRepository.findByBook(book);
@@ -122,7 +133,11 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getBookByCategoryId(Long categoryId) {
 
         List<BookResponse> bookList = new ArrayList<>();
-        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())));
+        Category category = jpaCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
+                ));
+
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
         for(BookCategory bookCategory : bookCategoryList) {

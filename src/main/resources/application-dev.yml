@@ -58,3 +58,5 @@ jwt:
 api:
   order-payment: http://localhost:8071
   coupons: http://localhost:8081
+app:
+  mode: development
