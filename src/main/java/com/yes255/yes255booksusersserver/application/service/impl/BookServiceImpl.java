@@ -149,7 +149,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookCouponResponse> getBookByName(String name) {
-        return jpaBookRepository.findByBookName(name).stream().map(this::toBookCouponResponse).toList();
+        return jpaBookRepository.findByBookNameContainingIgnoreCase(name).stream().map(this::toBookCouponResponse).toList();
     }
 
     public BookResponse toResponse(Book book) {
@@ -175,6 +175,7 @@ public class BookServiceImpl implements BookService {
                 .reviewCount(book.getReviewCount())
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
+                .bookIsPackable(book.isBookIsPackable())
                 .build();
     }
 
