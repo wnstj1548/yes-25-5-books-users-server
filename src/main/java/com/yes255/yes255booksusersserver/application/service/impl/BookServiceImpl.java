@@ -8,6 +8,7 @@ import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,38 +35,14 @@ public class BookServiceImpl implements BookService {
     private final JpaCartBookRepository jpaCartBookRepository;
     private final JpaBookAuthorRepository jpaBookAuthorRepository;
 
-    public BookResponse toResponse(Book book) {
-
-        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
-
-        String authorString = bookAuthorList.stream()
-                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
-                .collect(Collectors.joining(","));
-
-        return BookResponse.builder()
-                .bookId(book.getBookId())
-                .bookIsbn(book.getBookIsbn())
-                .bookName(book.getBookName())
-                .bookDescription(book.getBookDescription())
-                .bookAuthor(authorString)
-                .bookPublisher(book.getBookPublisher())
-                .bookPublishDate(book.getBookPublishDate())
-                .bookPrice(book.getBookPrice())
-                .bookSellingPrice(book.getBookSellingPrice())
-                .bookImage(book.getBookImage())
-                .bookQuantity(book.getQuantity())
-                .reviewCount(book.getReviewCount())
-                .hitsCount(book.getHitsCount())
-                .searchCount(book.getSearchCount())
-                .build();
-    }
-
     @Transactional
     @Override
     public BookResponse createBook(CreateBookRequest createBookRequest) {
 
         if(Objects.isNull(createBookRequest)) {
-            throw new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now()));
+            throw new ApplicationException(
+                    ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())
+            );
         }
 
         Book book = jpaBookRepository.save(createBookRequest.toEntity());
@@ -77,9 +54,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse getBook(long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book)) {
-            throw new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now()));
+            throw new BookNotFoundException(
+                    ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())
+            );
         }
 
         return toResponse(book);
@@ -117,7 +96,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
 
-        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId()).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId())
+                .orElseThrow(() -> new BookNotFoundException(
+                ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                ));
+
         existingBook.updateAll(updateBookRequest.toEntity());
 
         return toResponse(existingBook);
@@ -127,7 +110,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public void removeBook(Long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException(
+                        ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                ));
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByBook(book);
         List<BookTag> bookTagList = jpaBookTagRepository.findByBook(book);
@@ -147,7 +133,11 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getBookByCategoryId(Long categoryId) {
 
         List<BookResponse> bookList = new ArrayList<>();
-        Category category = jpaCategoryRepository.findById(categoryId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())));
+        Category category = jpaCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
+                ));
+
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
         for(BookCategory bookCategory : bookCategoryList) {
@@ -157,4 +147,50 @@ public class BookServiceImpl implements BookService {
         return bookList;
     }
 
+    @Override
+    public List<BookCouponResponse> getBookByName(String name) {
+        return jpaBookRepository.findByBookName(name).stream().map(this::toBookCouponResponse).toList();
+    }
+
+    public BookResponse toResponse(Book book) {
+
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
+
+        return BookResponse.builder()
+                .bookId(book.getBookId())
+                .bookIsbn(book.getBookIsbn())
+                .bookName(book.getBookName())
+                .bookDescription(book.getBookDescription())
+                .bookAuthor(authorString)
+                .bookPublisher(book.getBookPublisher())
+                .bookPublishDate(book.getBookPublishDate())
+                .bookPrice(book.getBookPrice())
+                .bookSellingPrice(book.getBookSellingPrice())
+                .bookImage(book.getBookImage())
+                .bookQuantity(book.getQuantity())
+                .reviewCount(book.getReviewCount())
+                .hitsCount(book.getHitsCount())
+                .searchCount(book.getSearchCount())
+                .build();
+    }
+
+    public BookCouponResponse toBookCouponResponse(Book book) {
+
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
+
+        return BookCouponResponse.builder()
+                .bookId(book.getBookId())
+                .bookName(book.getBookName())
+                .authorName(authorString)
+                .bookPublisher(book.getBookPublisher())
+                .build();
+    }
 }

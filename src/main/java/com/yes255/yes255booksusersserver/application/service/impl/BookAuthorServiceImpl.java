@@ -35,7 +35,6 @@ public class BookAuthorServiceImpl implements BookAuthorService {
                         ErrorStatus.toErrorStatus("해당 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
                 ));
 
-
         return jpaBookAuthorRepository.findByBook(book).stream().map(BookAuthorResponse::fromEntity).toList();
     }
 

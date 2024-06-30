@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.LikesService;
+import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
+import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateLikesRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateLikesRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
@@ -26,12 +28,15 @@ public class LikesController {
     /**
      * 특정 사용자가 좋아요한 항목들을 조회합니다.
      *
-     * @param userId 조회할 사용자의 ID
+     * @param  jwtUserDetails 사용자의 JWT Token
      * @return ResponseEntity<List<LikesResponse>> 형식의 좋아요 목록
      */
     @Operation(summary = "사용자의 좋아요 목록 조회", description = "사용자의 좋아요 목록을 조회합니다.")
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<List<LikesResponse>> findByUserId(@PathVariable Long userId) {
+    @GetMapping("/users")
+    public ResponseEntity<List<LikesResponse>> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
         return ResponseEntity.ok(likesService.getLikeByUserId(userId));
     }
 
@@ -50,14 +55,15 @@ public class LikesController {
     /**
      * 좋아요 상태를 업데이트합니다.
      *
-     * @param request 업데이트할 좋아요 정보를 담은 UpdateLikesRequest 객체
+     * @param bookId 업데이트할 책 정보를 담은 bookId
+     * @param jwtUserDetails 업데이트할 유저 정보를 담은 jwt Token
      * @return ResponseEntity<LikesResponse> 형식의 업데이트된 좋아요 정보
      */
     @Operation(summary = "좋아요 상태 업데이트", description = "좋아요 상태를 업데이트합니다.")
     @Parameter(name = "request", description = "bookId(도서 PK), userId(유저 PK) 를 포함합니다.")
     @PutMapping
-    public ResponseEntity<LikesResponse> update(@RequestBody UpdateLikesRequest request) {
-        return ResponseEntity.ok(likesService.updateLikeStatus(request));
+    public ResponseEntity<LikesResponse> update(Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+        return ResponseEntity.ok(likesService.updateLikeStatus(bookId, jwtUserDetails.userId()));
     }
 
     /**

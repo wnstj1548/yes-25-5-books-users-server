@@ -10,5 +10,5 @@ public interface LikesService {
     List<LikesResponse> getLikeByUserId(Long userId);
     List<LikesResponse> getLikeByBookId(Long bookId);
     LikesResponse createLike(CreateLikesRequest createLikesRequest);
-    LikesResponse updateLikeStatus(UpdateLikesRequest updateLikesRequest);
+    LikesResponse updateLikeStatus(Long bookId, Long userId);
 }

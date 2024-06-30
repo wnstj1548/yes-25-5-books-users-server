@@ -6,10 +6,16 @@ spring:
 #    url: jdbc:h2:mem:db;MODE=MYSQL
 #    username: sa
 #    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://133.186.241.167:3306/be6_yes255_book
     username: be6_yes255
     password: ${YES25_5_MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: org.apache.commons.dbcp2.BasicDataSource
+    dbcp2:
+        initial-size: 10
+        max-total: 10
+        max-idle: 10
+        min-idle: 10
 #  h2:
 #    console:
 #      enabled: true
@@ -52,3 +58,5 @@ jwt:
 api:
   order-payment: http://localhost:8071
   coupons: http://localhost:8081
+app:
+  mode: development
