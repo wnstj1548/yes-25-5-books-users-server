@@ -14,15 +14,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Slf4j
 public class JwtAuthorizationRequestInterceptor implements RequestInterceptor {
 
-    @Value("${app.mode}")
-    private String mode;
+//    @Value("${app.mode}")
+//    private String mode;
 
     @Override
     public void apply(RequestTemplate template) {
 
-        if ("development".equals(mode)) {
-            return;
-        }
+//        if ("development".equals(mode)) {
+//            return;
+//        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof JwtUserDetails userDetails) {
