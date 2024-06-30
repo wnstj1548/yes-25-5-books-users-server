@@ -109,8 +109,6 @@ public class UserController {
 
         Long userId = jwtUserDetails.userId();
 
-
-//        Long userId = 8L;
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
 
