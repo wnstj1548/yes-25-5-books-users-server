@@ -104,7 +104,7 @@ public class UserGradeServiceImpl implements UserGradeService {
         LocalDate currentDate = LocalDate.now();
 
         // 주문 서버로부터 3개월 치 순수 금액 내역 반환
-        List<OrderLogResponse> orderLogResponses = orderAdaptor.getOrderLogs();
+        List<OrderLogResponse> orderLogResponses = orderAdaptor.getOrderLogs(LocalDate.now());
 
         for (OrderLogResponse orderLogResponse : orderLogResponses) {
 
