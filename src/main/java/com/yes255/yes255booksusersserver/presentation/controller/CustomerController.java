@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NonMemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 
 @Tag(name = "고객 API", description = "고객 관련 API 입니다.")
-@RequestMapping("/customers")
+@RequestMapping("users/customers")
 @RequiredArgsConstructor
 @RestController
 public class CustomerController {
@@ -85,5 +86,25 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 
-    // todo : 비회원을 위한 고객 정보 반환
+    /**
+     * 바로 구매 이용을 위한 비회원 고객을 생성합니다.
+     *
+     * @return 비회원 고객 정보와 상태 코드 200(OK)
+     */
+    @Operation(summary = "비회원 생성", description = "비회원 고객을 생성합니다. 바로 구매 이용 전용입니다.")
+    @GetMapping("/non-member")
+    public ResponseEntity<CustomerResponse> createNonMember() {
+        return ResponseEntity.ok(customerService.createNonMember());
+    }
+
+    /**
+     * 장바구니 이용을 위한 비회원 고객을 생성합니다.
+     *
+     * @return 비회원 고객 정보 및 카트 정보와 상태 코드 200(OK)
+     */
+    @Operation(summary = "비회원 생성", description = "비회원 고객을 생성합니다. 장바구니 이용 전용입니다.")
+    @GetMapping("/non-member/cart")
+    public ResponseEntity<NonMemberResponse> createNonMemberWithCart() {
+        return ResponseEntity.ok(customerService.createNonMemberWithCart());
+    }
 }
