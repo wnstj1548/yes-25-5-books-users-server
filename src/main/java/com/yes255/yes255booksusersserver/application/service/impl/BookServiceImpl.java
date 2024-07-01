@@ -147,6 +147,24 @@ public class BookServiceImpl implements BookService {
         return bookList;
     }
 
+    @Transactional
+    @Override
+    public Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable) {
+
+        Category category = jpaCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
+                ));
+
+        Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
+
+        List<BookResponse> bookList = bookCategoryPage.getContent().stream()
+                .map(bookCategory -> toResponse(bookCategory.getBook()))
+                .toList();
+
+        return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
+    }
+
     @Override
     public List<BookCouponResponse> getBookByName(String name) {
         return jpaBookRepository.findByBookNameContainingIgnoreCase(name).stream().map(this::toBookCouponResponse).toList();
