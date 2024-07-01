@@ -43,7 +43,9 @@ public record UpdateBookRequest(
         @NotNull(message = "책 수량은 필수 입력 항목입니다.")
         Integer quantity,
 
-        String imageURL
+        String imageURL,
+
+        boolean bookIsPackable
 ) {
     public Book toEntity() {
         return Book.builder()
@@ -58,6 +60,7 @@ public record UpdateBookRequest(
                 .bookSellingPrice(bookSellingPrice)
                 .bookImage(imageURL)
                 .quantity(quantity)
+                .bookIsPackable(bookIsPackable)
                 .build();
     }
 }

@@ -57,7 +57,7 @@ public class CategoryControllerTest {
     @Test
     void find_success() throws Exception {
         // given
-        when(categoryService.getCategory(1L)).thenReturn(new CategoryResponse(1L, "Test Category", null));
+        when(categoryService.getCategory(1L)).thenReturn(new CategoryResponse(1L, "Test Category", null, null));
 
         // when + then
         mockMvc.perform(get("/books/categories/{categoryId}", 1L)
@@ -102,7 +102,7 @@ public class CategoryControllerTest {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest("Test Category", null);
 
-        when(categoryService.createCategory(any(CreateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Test Category", null));
+        when(categoryService.createCategory(any(CreateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Test Category", null, null));
 
         // when + then
         mockMvc.perform(post("/books/categories")
@@ -119,7 +119,7 @@ public class CategoryControllerTest {
         // given
         UpdateCategoryRequest request = new UpdateCategoryRequest(1L, "Updated Test Category", null);
 
-        when(categoryService.updateCategory(any(UpdateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Updated Test Category", null));
+        when(categoryService.updateCategory(any(UpdateCategoryRequest.class))).thenReturn(new CategoryResponse(1L, "Updated Test Category", null, null));
 
         // when + then
         mockMvc.perform(put("/books/categories")
