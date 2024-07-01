@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.application.service;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NonMemberResponse;
 
 import java.util.List;
 
@@ -17,4 +18,8 @@ public interface CustomerService {
     List<CustomerResponse> getAllCustomers();
 
     void deleteCustomer(Long customerId);
+
+    CustomerResponse createNonMember();
+
+    NonMemberResponse createNonMemberWithCart();
 }

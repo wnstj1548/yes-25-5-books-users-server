@@ -2,10 +2,13 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.CustomerServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.CustomerException;
+import com.yes255.yes255booksusersserver.persistance.domain.Cart;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NonMemberResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +30,9 @@ class CustomerServiceImplTest {
 
     @Mock
     private JpaCustomerRepository customerRepository;
+
+    @Mock
+    private JpaCartRepository cartRepository;
 
     @InjectMocks
     private CustomerServiceImpl customerService;
@@ -158,5 +165,46 @@ class CustomerServiceImplTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(CustomerException.class, () -> customerService.deleteCustomer(1L));
+    }
+
+    @DisplayName("비회원 생성 - 성공")
+    @Test
+    void testCreateNonMember_Success() {
+
+        customer = Customer.builder()
+                .userId(1L)
+                .userRole("NONMEMBER")
+                .build();
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+
+        CustomerResponse response = customerService.createNonMember();
+
+        assertNotNull(response);
+        assertEquals(customer.getUserRole(), response.userRole());
+    }
+
+    @DisplayName("비회원 생성 (장바구니 포함) - 성공")
+    @Test
+    void testCreateNonMemberWithCart_Success() {
+
+        customer = Customer.builder()
+                .userId(1L)
+                .userRole("NONMEMBER")
+                .build();
+
+        Cart cart = Cart.builder()
+                .cartId(1L)
+                .customer(customer)
+                .cartCreatedAt(LocalDate.now())
+                .build();
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+        when(cartRepository.save(any(Cart.class))).thenReturn(cart);
+
+        NonMemberResponse response = customerService.createNonMemberWithCart();
+
+        assertNotNull(response);
+        assertEquals(customer.getUserRole(), response.userRole());
     }
 }
