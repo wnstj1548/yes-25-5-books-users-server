@@ -46,7 +46,7 @@ public class LikesController {
      * @param bookId 조회할 책의 ID
      * @return ResponseEntity<List<LikesResponse>> 형식의 책에 대한 좋아요 목록
      */
-    @Operation(summary = "특정 책의 좋아요 조회", description = "특정 책의 좋아요 목록을 조회합니다..")
+    @Operation(summary = "특정 책의 좋아요 조회", description = "특정 책의 좋아요 목록을 조회합니다.")
     @GetMapping("/books/{bookId}")
     public ResponseEntity<List<LikesResponse>> findByBookId(@PathVariable Long bookId) {
         return ResponseEntity.ok(likesService.getLikeByBookId(bookId));
@@ -59,24 +59,30 @@ public class LikesController {
      * @param jwtUserDetails 업데이트할 유저 정보를 담은 jwt Token
      * @return ResponseEntity<LikesResponse> 형식의 업데이트된 좋아요 정보
      */
-    @Operation(summary = "좋아요 상태 업데이트", description = "좋아요 상태를 업데이트합니다.")
+    @Operation(summary = "좋아요 상태 생성 및 업데이트", description = "좋아요를 생성하거나 존재하면 업데이트합니다.")
     @Parameter(name = "request", description = "bookId(도서 PK), userId(유저 PK) 를 포함합니다.")
-    @PutMapping
-    public ResponseEntity<LikesResponse> update(Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+    @PostMapping("{bookId}")
+    public ResponseEntity<LikesResponse> click(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        if(!likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
+            return ResponseEntity.ok(likesService.createLike(bookId, jwtUserDetails.userId()));
+        }
+
         return ResponseEntity.ok(likesService.updateLikeStatus(bookId, jwtUserDetails.userId()));
     }
 
-    /**
-     * 새로운 좋아요를 생성합니다.
-     *
-     * @param request 생성할 좋아요 정보를 담은 CreateLikesRequest 객체
-     * @return ResponseEntity<LikesResponse> 형식의 생성된 좋아요 정보
-     */
-    @Operation(summary = "새로운 좋아요 생성", description = "새로운 좋아요를 생성합니다.")
-    @Parameter(name = "request", description = "bookId(도서 PK), userId(유저 PK) 를 포함합니다.")
-    @PostMapping
-    public ResponseEntity<LikesResponse> create(@RequestBody CreateLikesRequest request) {
-        return ResponseEntity.ok(likesService.createLike(request));
+    @GetMapping("/{bookId}")
+    public ResponseEntity<LikesResponse> findByBookIdAndUserId(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        if(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
+            return ResponseEntity.ok(likesService.getLikeByBookIdAndUserId(bookId, jwtUserDetails.userId()));
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/{bookId}/exist")
+    public ResponseEntity<Boolean> exist(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+        return ResponseEntity.ok(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId()));
+    }
 }

@@ -38,7 +38,9 @@ public record CreateBookRequest(
         @NotNull(message = "수량은 필수 입력 항목입니다.")
         Integer quantity,
 
-        String imageURL
+        String imageURL,
+
+        boolean bookIsPackable
 )
 {
     public Book toEntity() {
@@ -56,6 +58,7 @@ public record CreateBookRequest(
                 .reviewCount(0)
                 .hitsCount(0)
                 .searchCount(0)
+                .bookIsPackable(bookIsPackable)
                 .build();
     }
 }
