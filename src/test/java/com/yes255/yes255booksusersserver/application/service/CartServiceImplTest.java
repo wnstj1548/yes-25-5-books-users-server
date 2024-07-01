@@ -35,11 +35,12 @@ public class CartServiceImplTest {
     private CartServiceImpl cartService;
 
     private User testUser;
+    private Customer testCustomer;
 
     @BeforeEach
     void setup() {
         // Customer 설정
-        Customer testCustomer = Customer.builder()
+        testCustomer = Customer.builder()
                 .userId(1L)
                 .userRole("USER")
                 .build();
@@ -82,11 +83,11 @@ public class CartServiceImplTest {
     void testDeleteByUserId_Success() {
 
         Long userId = 1L;
-        Cart cart = new Cart(1L, LocalDate.now(), testUser);
+        Cart cart = new Cart(1L, LocalDate.now(), testCustomer);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-        when(cartRepository.findByUser_UserId(userId)).thenReturn(cart);
+        when(cartRepository.findByCustomer_UserId(userId)).thenReturn(cart);
 
         assertDoesNotThrow(() -> cartService.deleteByUserId(userId));
     }

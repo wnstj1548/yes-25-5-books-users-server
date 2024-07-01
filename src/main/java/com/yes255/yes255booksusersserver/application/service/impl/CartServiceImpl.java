@@ -29,7 +29,7 @@ public class CartServiceImpl implements CartService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new CartException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        Cart cart = cartRepository.findByUser_UserId(userId);
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
 
         cartBookRepository.deleteByCart(cart);
         cartRepository.deleteById(cart.getCartId());

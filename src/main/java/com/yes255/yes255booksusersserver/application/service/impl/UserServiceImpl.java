@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService {
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
                         .cartCreatedAt(LocalDate.now())
-                        .user(user)
+                        .customer(customer)
                         .build());
 
         // 회원 포인트 생성
