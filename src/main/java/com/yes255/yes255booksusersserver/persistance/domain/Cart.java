@@ -27,7 +27,7 @@ public class Cart {
 //    private User user;
 
     @ManyToOne(optional = false)
-    @JoinColumn(nullable = false, name = "customer_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private Customer customer;
 
     @Builder
