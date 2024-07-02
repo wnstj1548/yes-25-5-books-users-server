@@ -29,7 +29,8 @@ public class JwtFilter extends GenericFilterBean {
         String path = request.getServletPath();
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
-                "/users/find/email".equals(path) || "/user/find/password".equals(path)) {
+                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
+            path.matches("/books/[^/]+")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
