@@ -13,6 +13,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaPointReposito
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateRefundRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.point.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.UpdatePointResponse;
@@ -108,5 +109,26 @@ public class PointServiceImpl implements PointService {
                 .build();
     }
 
-    // todo : 반품 포인트 적립 기능 추가
+    // 반품 포인트 적립
+    @Override
+    public void updatePointByRefund(Long userId, UpdateRefundRequest updateRefundRequest) {
+
+        Point point = pointRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(point)) {
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        point.updatePointCurrent(point.getPointCurrent().add(updateRefundRequest.refundAmount()));
+
+        pointRepository.save(point);
+
+        // 포인트 이력 추가
+        pointLogRepository.save(PointLog.builder()
+                .pointLogUpdatedAt(LocalDateTime.now())
+                .pointLogUpdatedType("반품 금액 적립")
+                .pointLogAmount(updateRefundRequest.refundAmount())
+                .point(point)
+                .build());
+    }
 }
