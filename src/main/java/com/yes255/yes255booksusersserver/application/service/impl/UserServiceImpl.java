@@ -38,12 +38,13 @@ public class UserServiceImpl implements UserService {
     private final JpaCartRepository cartRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
+    private final JpaUserGradeLogRepository userGradeLogRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final CouponAdaptor couponAdaptor;
 
     // 로그인을 위한 정보 반환
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public LoginUserResponse findLoginUserByEmailByPassword(LoginUserRequest userRequest) {
 
@@ -169,6 +170,13 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
+        // 최초 회원 등급 이력 작성
+        userGradeLogRepository.save(UserGradeLog.builder()
+                        .userGradeUpdatedAt(LocalDate.now())
+                        .userGrade(userGrade)
+                        .user(user)
+                        .build());
+
 //        // 회원 총 구매 금액 테이블 생성
 //        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
 //                .user(user)
@@ -178,7 +186,7 @@ public class UserServiceImpl implements UserService {
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
                         .cartCreatedAt(LocalDate.now())
-                        .user(user)
+                        .customer(customer)
                         .build());
 
         // 회원 포인트 생성

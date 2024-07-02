@@ -1,6 +1,5 @@
 package com.yes255.yes255booksusersserver.common.config;
 
-//import com.yes255.yes255booksusersserver.common.jwt.JwtFilter;
 import com.yes255.yes255booksusersserver.common.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +28,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/users").permitAll()
+                    .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email").permitAll()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

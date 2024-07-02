@@ -81,12 +81,6 @@ public class PointServiceImpl implements PointService {
         point.updatePointCurrent(tempPoint);
         pointRepository.save(point);
 
-//        // 구매 누적 금액 갱신
-//        UserTotalAmount userTotalAmount = totalAmountRepository.findByUser_UserId(userId);
-//        userTotalAmount.updateTotalAmount(pointRequest.amount());
-//
-//        totalAmountRepository.save(userTotalAmount);
-
         // 포인트로 구매 시 포인트 이력 추가
         if (usePoints.compareTo(BigDecimal.ZERO) > 0) {
 
@@ -108,21 +102,6 @@ public class PointServiceImpl implements PointService {
                             .point(point)
                             .build());
         }
-
-        // 회원 등급 갱신 체크 및 적용
-//        List<UserGrade> userGrades = userGradeRepository.findAll();
-//        for (UserGrade userGrade : userGrades) {
-//
-//            PointPolicy policy = userGrade.getPointPolicy();
-//
-//            if (Objects.nonNull(userTotalAmount.getUserTotalAmount()) && policy.getPointPolicyConditionAmount().compareTo(BigDecimal.ZERO) != 0 &&
-//                    !policy.isPointPolicyApplyType() &&
-//                    userTotalAmount.getUserTotalAmount().compareTo(policy.getPointPolicyConditionAmount()) >= 0) {
-//
-//                user.updateUserGrade(userGrade);
-//            }
-//        }
-        // todo : 갱신 로직 스케줄러로 구현
 
         return UpdatePointResponse.builder()
                 .point(point.getPointCurrent())

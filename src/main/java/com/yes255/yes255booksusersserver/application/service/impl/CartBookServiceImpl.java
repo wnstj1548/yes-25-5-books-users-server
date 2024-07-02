@@ -46,7 +46,7 @@ public class CartBookServiceImpl implements CartBookService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        Cart cart = cartRepository.findByUser_UserId(userId);
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
 
         if (Objects.isNull(cart)) {
             throw new CartException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
@@ -76,7 +76,7 @@ public class CartBookServiceImpl implements CartBookService {
     @Override
     public UpdateCartBookResponse updateCartBookByUserId(Long userId, UpdateCartBookRequest request) {
 
-        Cart cart = cartRepository.findByUser_UserId(userId);
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
 
         if (Objects.isNull(cart)) {
             throw new CartException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
@@ -108,9 +108,7 @@ public class CartBookServiceImpl implements CartBookService {
     @Override
     public List<CartBookResponse> findAllCartBookById(Long userId) {
 
-        // todo : header에서 userId를 가져온다
-
-        Cart cart = cartRepository.findByUser_UserId(userId);
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
 
         if (Objects.isNull(cart)) {
             throw new CartException(ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 400, LocalDateTime.now()));
@@ -121,7 +119,7 @@ public class CartBookServiceImpl implements CartBookService {
 
         return cartBooks.stream()
                 .map(cartBook -> new CartBookResponse(userId, cartBook.getCartBookId(), cartBook.getBook().getBookId(),
-                        cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(), cartBook.getBookQuantity()))
+                        cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(), cartBook.getBookQuantity(), cartBook.getBook().isBookIsPackable()))
                 .collect(Collectors.toList());
     }
 
@@ -129,7 +127,7 @@ public class CartBookServiceImpl implements CartBookService {
     @Override
     public void updateCartBookOrderByUserId(Long userId, List<UpdateCartBookOrderRequest> request) {
 
-        Cart cart = cartRepository.findByUser_UserId(userId);
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
 
         if (Objects.isNull(cart)) {
             throw new CartException(ErrorStatus.toErrorStatus("장바구니가 존재하지 않습니다.", 400, LocalDateTime.now()));

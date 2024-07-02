@@ -78,7 +78,7 @@ public class CartBookServiceImplTest {
         testCart = Cart.builder()
                 .cartId(1L)
                 .cartCreatedAt(LocalDate.now())
-                .user(testUser)
+                .customer(testCustomer)
                 .build();
 
         // Book 설정
@@ -109,7 +109,7 @@ public class CartBookServiceImplTest {
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(null);
         when(cartBookRepository.save(any(CartBook.class))).thenReturn(testCartBook);
 
@@ -164,7 +164,7 @@ public class CartBookServiceImplTest {
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
@@ -182,7 +182,7 @@ public class CartBookServiceImplTest {
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(testCartBook);
 
         assertThrows(CartBookException.class, () -> {
@@ -199,7 +199,7 @@ public class CartBookServiceImplTest {
                 .bookQuantity(3)
                 .build();
 
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(testCartBook);
 
         UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
@@ -218,7 +218,7 @@ public class CartBookServiceImplTest {
                 .bookQuantity(3)
                 .build();
 
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
             cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
@@ -234,7 +234,7 @@ public class CartBookServiceImplTest {
                 .bookQuantity(3)
                 .build();
 
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(null);
 
         assertThrows(CartBookException.class, () -> {
@@ -258,7 +258,7 @@ public class CartBookServiceImplTest {
         List<CartBook> cartBooks = new ArrayList<>();
         cartBooks.add(testCartBook);
 
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(testCart.getCartId())).thenReturn(cartBooks);
 
         List<CartBookResponse> responses = cartBookService.findAllCartBookById(testUser.getUserId());
@@ -279,7 +279,7 @@ public class CartBookServiceImplTest {
     @Test
     void testFindAllCartBookById_CartNotFound() {
 
-        when(cartRepository.findByUser_UserId(testUser.getUserId())).thenReturn(null);
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
             cartBookService.findAllCartBookById(testUser.getUserId());

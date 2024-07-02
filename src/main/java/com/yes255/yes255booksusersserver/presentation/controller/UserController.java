@@ -10,17 +10,13 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUs
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 회원 관련 API를 제공하는 UserController
@@ -77,7 +73,7 @@ public class UserController {
      * @return ResponseEntity<List<FindUserResponse>> 찾은 이메일 목록과 상태 코드 200(OK)
      */
     @Operation(summary = "이메일 찾기", description = "이메일(아이디)을 찾기 위해 회원 이름과 이메일을 통해 이메일 목록을 조회합니다.")
-    @PostMapping("/users/findEmail")
+    @PostMapping("/users/find/email")
     public ResponseEntity<List<FindUserResponse>> findAllByUserNameByUserPhone(@RequestBody FindEmailRequest emailRequest,
                                                                                Pageable pageable) {
         return new ResponseEntity<>(userService.findAllUserEmailByUserNameByUserPhone(emailRequest, pageable)
@@ -91,7 +87,7 @@ public class UserController {
      * @return ResponseEntity<Boolean> 비밀번호 찾기 성공 여부와 상태 코드 200(OK)
      */
     @Operation(summary = "비밀번호 찾기", description = "이메일과 회원 이름을 통해 비밀번호 찾기 인증을 진행합니다.")
-    @PostMapping("/users/findPassword")
+    @PostMapping("/users/find/password")
     public ResponseEntity<Boolean> findPassword(@RequestBody FindPasswordRequest passwordRequest) {
         return new ResponseEntity<>(userService.findUserPasswordByEmailByName(passwordRequest), HttpStatus.OK);
     }
@@ -104,16 +100,14 @@ public class UserController {
     /**
      * 회원 조회를 처리합니다.
      *
-//     * @param jwtUserDetails 유저 토큰 정보
+     * @param jwtUserDetails 유저 토큰 정보
      * @return ResponseEntity<UserResponse> 조회된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 조회", description = "특정 회원 정보를 조회합니다.")
-    @GetMapping("/users")
+    @GetMapping("/users/info")
     public ResponseEntity<UserResponse> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
         return new ResponseEntity<>(userService.findUserByUserId(userId), HttpStatus.OK);
     }
@@ -126,14 +120,12 @@ public class UserController {
      * @return ResponseEntity<UpdateUserResponse> 수정된 회원 데이터와 상태 코드 200(OK)
      */
     @Operation(summary = "회원 수정", description = "특정 회원 정보를 수정합니다.")
-    @PutMapping("/users")
+    @PutMapping("/users/info")
     public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest userRequest,
                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
-//        return new ResponseEntity<>(userService.updateUser(userId, userRequest), HttpStatus.OK);
         return ResponseEntity.ok(userService.updateUser(userId, userRequest));
     }
 
@@ -145,13 +137,11 @@ public class UserController {
      * @return ResponseEntity<Void> 회원 탈퇴 성공 여부와 상태 코드 204(NO_CONTENT)
      */
     @Operation(summary = "회원 탈퇴", description = "특정 회원이 탈퇴합니다.")
-    @DeleteMapping("/users")
+    @DeleteMapping("/users/delete")
     public ResponseEntity<Void> deleteUser(@RequestBody DeleteUserRequest userRequest,
                                            @CurrentUser JwtUserDetails jwtUserDetails) {
 
-//        Long userId = jwtUserDetails.userId();
-
-        Long userId = 275L;
+        Long userId = jwtUserDetails.userId();
 
         userService.deleteUser(userId, userRequest);
 

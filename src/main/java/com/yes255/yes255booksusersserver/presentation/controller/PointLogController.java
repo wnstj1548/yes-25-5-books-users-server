@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class PointLogController {
      */
     @Operation(summary = "포인트 내역 조회", description = "특정 회원의 포인트 내역을 조회합니다.")
     @GetMapping("/point-logs")
-    public ResponseEntity<List<PointLogResponse>> getPointLogs(Pageable pageable,
+    public ResponseEntity<Page<PointLogResponse>> getPointLogs(Pageable pageable,
                                                                @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();

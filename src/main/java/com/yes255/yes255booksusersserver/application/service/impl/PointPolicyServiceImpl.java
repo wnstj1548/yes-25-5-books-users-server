@@ -8,6 +8,8 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRe
 import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,22 +63,22 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     // 포인트 정책 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public List<PointPolicyResponse> findAllPointPolicies() {
+    public Page<PointPolicyResponse> findAllPointPolicies(Pageable pageable) {
 
-        List<PointPolicy> pointPolicies = pointPolicyRepository.findAll();
+        Page<PointPolicy> pointPolicies = pointPolicyRepository.findAllBy(pageable);
 
-        return pointPolicies.stream()
-                .map(pointPolicy -> PointPolicyResponse.builder()
-                        .pointPolicyId(pointPolicy.getPointPolicyId())
-                        .pointPolicyName(pointPolicy.getPointPolicyName())
-                        .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ? pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
-                        .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
-                        .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
-                        .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
-                        .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
-                        .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ? pointPolicy.getPointPolicyUpdatedAt().toString() : null)
-                        .build())
-                .collect(Collectors.toList());
+        return pointPolicies.map(pointPolicy -> PointPolicyResponse.builder()
+                .pointPolicyId(pointPolicy.getPointPolicyId())
+                .pointPolicyName(pointPolicy.getPointPolicyName())
+                .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ?
+                        pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
+                .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
+                .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
+                .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
+                .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
+                .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ?
+                        pointPolicy.getPointPolicyUpdatedAt().toString() : null)
+                .build());
     }
 
     @Override

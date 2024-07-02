@@ -51,6 +51,9 @@ public class UserServiceImplTest {
     private JpaUserStateRepository userStateRepository;
 
     @Mock
+    private JpaUserGradeLogRepository userGradeLogRepository;
+
+    @Mock
     private JpaCartRepository cartRepository;
 
     @Mock
@@ -274,12 +277,20 @@ public class UserServiceImplTest {
                 .userGradeName("NORMAL")
                 .build();
 
+        UserGradeLog userGradeLog = UserGradeLog.builder()
+                .userGradeLogId(1L)
+                .userGradeUpdatedAt(LocalDate.now())
+                .user(testUser)
+                .userGrade(userGrade)
+                .build();
+
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
         when(providerRepository.findByProviderName("LOCAL")).thenReturn(provider);
         when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(userState);
         when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(userGrade);
         when(passwordEncoder.encode(request.userPassword())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(userGradeLogRepository.save(any(UserGradeLog.class))).thenReturn(userGradeLog);
 
         UserResponse response = userService.createUser(request);
 

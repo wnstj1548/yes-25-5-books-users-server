@@ -22,14 +22,18 @@ public class Cart {
     @Column(nullable = false)
     private LocalDate cartCreatedAt;
 
+//    @OneToOne(optional = false)
+//    @JoinColumn(nullable = false, name = "user_id")
+//    private User user;
+
     @OneToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private Customer customer;
 
     @Builder
-    public Cart(Long cartId, LocalDate cartCreatedAt, User user) {
+    public Cart(Long cartId, LocalDate cartCreatedAt, Customer customer) {
         this.cartId = cartId;
         this.cartCreatedAt = cartCreatedAt;
-        this.user = user;
+        this.customer = customer;
     }
 }
