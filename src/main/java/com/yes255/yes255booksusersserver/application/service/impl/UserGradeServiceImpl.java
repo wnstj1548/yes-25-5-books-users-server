@@ -54,23 +54,27 @@ public class UserGradeServiceImpl implements UserGradeService {
     }
 
     // 회원 등급 갱신
-    public void updateUserGrade(User user, BigDecimal purePrices, LocalDate currentDate) {
+    public void updateUserGrade(User user, BigDecimal purePrice, LocalDate currentDate) {
 
+        // todo : 트랜잭션 (스케줄러를 외부로 보내고 외부에서 service 호출)
+        // todo : 밑의 줄 삭제
         UserGradeLog lastUserGradeLog = userGradeLogRepository.findFirstByUserUserIdOrderByUserGradeUpdatedAtDesc(user.getUserId())
                 .orElseThrow(() -> new UserGradeLogException(ErrorStatus.toErrorStatus("회원 등급 변경 이력이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         UserGrade setUserGrade = null;
 
         List<UserGrade> userGrades = userGradeRepository.findAll();
-        userGrades.sort((grade1, grade2) -> grade2.getPointPolicy().getPointPolicyConditionAmount().compareTo(grade1.getPointPolicy().getPointPolicyConditionAmount()));
 
         if (userGrades.isEmpty()) {
             throw new UserGradeException(ErrorStatus.toErrorStatus("회원 등급이 존재하지 않습니다.", 400, LocalDateTime.now()));
         }
 
+        userGrades.sort((grade1, grade2) -> grade2.getPointPolicy().getPointPolicyConditionAmount().compareTo(grade1.getPointPolicy().getPointPolicyConditionAmount()));
+
+
         for (UserGrade userGrade : userGrades) {
             if (!userGrade.getPointPolicy().isPointPolicyApplyType()
-                    && purePrices.compareTo(userGrade.getPointPolicy().getPointPolicyConditionAmount()) >= 0) {
+                    && purePrice.compareTo(userGrade.getPointPolicy().getPointPolicyConditionAmount()) >= 0) {
                 setUserGrade = userGrade;
                 break;
             }
@@ -108,10 +112,10 @@ public class UserGradeServiceImpl implements UserGradeService {
 
         for (OrderLogResponse orderLogResponse : orderLogResponses) {
 
-            User user = userRepository.findById(orderLogResponse.customerId())
+            User user = userRepository.findById(orderLogResponse.userId())
                     .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-            updateUserGrade(user, orderLogResponse.purePrices(), currentDate);
+            updateUserGrade(user, orderLogResponse.purePrice(), currentDate);
         }
     }
 }

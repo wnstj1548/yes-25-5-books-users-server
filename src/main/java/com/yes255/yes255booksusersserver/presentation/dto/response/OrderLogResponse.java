@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
-public record OrderLogResponse(Long userId, BigDecimal purePrices) {
+public record OrderLogResponse(Long userId, BigDecimal purePrice) {
 }
