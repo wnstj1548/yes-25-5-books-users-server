@@ -26,7 +26,7 @@ public class Cart {
 //    @JoinColumn(nullable = false, name = "user_id")
 //    private User user;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private Customer customer;
 
