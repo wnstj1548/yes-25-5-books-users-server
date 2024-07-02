@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,7 +33,7 @@ public class CouponUser {
 
     @NotNull(message = "쿠폰 만료 일자는 필수입니다.")
     @Column(nullable = false)
-    private LocalDate couponExpiredAt;
+    private Date couponExpiredAt;
 
     @NotNull(message = "쿠폰 아이디은 필수입니다.")
     @Column(nullable = false)
@@ -47,7 +48,7 @@ public class CouponUser {
     }
 
     @Builder
-    public CouponUser(Long userCouponId, LocalDate userCouponUsedAt, UserCouponStatus userCouponStatus, String userCouponType, LocalDate couponExpiredAt, Long couponId, User user) {
+    public CouponUser(Long userCouponId, LocalDate userCouponUsedAt, UserCouponStatus userCouponStatus, String userCouponType, Date couponExpiredAt, Long couponId, User user) {
         this.userCouponId = userCouponId;
         this.userCouponUsedAt = userCouponUsedAt;
         this.userCouponStatus = userCouponStatus;
