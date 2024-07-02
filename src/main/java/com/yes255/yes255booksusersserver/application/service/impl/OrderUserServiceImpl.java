@@ -9,8 +9,10 @@ import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateRefundRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserInfoResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.ReadUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,6 +76,21 @@ public class OrderUserServiceImpl implements OrderUserService {
         );
     }
 
+    @Override
+    public ReadUserInfoResponse getUserInfo(Long userId) {
 
-    // todo : 등급과 포인트 반환 기능 구현
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        Point point = pointRepository.findByUser_UserId(userId);
+
+        if (Objects.isNull(point)) {
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        return ReadUserInfoResponse.builder()
+                .gradeId(user.getUserGrade().getUserGradeId())
+                .points(point.getPointCurrent().intValue())
+                .build();
+    }
 }
