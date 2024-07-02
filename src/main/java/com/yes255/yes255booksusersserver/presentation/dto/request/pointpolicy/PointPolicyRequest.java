@@ -16,10 +16,10 @@ public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyA
         return PointPolicy.builder()
                 .pointPolicyName(pointPolicyName)
                 .pointPolicyApplyAmount(pointPolicyApplyType ? pointPolicyApply : null)
-                .pointPolicyRate(!pointPolicyApplyType ? pointPolicyApply: null)
+                .pointPolicyRate(!pointPolicyApplyType ? pointPolicyApply : null)
                 .pointPolicyCondition(pointPolicyCondition)
                 .pointPolicyCreatedAt(LocalDate.now())
-                .pointPolicyConditionAmount(pointPolicyConditionAmount)
+                .pointPolicyConditionAmount(!pointPolicyApplyType ? pointPolicyConditionAmount : null)
                 .pointPolicyApplyType(pointPolicyApplyType)
                 .build();
     }
