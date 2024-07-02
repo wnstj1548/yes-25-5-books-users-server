@@ -65,11 +65,15 @@ public class Book {
     @Column(name = "search_count", nullable = false)
     private Integer searchCount;
 
+    @ColumnDefault("false")
+    @Column(name = "book_is_packable")
+    private boolean bookIsPackable;
+
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
                 String bookIndex, String bookPublisher, Date bookPublishDate,
                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
-                Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount) {
+                Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount, boolean bookIsPackable) {
         this.bookId = bookId;
         this.bookIsbn = bookIsbn;
         this.bookName = bookName;
@@ -84,6 +88,7 @@ public class Book {
         this.reviewCount = reviewCount;
         this.hitsCount = hitsCount;
         this.searchCount = searchCount;
+        this.bookIsPackable = bookIsPackable;
     }
 
     public void updateAll(Book book) {
@@ -100,5 +105,6 @@ public class Book {
         this.reviewCount = Optional.ofNullable(book.getReviewCount()).orElse(this.reviewCount);
         this.hitsCount = Optional.ofNullable(book.getHitsCount()).orElse(this.hitsCount);
         this.searchCount = Optional.ofNullable(book.getSearchCount()).orElse(this.searchCount);
+        this.bookIsPackable = Optional.of(book.isBookIsPackable()).orElse(this.bookIsPackable);
     }
 }

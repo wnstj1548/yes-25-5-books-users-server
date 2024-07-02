@@ -8,6 +8,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResp
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,8 @@ public interface BookService {
     void removeBook(Long bookId);
 
     List<BookResponse> getBookByCategoryId(Long categoryId);
+
+    Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable);
 
     List<BookCouponResponse> getBookByName(String name);
 }

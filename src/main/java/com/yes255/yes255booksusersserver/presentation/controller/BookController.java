@@ -236,6 +236,7 @@ public class BookController {
                     .bookSellingPrice(book.bookSellingPrice())
                     .imageURL(book.bookImage())
                     .quantity(updatedQuantity)
+                    .bookIsPackable(book.bookIsPackable())
                     .build();
 
             updatedBookList.add(bookService.updateBook(updatedBook));
@@ -262,5 +263,10 @@ public class BookController {
     @GetMapping("/books/search")
     public ResponseEntity<List<BookCouponResponse>> searchByName(@RequestParam String query) {
         return ResponseEntity.ok(bookService.getBookByName(query));
+    }
+
+    @GetMapping("/books/category/{categoryId}/page")
+    public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable));
     }
 }

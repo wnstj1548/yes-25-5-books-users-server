@@ -67,7 +67,7 @@ public class LikesServiceImplTest {
 
         testBook = new Book(1L, "1234567890", "Test Book", "Description", "Index",  "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg",
-                100, 0, 0, 0);
+                100, 0, 0, 0, true);
 
         // Inject mocks into service
         ReflectionTestUtils.setField(likesService, "jpaLikesRepository", jpaLikesRepository);
@@ -144,7 +144,7 @@ public class LikesServiceImplTest {
         });
 
         // when
-        LikesResponse response = likesService.createLike(request);
+        LikesResponse response = likesService.createLike(1L, 1L);
 
         // then
         assertNotNull(response);
@@ -161,7 +161,7 @@ public class LikesServiceImplTest {
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.createLike(request));
+        assertThrows(ApplicationException.class, () -> likesService.createLike(1L, 1L));
     }
 
     @DisplayName("좋아요 생성 - 실패 (유저를 찾을 수 없음)")
@@ -173,7 +173,7 @@ public class LikesServiceImplTest {
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ApplicationException.class, () -> likesService.createLike(request));
+        assertThrows(ApplicationException.class, () -> likesService.createLike(1L, 1L));
     }
 
     @DisplayName("좋아요 상태 업데이트 - 성공")
