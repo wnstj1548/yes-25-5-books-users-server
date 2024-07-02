@@ -15,7 +15,7 @@ public class CouponUserController {
 
     private final CouponUserService couponUserService;
 
-    @PostMapping("/coupons/claim")
+    @PostMapping("users/coupons/claim")
     public ResponseEntity<Void> claimCoupon(@RequestParam Long couponId,
                      @CurrentUser JwtUserDetails jwtUserDetails) {
 
