@@ -29,6 +29,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email").permitAll()
+                    .requestMatchers("/books/{bookId:\\d+}").permitAll()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
