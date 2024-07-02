@@ -9,18 +9,18 @@ import java.time.LocalDate;
 @Builder
 
 public record PointPolicyRequest(String pointPolicyName, BigDecimal pointPolicyApply,
-                                 String pointPolicyCondition, Boolean pointPolicyApplyType,
+                                 String pointPolicyCondition, boolean pointPolicyApplyType,
                                  BigDecimal pointPolicyConditionAmount) {
 
     public PointPolicy toEntity() {
         return PointPolicy.builder()
                 .pointPolicyName(pointPolicyName)
                 .pointPolicyApplyAmount(pointPolicyApplyType ? pointPolicyApply : null)
-                .pointPolicyRate(!pointPolicyApplyType ? pointPolicyApply: null)
+                .pointPolicyRate(!pointPolicyApplyType ? pointPolicyApply : null)
                 .pointPolicyCondition(pointPolicyCondition)
                 .pointPolicyCreatedAt(LocalDate.now())
-                .pointPolicyConditionAmount(pointPolicyConditionAmount)
-                .pointPolicyApplyType(true)
+                .pointPolicyConditionAmount(!pointPolicyApplyType ? pointPolicyConditionAmount : null)
+                .pointPolicyApplyType(pointPolicyApplyType)
                 .build();
     }
 }

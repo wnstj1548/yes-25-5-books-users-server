@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 .userName(user.getUserName())
                 .userPhone(user.getUserPhone())
                 .userEmail(user.getUserEmail())
+                .userBirth(user.getUserBirth())
                 .userRegisterDate(user.getUserRegisterDate())
                 .userLastLoginDate(user.getUserLastLoginDate())
                 .providerId(user.getProvider().getProviderId())

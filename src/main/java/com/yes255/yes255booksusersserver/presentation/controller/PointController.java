@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 import com.yes255.yes255booksusersserver.application.service.PointService;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
+import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateRefundRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.point.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.UpdatePointResponse;
@@ -60,5 +61,16 @@ public class PointController {
         Long userId = jwtUserDetails.userId();
 
         return new ResponseEntity<>(pointService.updatePointByUserId(userId, pointRequest), HttpStatus.OK);
+    }
+
+    @PatchMapping("/points/refund")
+    public ResponseEntity<Void> updatePointsRefund(@RequestBody UpdateRefundRequest refundRequest,
+                                                   @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        pointService.updatePointByRefund(userId, refundRequest);
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,6 +5,7 @@ import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserInfoResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.ReadUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,5 +37,13 @@ public class UserOrderInfoController {
         Long userId = jwtUserDetails.userId();
 
         return ResponseEntity.ok(orderUserService.getUserAddresses(userId, pageable));
+    }
+
+    @GetMapping("/grade")
+    public ResponseEntity<ReadUserInfoResponse> getUserPointsAndGrade(@CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        return ResponseEntity.ok(orderUserService.getUserInfo(userId));
     }
 }
