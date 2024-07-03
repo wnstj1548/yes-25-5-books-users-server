@@ -121,20 +121,14 @@ public class BookSearchServiceImpl implements BookSearchService {
     @Scheduled(cron = "0 57 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
-        List<Tag> tags = jpaTagRepository.findAll();
-        for(Tag tag : tags) {
-            TagIndex tagIndex = TagIndex.fromTag(tag);
-            tagElasticSearchRepository.save(tagIndex);
-        }
+        List<TagIndex> tagIndexList = jpaTagRepository.findAll().stream().map(TagIndex::fromTag).toList();
+        tagElasticSearchRepository.saveAll(tagIndexList);
     }
 
     @Scheduled(cron = "0 57 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
-        List<Author> authors = jpaAuthorRepository.findAll();
-        for(Author author : authors) {
-            AuthorIndex authorIndex = AuthorIndex.fromAuthor(author);
-            authorElasticSearchRepository.save(authorIndex);
-        }
+        List<AuthorIndex> authorIndexList = jpaAuthorRepository.findAll().stream().map(AuthorIndex::fromAuthor).toList();
+        authorElasticSearchRepository.saveAll(authorIndexList);
     }
 }
