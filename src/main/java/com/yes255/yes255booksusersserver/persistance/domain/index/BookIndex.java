@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "book")
+@Document(indexName = "yes255_book")
 public class BookIndex {
 
     @Id
@@ -36,8 +36,8 @@ public class BookIndex {
     @Field(name = "book_publisher", type = FieldType.Text)
     private String bookPublisher;
 
-    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.basic_date)
-    private Date bookPublishDate;
+//    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.date)
+//    private Date bookPublishDate;
 
     @Field(name = "book_price", type = FieldType.Double)
     private BigDecimal bookPrice;
@@ -63,19 +63,20 @@ public class BookIndex {
     @Field(name = "book_is_packable", type = FieldType.Boolean)
     private boolean bookIsPackable;
 
-    @Field(name = "authors", type = FieldType.Nested)
-    private List<AuthorIndex> authors;
+    @Field(name = "authors", type = FieldType.Keyword)
+    private List<String> authors;
 
-    @Field(name = "tags", type = FieldType.Nested)
-    private List<TagIndex> tags;
+    @Field(name = "tags", type = FieldType.Keyword)
+    private List<String> tags;
 
     public static BookIndex updateAuthorsAndTags(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags) {
         return BookIndex.builder()
+                .bookId(book.getBookId())
                 .bookIsbn(book.getBookIsbn())
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-                .bookPublishDate(book.getBookPublishDate())
+//                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
@@ -84,8 +85,8 @@ public class BookIndex {
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
-                .authors(authors)
-                .tags(tags)
+                .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
+                .tags(tags.stream().map(TagIndex::getTagName).toList())
                 .build();
     }
 
@@ -96,7 +97,7 @@ public class BookIndex {
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-                .bookPublishDate(book.getBookPublishDate())
+//                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())

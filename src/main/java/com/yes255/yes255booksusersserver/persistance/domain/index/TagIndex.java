@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "tags")
+@Document(indexName = "yes255_tags")
 public class TagIndex {
 
     @Id

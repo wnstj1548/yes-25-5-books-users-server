@@ -2,11 +2,13 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.BookSearchService;
 import com.yes255.yes255booksusersserver.persistance.domain.index.BookIndex;
+import com.yes255.yes255booksusersserver.presentation.dto.request.BookSearchRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookIndexResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,36 +19,33 @@ public class BookElasticSearchController {
 
     private final BookSearchService bookSearchService;
 
-    @GetMapping("/books/searchByName")
-    public ResponseEntity<List<BookIndex>> searchByName(@RequestParam String name) {
-        return ResponseEntity.ok(bookSearchService.searchBookByName(name));
+    @PostMapping("/books/searchByName")
+    public ResponseEntity<Page<BookIndexResponse>> searchByName(@RequestBody BookSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(bookSearchService.searchBookByNamePaging(request, pageable));
     }
 
-    @GetMapping("/books/searchByDescription")
-    public ResponseEntity<List<BookIndex>> searchByDescription(@RequestParam String description) {
-        return ResponseEntity.ok(bookSearchService.searchBookByDescription(description));
+//    @PostMapping("/books/searchByName")
+//    public ResponseEntity<List<BookIndexResponse>> searchByName(@RequestBody BookSearchRequest request, Pageable pageable) {
+//        return ResponseEntity.ok(bookSearchService.searchBookByName(request));
+//    }
+
+    @PostMapping("/books/searchByDescription")
+    public ResponseEntity<Page<BookIndexResponse>> searchByDescription(@RequestBody BookSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(bookSearchService.searchBookByDescription(request, pageable));
     }
 
-    @GetMapping("/books/searchByTagName")
-    public ResponseEntity<List<BookIndex>> searchByTagName(@RequestParam String tagName) {
-        return ResponseEntity.ok(bookSearchService.searchBookByTagName(tagName));
+    @PostMapping("/books/searchByTagName")
+    public ResponseEntity<Page<BookIndexResponse>> searchByTagName(@RequestBody BookSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(bookSearchService.searchBookByTagName(request, pageable));
     }
 
-    @GetMapping("/books/searchByAuthorName")
-    public ResponseEntity<List<BookIndex>> searchByAuthorName(@RequestParam String authorName) {
-        return ResponseEntity.ok(bookSearchService.searchBookByAuthorName(authorName));
+    @PostMapping("/books/searchByAuthorName")
+    public ResponseEntity<Page<BookIndexResponse>> searchByAuthorName(@RequestBody BookSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(bookSearchService.searchBookByAuthorName(request, pageable));
     }
 
-    @GetMapping("/books/searchAll")
-    public ResponseEntity<List<BookIndex>> searchAll(@RequestParam String keyword) {
-
-        List<BookIndex> bookIndexList = new ArrayList<>();
-
-        bookIndexList.addAll(bookSearchService.searchBookByAuthorName(keyword));
-        bookIndexList.addAll(bookSearchService.searchBookByTagName(keyword));
-        bookIndexList.addAll(bookSearchService.searchBookByDescription(keyword));
-        bookIndexList.addAll(bookSearchService.searchBookByName(keyword));
-
-        return ResponseEntity.ok(bookIndexList);
+    @PostMapping("/books/searchAll")
+    public ResponseEntity<Page<BookIndexResponse>> searchAll(@RequestBody BookSearchRequest request, Pageable pageable) {
+        return ResponseEntity.ok(bookSearchService.searchAll(request, pageable));
     }
 }

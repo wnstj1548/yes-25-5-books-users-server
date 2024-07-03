@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "author")
+@Document(indexName = "yes255_author")
 public class AuthorIndex {
 
     @Id

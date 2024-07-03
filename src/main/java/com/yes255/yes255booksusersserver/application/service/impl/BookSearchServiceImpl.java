@@ -8,12 +8,15 @@ import com.yes255.yes255booksusersserver.persistance.domain.index.AuthorIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.BookIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.TagIndex;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
+import com.yes255.yes255booksusersserver.presentation.dto.request.BookSearchRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookIndexResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,79 +37,52 @@ public class BookSearchServiceImpl implements BookSearchService {
     private final JpaTagRepository jpaTagRepository;
     private final JpaAuthorRepository jpaAuthorRepository;
 
-    @Transactional(readOnly = true)
     @Override
-    public List<BookIndex> searchBookByName(String bookName) {
+    public Page<BookIndexResponse> searchBookByNamePaging(BookSearchRequest request, Pageable pageable) {
 
-        List<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(bookName);
-        log.info("Found {} books", result.size());
-        log.info("books : {}", fetchAuthorsAndTags(result));
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(request.keyword(), pageable);
 
-        return fetchAuthorsAndTags(result);
+        return result.map(BookIndexResponse::fromIndex);
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<BookIndex> searchBookByDescription(String description) {
+    public List<BookIndexResponse> searchBookByName(BookSearchRequest request) {
 
-        List<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainingIgnoreCase(description);
+        List<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(request.keyword());
 
-        return fetchAuthorsAndTags(result);
+        return result.stream().map(BookIndexResponse::fromIndex).toList();
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<BookIndex> searchBookByTagName(String tagName) {
+    public Page<BookIndexResponse> searchBookByDescription(BookSearchRequest request, Pageable pageable) {
 
-        List<TagIndex> tagIndexList = tagElasticSearchRepository.findByTagName(tagName);
-        List<BookIndex> bookIndexList = new ArrayList<>();
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainsIgnoreCase(request.keyword(), pageable);
 
-        for(TagIndex tagIndex : tagIndexList) {
-            BookTag bookTag = jpaBookTagRepository.findById(Long.parseLong(tagIndex.getTagId()))
-                    .orElseThrow(() -> new ApplicationException(
-                            ErrorStatus.toErrorStatus("해당 태그에 알맞은 도서를 찾을 수 없습니다.", 404, LocalDateTime.now())
-                    ));
-
-            Book book = bookTag.getBook();
-            BookIndex bookIndex = BookIndex.fromBook(book);
-
-            List<AuthorIndex> authors = jpaBookAuthorRepository.findByBook(book).stream()
-                            .map(BookAuthor::getAuthor)
-                            .map(AuthorIndex::fromAuthor)
-                            .toList();
-
-            bookIndexList.add(BookIndex.updateAuthorsAndTags(bookIndex, authors, tagIndexList));
-
-        }
-
-        return bookIndexList;
+        return result.map(BookIndexResponse::fromIndex);
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<BookIndex> searchBookByAuthorName(String authorName) {
+    public Page<BookIndexResponse> searchBookByTagName(BookSearchRequest request, Pageable pageable) {
 
-        List<AuthorIndex> authorIndexList = authorElasticSearchRepository.findByAuthorName(authorName);
-        List<BookIndex> bookIndexList = new ArrayList<>();
+        Page<BookIndex> result = bookElasticSearchRepository.findByTagsContainingIgnoreCase(request.keyword(), pageable);
 
-        for(AuthorIndex authorIndex : authorIndexList) {
-            BookAuthor bookAuthor = jpaBookAuthorRepository.findById(Long.parseLong(authorIndex.getAuthorId()))
-                    .orElseThrow(() -> new ApplicationException(
-                            ErrorStatus.toErrorStatus("해당 작가에 맞는 도서를 찾을 수 없습니다.", 404, LocalDateTime.now())
-                    ));
+        return result.map(BookIndexResponse::fromIndex);
+    }
 
-            Book book = bookAuthor.getBook();
-            BookIndex bookIndex = BookIndex.fromBook(book);
+    @Override
+    public Page<BookIndexResponse> searchBookByAuthorName(BookSearchRequest request, Pageable pageable) {
 
-            List<TagIndex> tags = jpaBookTagRepository.findByBook(book).stream()
-                    .map(BookTag::getTag)
-                    .map(TagIndex::fromTag)
-                    .toList();
+        Page<BookIndex> result = bookElasticSearchRepository.findByAuthorsContainingIgnoreCase(request.keyword(), pageable);
 
-            bookIndexList.add(BookIndex.updateAuthorsAndTags(bookIndex, authorIndexList, tags));
-        }
+        return result.map(BookIndexResponse::fromIndex);
+    }
 
-        return bookIndexList;
+    @Override
+    public Page<BookIndexResponse> searchAll(BookSearchRequest request, Pageable pageable) {
+
+        Page<BookIndex> result = bookElasticSearchRepository.searchAllFields(request.keyword(), pageable);
+
+        return result.map(BookIndexResponse::fromIndex);
     }
 
     private List<BookIndex> fetchAuthorsAndTags(List<BookIndex> bookIndexList) {
@@ -135,17 +111,14 @@ public class BookSearchServiceImpl implements BookSearchService {
         return result;
     }
 
-    @Scheduled(cron = "0 7 * * * ?")
+    @Scheduled(cron = "0 58 * * * ?")
     public void syncBook() {
         log.info("book sync start");
-        List<Book> books = jpaBookRepository.findAll();
-        for(Book book : books) {
-            BookIndex bookIndex = BookIndex.fromBook(book);
-            bookElasticSearchRepository.save(bookIndex);
-        }
+        List<BookIndex> bookIndexList = jpaBookRepository.findAll().stream().map(BookIndex::fromBook).toList();
+        bookElasticSearchRepository.saveAll(fetchAuthorsAndTags(bookIndexList));
     }
 
-    @Scheduled(cron = "0 16 * * * ?")
+    @Scheduled(cron = "0 57 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
         List<Tag> tags = jpaTagRepository.findAll();
@@ -155,7 +128,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         }
     }
 
-    @Scheduled(cron = "0 15 * * * ?")
+    @Scheduled(cron = "0 57 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
         List<Author> authors = jpaAuthorRepository.findAll();
