@@ -62,7 +62,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         List<BookIndex> bookIndexList = new ArrayList<>();
 
         for(TagIndex tagIndex : tagIndexList) {
-            BookTag bookTag = jpaBookTagRepository.findById(tagIndex.getTagId())
+            BookTag bookTag = jpaBookTagRepository.findById(Long.parseLong(tagIndex.getTagId()))
                     .orElseThrow(() -> new ApplicationException(
                             ErrorStatus.toErrorStatus("해당 태그에 알맞은 도서를 찾을 수 없습니다.", 404, LocalDateTime.now())
                     ));
@@ -90,7 +90,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         List<BookIndex> bookIndexList = new ArrayList<>();
 
         for(AuthorIndex authorIndex : authorIndexList) {
-            BookAuthor bookAuthor = jpaBookAuthorRepository.findById(authorIndex.getAuthorId())
+            BookAuthor bookAuthor = jpaBookAuthorRepository.findById(Long.parseLong(authorIndex.getAuthorId()))
                     .orElseThrow(() -> new ApplicationException(
                             ErrorStatus.toErrorStatus("해당 작가에 맞는 도서를 찾을 수 없습니다.", 404, LocalDateTime.now())
                     ));
@@ -114,7 +114,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         List<BookIndex> result = new ArrayList<>();
 
         for(BookIndex bookIndex : bookIndexList) {
-            Book book = jpaBookRepository.findById(bookIndex.getBookId())
+            Book book = jpaBookRepository.findById(Long.parseLong(bookIndex.getBookId()))
                     .orElseThrow(() -> new ApplicationException(
                             ErrorStatus.toErrorStatus("해당 책을 찾을 수 없습니다.", 404, LocalDateTime.now()
                             )));
