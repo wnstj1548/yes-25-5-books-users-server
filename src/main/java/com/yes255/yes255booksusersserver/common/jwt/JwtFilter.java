@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,8 +31,7 @@ public class JwtFilter extends GenericFilterBean {
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
                 "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            path.equals("/books/{bookId:\\d+}")
-        ) {
+            path.startsWith("/books")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
