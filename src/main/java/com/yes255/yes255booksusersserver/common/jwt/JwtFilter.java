@@ -29,9 +29,12 @@ public class JwtFilter extends GenericFilterBean {
         String path = request.getServletPath();
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
-                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            path.equals("/books/{bookId:\\d+}")
-        ) {
+                "/users/find/email".equals(path) || "/user/find/password".equals(path)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        if (path.startsWith("/books") && !path.startsWith("/books/likes")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }

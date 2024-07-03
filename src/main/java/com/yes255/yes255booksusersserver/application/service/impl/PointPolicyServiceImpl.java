@@ -5,6 +5,7 @@ import com.yes255.yes255booksusersserver.common.exception.PointPolicyException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.CreatePointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +28,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
     // 포인트 정책 생성
     @Override
-    public PointPolicyResponse createPointPolicy(PointPolicyRequest policyRequest) {
+    public PointPolicyResponse createPointPolicy(CreatePointPolicyRequest policyRequest) {
 
         PointPolicy pointPolicy = pointPolicyRepository.save(policyRequest.toEntity());
 
@@ -37,6 +39,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyCondition(policyRequest.pointPolicyCondition())
                 .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
                 .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
+                .pointPolicyState(true)
                 .build();
     }
 
@@ -57,6 +60,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
                 .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
                 .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ? pointPolicy.getPointPolicyUpdatedAt().toString() : null)
+                .pointPolicyState(pointPolicy.isPointPolicyState())
                 .build();
     }
 
@@ -65,7 +69,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
     @Override
     public Page<PointPolicyResponse> findAllPointPolicies(Pageable pageable) {
 
-        Page<PointPolicy> pointPolicies = pointPolicyRepository.findAllBy(pageable);
+        Page<PointPolicy> pointPolicies = pointPolicyRepository.findAllByOrderByPointPolicyCreatedAtAscPointPolicyStateDesc(pageable);
 
         return pointPolicies.map(pointPolicy -> PointPolicyResponse.builder()
                 .pointPolicyId(pointPolicy.getPointPolicyId())
@@ -78,6 +82,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
                 .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
                 .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ?
                         pointPolicy.getPointPolicyUpdatedAt().toString() : null)
+                .pointPolicyState(pointPolicy.isPointPolicyState())
                 .build());
     }
 
@@ -119,6 +124,13 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
     @Override
     public void deletePointPolicyById(Long pointPolicyId) {
-        pointPolicyRepository.deleteById(pointPolicyId);
+
+        PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
+                .orElseThrow(() -> new PointPolicyException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
+
+        pointPolicy.updatePointPolicyState(false);
+        pointPolicy.updatePointPolicyUpdatedAt();
+
+        pointPolicyRepository.save(pointPolicy);
     }
 }

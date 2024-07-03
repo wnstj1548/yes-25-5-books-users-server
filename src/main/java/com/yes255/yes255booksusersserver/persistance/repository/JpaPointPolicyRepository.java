@@ -10,4 +10,6 @@ public interface JpaPointPolicyRepository extends JpaRepository<PointPolicy, Lon
     PointPolicy findByPointPolicyName(String pointPolicyName);
     
     Page<PointPolicy> findAllBy(Pageable pageable);
+
+    Page<PointPolicy> findAllByOrderByPointPolicyCreatedAtAscPointPolicyStateDesc(Pageable pageable);
 }

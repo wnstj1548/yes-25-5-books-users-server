@@ -51,10 +51,14 @@ public class PointPolicy {
 
     private LocalDate pointPolicyUpdatedAt;
 
+    @NotNull(message = "포인트 상태는 필수입니다.")
+    @Column(nullable = false)
+    private boolean pointPolicyState;
+
     @Builder
     public PointPolicy(Long pointPolicyId, String pointPolicyName, BigDecimal pointPolicyRate, BigDecimal pointPolicyConditionAmount,
                        String pointPolicyCondition, BigDecimal pointPolicyApplyAmount, LocalDate pointPolicyCreatedAt,
-                       LocalDate pointPolicyUpdatedAt, boolean pointPolicyApplyType) {
+                       LocalDate pointPolicyUpdatedAt, boolean pointPolicyApplyType, boolean pointPolicyState) {
 
         this.pointPolicyId = pointPolicyId;
         this.pointPolicyName = pointPolicyName;
@@ -65,6 +69,7 @@ public class PointPolicy {
         this.pointPolicyApplyType = pointPolicyApplyType;
         this.pointPolicyCreatedAt = pointPolicyCreatedAt;
         this.pointPolicyUpdatedAt = pointPolicyUpdatedAt;
+        this.pointPolicyState = pointPolicyState;
     }
 
     public void updatePointPolicyName(String pointPolicyName) {
@@ -95,5 +100,9 @@ public class PointPolicy {
 
     public void updatePointPolicyUpdatedAt() {
         this.pointPolicyUpdatedAt = LocalDate.now();
+    }
+
+    public void updatePointPolicyState(boolean pointPolicyState) {
+        this.pointPolicyState = pointPolicyState;
     }
 }
