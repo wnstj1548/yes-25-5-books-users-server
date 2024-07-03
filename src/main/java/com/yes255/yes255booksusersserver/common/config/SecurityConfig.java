@@ -28,7 +28,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email", "/books/**").permitAll()
+                    .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email").permitAll()
+                    .requestMatchers("/books/**").permitAll()
+                    .requestMatchers("/books/likes/**").authenticated()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
