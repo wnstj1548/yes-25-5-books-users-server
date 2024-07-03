@@ -1,4 +1,12 @@
 spring:
+  data:
+    elasticsearch:
+      username: elastic
+      password: elastic
+      repositories:
+        enabled: true
+      url: localhost:9200
+
   application:
     name: book-user-server
   datasource:

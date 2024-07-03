@@ -36,6 +36,11 @@ public class JwtFilter extends GenericFilterBean {
             return;
         }
 
+        if ("/books/searchByName".equals(path)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         String token = getToken((HttpServletRequest) servletRequest);
 
         if (jwtProvider.isValidToken(token)) {
