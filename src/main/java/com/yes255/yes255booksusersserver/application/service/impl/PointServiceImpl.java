@@ -71,37 +71,77 @@ public class PointServiceImpl implements PointService {
 
         Point point = pointRepository.findByUser_UserId(userId);
 
-        BigDecimal tempPoint = point.getPointCurrent()
-                .add(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
-                .subtract(usePoints);
+        // 순수 금액만큼 포인트 적립 및 사용 포인트 차감
+        if (pointRequest.operationType().equals("use")) {
 
-        if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PointException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
+            BigDecimal tempPoint = point.getPointCurrent()
+                    .add(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
+                    .subtract(usePoints);
+
+            if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
+                throw new PointException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
+            }
+
+            point.updatePointCurrent(tempPoint);
+            pointRepository.save(point);
+
+            // 포인트로 구매 시 포인트 이력 추가
+            if (usePoints.compareTo(BigDecimal.ZERO) > 0) {
+
+                pointLogRepository.save(PointLog.builder()
+                        .pointLogUpdatedAt(LocalDateTime.now())
+                        .pointLogUpdatedType("사용")
+                        .pointLogAmount(usePoints)
+                        .point(point)
+                        .build());
+            }
+
+            // 구매 시 구매 금액에 따른 포인트 적립 이력 추가
+            if (amount.compareTo(BigDecimal.ZERO) > 0) {
+
+                pointLogRepository.save(PointLog.builder()
+                        .pointLogUpdatedAt(LocalDateTime.now())
+                        .pointLogUpdatedType("적립")
+                        .pointLogAmount(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
+                        .point(point)
+                        .build());
+            }
         }
+        // 사용한 포인트 적립 및 순수 금액만큼 포인트 차감
+        else if (pointRequest.operationType().equals("rollback")) {
 
-        point.updatePointCurrent(tempPoint);
-        pointRepository.save(point);
+            BigDecimal tempPoint = point.getPointCurrent()
+                    .subtract(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
+                    .add(usePoints);
 
-        // 포인트로 구매 시 포인트 이력 추가
-        if (usePoints.compareTo(BigDecimal.ZERO) > 0) {
+            if (tempPoint.compareTo(BigDecimal.ZERO) < 0) {
+                throw new PointException(ErrorStatus.toErrorStatus("포인트가 부족합니다.", 400, LocalDateTime.now()));
+            }
 
-            pointLogRepository.save(PointLog.builder()
-                    .pointLogUpdatedAt(LocalDateTime.now())
-                    .pointLogUpdatedType("사용")
-                    .pointLogAmount(usePoints)
-                    .point(point)
-                    .build());
-        }
+            point.updatePointCurrent(tempPoint);
+            pointRepository.save(point);
 
-        // 구매 시 구매 금액에 따른 포인트 적립 이력 추가
-        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+            // 구매 시 사용한 포인트 적립
+            if (usePoints.compareTo(BigDecimal.ZERO) > 0) {
 
-            pointLogRepository.save(PointLog.builder()
-                            .pointLogUpdatedAt(LocalDateTime.now())
-                            .pointLogUpdatedType("적립")
-                            .pointLogAmount(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
-                            .point(point)
-                            .build());
+                pointLogRepository.save(PointLog.builder()
+                        .pointLogUpdatedAt(LocalDateTime.now())
+                        .pointLogUpdatedType("취소 - 사용 포인트 적립")
+                        .pointLogAmount(usePoints)
+                        .point(point)
+                        .build());
+            }
+
+            // 구매 시 적립한 포인트 차감
+            if (amount.compareTo(BigDecimal.ZERO) > 0) {
+
+                pointLogRepository.save(PointLog.builder()
+                        .pointLogUpdatedAt(LocalDateTime.now())
+                        .pointLogUpdatedType("취소 - 적립 포인트 차감")
+                        .pointLogAmount(amount.multiply(user.getUserGrade().getPointPolicy().getPointPolicyRate()))
+                        .point(point)
+                        .build());
+            }
         }
 
         return UpdatePointResponse.builder()
