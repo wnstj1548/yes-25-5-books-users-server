@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.CreatePointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface PointPolicyService {
 
     // 포인트 정책 작성 (적립 금액)
-    PointPolicyResponse createPointPolicy(PointPolicyRequest policyRequest);
+    PointPolicyResponse createPointPolicy(CreatePointPolicyRequest policyRequest);
 
     // 포인트 정책 단건 조회
     PointPolicyResponse findPointPolicyById(Long pointPolicyId);

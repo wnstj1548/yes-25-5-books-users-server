@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.PointPolicyService;
+import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.CreatePointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.pointpolicy.PointPolicyRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.PointPolicyResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +35,7 @@ public class PointPolicyController {
      */
     @Operation(summary = "포인트 정책 생성", description = "포인트 정책을 생성합니다.")
     @PostMapping("/point-policies")
-    public ResponseEntity<PointPolicyResponse> createPointPolicy(@RequestBody PointPolicyRequest policyRequest) {
+    public ResponseEntity<PointPolicyResponse> createPointPolicy(@RequestBody CreatePointPolicyRequest policyRequest) {
         return new ResponseEntity<>(pointPolicyService.createPointPolicy(policyRequest), HttpStatus.CREATED);
     }
 

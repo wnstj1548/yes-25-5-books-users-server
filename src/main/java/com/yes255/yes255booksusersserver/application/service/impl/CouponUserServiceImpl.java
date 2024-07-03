@@ -25,7 +25,7 @@ public class CouponUserServiceImpl implements CouponUserService {
     private final CouponAdaptor couponAdaptor;
 
     @Override
-    public void createCouponUser(Long couponId, Long userId) {
+    public void createCouponUser(Long couponId, Long userId) {  // todo : 중복 제외 처리
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
