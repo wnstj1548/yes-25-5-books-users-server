@@ -101,7 +101,6 @@ public class UserStateServiceImpl implements UserStateService {
         userStateRepository.deleteById(userStateId);
     }
 
-    // todo : 스케줄러 적용
     // 3개월 이상 미접속 회원 휴면 전환
     @Override
     public void updateUserStateByUser() {

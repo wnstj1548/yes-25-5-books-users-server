@@ -203,10 +203,6 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
         }
 
-        // todo : 웰컴 쿠폰 주석 해제
-        // 회원 가입 쿠폰 지급
-//        couponAdaptor.issueWelcomeCoupon(user.getUserId());
-
         log.info("User : {}", user);
 
         return UserResponse.builder()
