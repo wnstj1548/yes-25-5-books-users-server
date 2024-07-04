@@ -35,11 +35,16 @@ public class CustomerServiceImpl implements CustomerService {
                 .userRole(customerRequest.userRole())
                 .build();
 
-        customerRepository.save(customer);
+        Customer savedCustomer = customerRepository.save(customer);
+
+        cartRepository.save(Cart.builder()
+            .cartCreatedAt(LocalDate.now())
+            .customer(savedCustomer)
+            .build());
 
         return CustomerResponse.builder()
-                .userId(customer.getUserId())
-                .userRole(customerRequest.userRole())
+                .customerId(savedCustomer.getUserId())
+                .role(customerRequest.userRole())
                 .build();
     }
 
@@ -54,8 +59,8 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
 
         return CustomerResponse.builder()
-                .userId(customer.getUserId())
-                .userRole(customer.getUserRole())
+                .customerId(customer.getUserId())
+                .role(customer.getUserRole())
                 .build();
     }
 
@@ -67,8 +72,8 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new CustomerException(ErrorStatus.toErrorStatus("고객이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         return CustomerResponse.builder()
-                .userId(customer.getUserId())
-                .userRole(customer.getUserRole())
+                .customerId(customer.getUserId())
+                .role(customer.getUserRole())
                 .build();
     }
 
@@ -84,8 +89,8 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customers.stream()
                 .map(customer -> CustomerResponse.builder()
-                        .userId(customer.getUserId())
-                        .userRole(customer.getUserRole())
+                        .customerId(customer.getUserId())
+                        .role(customer.getUserRole())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -110,8 +115,8 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
 
         return CustomerResponse.builder()
-                .userId(customer.getUserId())
-                .userRole(customer.getUserRole())
+                .customerId(customer.getUserId())
+                .role(customer.getUserRole())
                 .build();
     }
 

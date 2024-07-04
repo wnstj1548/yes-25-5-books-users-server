@@ -30,6 +30,7 @@ public class SecurityConfig {
                 authorizeRequests
                     .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email").permitAll()
                     .requestMatchers("/books/**").permitAll()
+                    .requestMatchers("/users/cart-books").permitAll()
                     .requestMatchers("/books/likes/**").authenticated()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

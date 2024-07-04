@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +48,13 @@ public class CartBookController {
                                                                  @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
+        String accessToken = jwtUserDetails.accessToken();
+        String refreshToken = jwtUserDetails.refreshToken();
 
-        return new ResponseEntity<>(cartBookService.createCartBookByUserId(userId, createCartBookRequest), HttpStatus.CREATED);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header("Refresh-Token", refreshToken)
+            .body(cartBookService.createCartBookByUserId(userId, createCartBookRequest));
     }
 
     /**

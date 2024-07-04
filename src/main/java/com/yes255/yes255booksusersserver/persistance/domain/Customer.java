@@ -17,7 +17,7 @@ public class Customer {
     private Long userId;
 
     @NotNull(message = "유저 권한은 필수입니다.")
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 15)
     private String userRole;
 
     @Builder

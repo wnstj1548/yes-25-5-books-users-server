@@ -2,7 +2,6 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.CartBookServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.*;
-import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepository;
@@ -117,7 +116,7 @@ public class CartBookServiceImplTest {
 
         assertNotNull(response);
         assertEquals(testCartBook.getCartBookId(), response.cartBookId());
-        assertEquals(request.bookQuantity(), response.bookQuantity());
+        assertEquals(request.quantity(), response.bookQuantity());
     }
 
     @DisplayName("장바구니에 도서 추가 - 실패 (알맞은 책을 찾을 수 없음)")
