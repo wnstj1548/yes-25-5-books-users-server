@@ -66,7 +66,7 @@ class CustomerServiceImplTest {
         CustomerResponse response = customerService.createCustomer(customerRequest);
 
         assertNotNull(response);
-        assertEquals(savedCustomer.getUserRole(), response.userRole());
+        assertEquals(savedCustomer.getUserRole(), response.role());
     }
 
     @DisplayName("고객 수정 - 성공")
@@ -84,8 +84,8 @@ class CustomerServiceImplTest {
         CustomerResponse response = customerService.updateCustomer(customer.getUserId(), customerRequest);
 
         assertNotNull(response);
-        assertEquals(customer.getUserId(), response.userId());
-        assertEquals(customerRequest.userRole(), response.userRole());
+        assertEquals(customer.getUserId(), response.customerId());
+        assertEquals(customerRequest.userRole(), response.role());
     }
 
     @DisplayName("특정 고객 조회 - 성공")
@@ -102,8 +102,8 @@ class CustomerServiceImplTest {
         CustomerResponse response = customerService.getCustomerById(customer.getUserId());
 
         assertNotNull(response);
-        assertEquals(customer.getUserId(), response.userId());
-        assertEquals(customer.getUserRole(), response.userRole());
+        assertEquals(customer.getUserId(), response.customerId());
+        assertEquals(customer.getUserRole(), response.role());
     }
 
     @DisplayName("특정 고객 조회 - 실패")
@@ -130,8 +130,8 @@ class CustomerServiceImplTest {
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
-        assertEquals(customer.getUserId(), responses.getFirst().userId());
-        assertEquals(customer.getUserRole(), responses.getFirst().userRole());
+        assertEquals(customer.getUserId(), responses.getFirst().customerId());
+        assertEquals(customer.getUserRole(), responses.getFirst().role());
     }
 
     @DisplayName("모든 고객 목록 조회 - 실패")
@@ -173,7 +173,7 @@ class CustomerServiceImplTest {
 
         customer = Customer.builder()
                 .userId(1L)
-                .userRole("NONMEMBER")
+                .userRole("NONE_MEMBER")
                 .build();
 
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
@@ -181,7 +181,7 @@ class CustomerServiceImplTest {
         CustomerResponse response = customerService.createNonMember();
 
         assertNotNull(response);
-        assertEquals(customer.getUserRole(), response.userRole());
+        assertEquals(customer.getUserRole(), response.role());
     }
 
     @DisplayName("비회원 생성 (장바구니 포함) - 성공")
@@ -190,7 +190,7 @@ class CustomerServiceImplTest {
 
         customer = Customer.builder()
                 .userId(1L)
-                .userRole("NONMEMBER")
+                .userRole("NONE_MEMBER")
                 .build();
 
         Cart cart = Cart.builder()
