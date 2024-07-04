@@ -54,6 +54,10 @@ public class UserServiceImpl implements UserService {
             throw new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
+        if (user.getUserState().getUserStateName().equals("WITHDRAWAL")) {
+            throw new UserException(ErrorStatus.toErrorStatus("탈퇴한 회원입니다.", 400, LocalDateTime.now()));
+        }
+
         if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
             throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
