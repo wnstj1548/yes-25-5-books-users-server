@@ -103,7 +103,7 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
@@ -125,7 +125,7 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.empty());
@@ -141,7 +141,7 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
@@ -158,7 +158,7 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
@@ -176,13 +176,14 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(testCartBook);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(
+            Optional.of(testCartBook));
 
         assertThrows(CartBookException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
