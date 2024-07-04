@@ -339,5 +339,8 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
-
+    @Override
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.existsByUserEmail(email);
+    }
 }

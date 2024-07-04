@@ -30,7 +30,7 @@ public class JwtFilter extends GenericFilterBean {
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
                 "/users/find/email".equals(path) || "/users/find/password".equals(path) ||
-            path.equals("/books/{bookId:\\d+}")
+            path.equals("/books/{bookId:\\d+}") || "/users/check-email".equals(path)
         ) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
