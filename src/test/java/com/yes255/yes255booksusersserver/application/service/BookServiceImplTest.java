@@ -118,7 +118,7 @@ public class BookServiceImplTest {
         List<Book> books = Arrays.asList(testBook, anotherBook);
         Page<Book> bookPage = new PageImpl<>(books, PageRequest.of(0, 10), books.size());
 
-        when(jpaBookRepository.findAll(any(Pageable.class))).thenReturn(bookPage);
+        when(jpaBookRepository.findByBookIsDeletedFalse(any(Pageable.class))).thenReturn(bookPage);
 
         // when
         Pageable pageable = PageRequest.of(0, 10);
@@ -194,7 +194,6 @@ public class BookServiceImplTest {
         verify(jpaBookCategoryRepository, times(1)).deleteAll(bookCategoryList);
         verify(jpaBookTagRepository, times(1)).findByBook(book);
         verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
-        verify(jpaBookRepository, times(1)).deleteById(bookId);
     }
 
     @DisplayName("책 삭제 - 실패 (존재하지 않는 책)")
