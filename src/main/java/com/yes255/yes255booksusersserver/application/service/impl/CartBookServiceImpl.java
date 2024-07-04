@@ -13,6 +13,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepos
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
@@ -74,7 +75,7 @@ public class CartBookServiceImpl implements CartBookService {
     // 장바구니에 도서 수정 (수량 조절)
     @Override
     public UpdateCartBookResponse updateCartBookByUserId(Long userId,
-        UpdateCartBookRequest request) {
+        Long bookId, UpdateCartBookRequest request) {
 
         Cart cart = cartRepository.findByCustomer_UserId(userId);
 
@@ -83,28 +84,26 @@ public class CartBookServiceImpl implements CartBookService {
                 ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 404, LocalDateTime.now()));
         }
 
-        CartBook cartBook = cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(),
-            cart.getCartId());
+        CartBook cartBook = cartBookRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), bookId)
+            .orElseThrow(() -> new CartBookException(
+                ErrorStatus.toErrorStatus("장바구니 도서를 찾을 수 없습니다.", 404, LocalDateTime.now())
+            ));
 
-        if (Objects.isNull(cartBook)) {
-            throw new CartBookException(
-                ErrorStatus.toErrorStatus("장바구니 도서가 존재하지 않습니다.", 404, LocalDateTime.now()));
-        }
-
-        cartBook.updateCartBookQuantity(request.bookQuantity());
-
-        cartBookRepository.save(cartBook);
+        cartBook.updateCartBookQuantity(request.quantity());
 
         return UpdateCartBookResponse.builder()
             .cartBookId(cartBook.getCartBookId())
-            .bookQuantity(request.bookQuantity())
+            .bookQuantity(request.quantity())
             .build();
     }
 
     // 장바구니에서 도서 삭제
     @Override
-    public void deleteCartBookByUserIdByCartBookId(Long userId, Long cartBookId) {
-        cartBookRepository.deleteById(cartBookId);
+    public DeleteCartBookResponse deleteCartBookByUserIdByCartBookId(Long userId, Long bookId) {
+        Cart cart = cartRepository.findByCustomer_UserId(userId);
+        cartBookRepository.deleteByCartAndBook_BookId(cart, bookId);
+
+        return DeleteCartBookResponse.from(bookId);
     }
 
     // 장바구니 도서 목록 조회

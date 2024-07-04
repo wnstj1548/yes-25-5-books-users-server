@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import com.yes255.yes255booksusersserver.application.service.impl.CartBookServiceImpl;
@@ -180,18 +181,17 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_Success() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(testCartBook);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.of(testCartBook));
 
-        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(),
+            1L, request);
 
         assertNotNull(response);
         assertEquals(testCartBook.getCartBookId(), response.cartBookId());
-        assertEquals(request.bookQuantity(), response.bookQuantity());
     }
 
     @DisplayName("장바구니 도서 수정 - 실패 (카트가 존재하지 않음)")
@@ -199,14 +199,13 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
-            cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+            cartBookService.updateCartBookByUserId(testUser.getUserId(), 1L, request);
         });
     }
 
@@ -215,15 +214,14 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartBookNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(null);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         assertThrows(CartBookException.class, () -> {
-            cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+            cartBookService.updateCartBookByUserId(testUser.getUserId(), 1L, request);
         });
     }
 

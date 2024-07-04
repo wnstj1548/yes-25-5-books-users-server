@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.CartBookService;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
@@ -11,17 +12,19 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.Crea
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.UpdateCartBookResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.List;
-import java.util.Objects;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 도서 장바구니 관련 API를 제공하는 CartBookController
@@ -65,32 +68,31 @@ public class CartBookController {
      * @return 수정된 장바구니 도서 정보 응답 객체
      */
     @Operation(summary = "장바구니 도서 수정", description = "장바구니의 특정 도서 수량을 수정합니다.")
-    @PutMapping("/cart-books")
-    public ResponseEntity<UpdateCartBookResponse> updateCartBook(@RequestBody UpdateCartBookRequest updateCartBookRequest,
-                                                                 @CurrentUser JwtUserDetails jwtUserDetails) {
+    @PutMapping("/cart-books/books/{bookId}")
+    public ResponseEntity<UpdateCartBookResponse> updateCartBook(@PathVariable Long bookId,
+        @RequestBody UpdateCartBookRequest updateCartBookRequest,
+        @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
 
-        return new ResponseEntity<>(cartBookService.updateCartBookByUserId(userId, updateCartBookRequest), HttpStatus.OK);
+        return new ResponseEntity<>(cartBookService.updateCartBookByUserId(userId, bookId, updateCartBookRequest), HttpStatus.OK);
     }
 
     /**
      * 장바구니에서 특정 도서를 삭제합니다.
      *
-     * @param cartBookId 삭제할 장바구니 도서의 ID
+     * @param bookId 삭제할 장바구니 내 도서의 ID
      * @param jwtUserDetails 유저 토큰 정보
      * @return No Content 상태의 응답
      */
     @Operation(summary = "장바구니 도서 삭제", description = "장바구니에서 특정 도서를 삭제합니다.")
-    @DeleteMapping("/cart-books/{cartBookId}")
-    public ResponseEntity<Void> deleteCartBook(@PathVariable Long cartBookId,
+    @DeleteMapping("/cart-books/books/{bookId}")
+    public ResponseEntity<DeleteCartBookResponse> deleteCartBook(@PathVariable Long bookId,
                                                @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
 
-        cartBookService.deleteCartBookByUserIdByCartBookId(userId, cartBookId);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(cartBookService.deleteCartBookByUserIdByCartBookId(userId, bookId));
     }
 
     /**
