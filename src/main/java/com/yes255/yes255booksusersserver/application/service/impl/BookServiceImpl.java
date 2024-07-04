@@ -55,7 +55,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse getBook(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
-        if(Objects.isNull(book)) {
+        if(Objects.isNull(book) || book.isBookIsDeleted()) {
             throw new BookNotFoundException(
                     ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())
             );
@@ -81,7 +81,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookResponse> getAllBooks(Pageable pageable) {
 
-        Page<Book> bookPage = jpaBookRepository.findAll(pageable);
+        Page<Book> bookPage = jpaBookRepository.findByBookIsDeletedFalse(pageable);
         List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
 
         return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
@@ -89,7 +89,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookResponse> getAllBooks() {
-        return jpaBookRepository.findAll().stream().map(this::toResponse).toList();
+        return jpaBookRepository.findByBookIsDeletedFalse().stream().map(this::toResponse).toList();
     }
 
     @Transactional
@@ -124,7 +124,7 @@ public class BookServiceImpl implements BookService {
         jpaBookTagRepository.deleteAll(bookTagList);
         jpaCartBookRepository.deleteAll(cartBookList);
         jpaBookAuthorRepository.deleteAll(bookAuthorList);
-        jpaBookRepository.deleteById(bookId);
+        book.delete();
 
     }
 
@@ -141,7 +141,9 @@ public class BookServiceImpl implements BookService {
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
         for(BookCategory bookCategory : bookCategoryList) {
-            bookList.add(toResponse(bookCategory.getBook()));
+            if(!bookCategory.getBook().isBookIsDeleted()) {
+                bookList.add(toResponse(bookCategory.getBook()));
+            }
         }
 
         return bookList;
@@ -159,6 +161,7 @@ public class BookServiceImpl implements BookService {
         Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
 
         List<BookResponse> bookList = bookCategoryPage.getContent().stream()
+                .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
                 .map(bookCategory -> toResponse(bookCategory.getBook()))
                 .toList();
 
@@ -167,7 +170,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookCouponResponse> getBookByName(String name) {
-        return jpaBookRepository.findByBookNameContainingIgnoreCase(name).stream().map(this::toBookCouponResponse).toList();
+        return jpaBookRepository.findByBookNameContainingIgnoreCaseAndBookIsDeletedFalse(name)
+                .stream().map(this::toBookCouponResponse).toList();
     }
 
     public BookResponse toResponse(Book book) {

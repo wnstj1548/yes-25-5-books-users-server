@@ -1,4 +1,12 @@
 spring:
+  data:
+    elasticsearch:
+      username: elastic
+      password: nhnacademy123!
+      repositories:
+        enabled: true
+      url: 115.94.72.198:9200
+
   application:
     name: book-user-server
   datasource:

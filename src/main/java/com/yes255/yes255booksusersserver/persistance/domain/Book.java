@@ -29,7 +29,7 @@ public class Book {
     @Column(name = "book_name", nullable = false)
     private String bookName;
 
-    @Column(name = "book_description", nullable = false)
+    @Column(name = "book_description", nullable = false, columnDefinition = "TEXT")
     private String bookDescription;
 
     @Column(name = "book_index")
@@ -69,11 +69,16 @@ public class Book {
     @Column(name = "book_is_packable")
     private boolean bookIsPackable;
 
+    @ColumnDefault("false")
+    @Column(name = "book_is_deleted")
+    private boolean bookIsDeleted;
+
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
                 String bookIndex, String bookPublisher, Date bookPublishDate,
                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
-                Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount, boolean bookIsPackable) {
+                Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount,
+                boolean bookIsPackable, boolean bookIsDeleted) {
         this.bookId = bookId;
         this.bookIsbn = bookIsbn;
         this.bookName = bookName;
@@ -89,22 +94,63 @@ public class Book {
         this.hitsCount = hitsCount;
         this.searchCount = searchCount;
         this.bookIsPackable = bookIsPackable;
+        this.bookIsDeleted = bookIsDeleted;
     }
 
     public void updateAll(Book book) {
-        this.bookIsbn = Optional.ofNullable(book.getBookIsbn()).orElse(this.bookIsbn);
-        this.bookName = Optional.ofNullable(book.getBookName()).orElse(this.bookName);
-        this.bookDescription = Optional.ofNullable(book.getBookDescription()).orElse(this.bookDescription);
-        this.bookIndex = Optional.ofNullable(book.getBookIndex()).orElse(this.bookIndex);
-        this.bookPublisher = Optional.ofNullable(book.getBookPublisher()).orElse(this.bookPublisher);
-        this.bookPublishDate = Optional.ofNullable(book.getBookPublishDate()).orElse(this.bookPublishDate);
-        this.bookPrice = Optional.ofNullable(book.getBookPrice()).orElse(this.bookPrice);
-        this.bookSellingPrice = Optional.ofNullable(book.getBookSellingPrice()).orElse(this.bookSellingPrice);
-        this.bookImage = Optional.ofNullable(book.getBookImage()).orElse(this.bookImage);
-        this.quantity = Optional.ofNullable(book.getQuantity()).orElse(this.quantity);
-        this.reviewCount = Optional.ofNullable(book.getReviewCount()).orElse(this.reviewCount);
-        this.hitsCount = Optional.ofNullable(book.getHitsCount()).orElse(this.hitsCount);
-        this.searchCount = Optional.ofNullable(book.getSearchCount()).orElse(this.searchCount);
-        this.bookIsPackable = Optional.of(book.isBookIsPackable()).orElse(this.bookIsPackable);
+        updateISBN(book.getBookIsbn());
+        updateBookName(book.getBookName());
+        updateBookDescription(book.getBookDescription());
+        updateBookPublisher(book.getBookPublisher());
+        updateBookPublishDate(book.getBookPublishDate());
+        updateBookPrice(book.getBookPrice());
+        updateBookSellingPrice(book.getBookSellingPrice());
+        updateBookImage(book.getBookImage());
+        updateQuantity(book.getQuantity());
+        updateBookIsPackable(book.isBookIsPackable());
+    }
+
+    public void updateISBN(String ISBN) {
+        this.bookIsbn = ISBN;
+    }
+
+    public void updateBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
+    public void updateBookDescription(String bookDescription) {
+        this.bookDescription = bookDescription;
+    }
+
+    public void updateBookPublisher(String bookPublisher) {
+        this.bookPublisher = bookPublisher;
+    }
+
+    public void updateBookPublishDate(Date bookPublishDate) {
+        this.bookPublishDate = bookPublishDate;
+    }
+
+    public void updateBookPrice(BigDecimal bookPrice) {
+        this.bookPrice = bookPrice;
+    }
+
+    public void updateBookSellingPrice(BigDecimal bookSellingPrice) {
+        this.bookSellingPrice = bookSellingPrice;
+    }
+
+    public void updateBookImage(String bookImage) {
+        this.bookImage = bookImage;
+    }
+
+    public void updateQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public void updateBookIsPackable(boolean bookIsPackable) {
+        this.bookIsPackable = bookIsPackable;
+    }
+
+    public void delete() {
+        this.bookIsDeleted = true;
     }
 }
