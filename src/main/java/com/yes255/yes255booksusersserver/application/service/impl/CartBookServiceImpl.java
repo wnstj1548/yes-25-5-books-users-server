@@ -66,8 +66,8 @@ public class CartBookServiceImpl implements CartBookService {
                 .build());
 
         return CreateCartBookResponse.builder()
-            .cartBookId(cartBook.getCartBookId())
-            .bookQuantity(request.quantity())
+            .bookId(cartBook.getBook().getBookId())
+            .quantity(cartBook.getBookQuantity())
             .build();
     }
 
