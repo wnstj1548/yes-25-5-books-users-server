@@ -109,7 +109,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse createNonMember() {
 
         Customer customer = Customer.builder()
-                .userRole("NONMEMBER")
+                .userRole("NONE_MEMBER")
                 .build();
 
         customerRepository.save(customer);
@@ -125,7 +125,7 @@ public class CustomerServiceImpl implements CustomerService {
     public NonMemberResponse createNonMemberWithCart() {
 
         Customer customer = Customer.builder()
-                .userRole("NONMEMBER")
+                .userRole("NONE_MEMBER")
                 .build();
         customerRepository.save(customer);
 
