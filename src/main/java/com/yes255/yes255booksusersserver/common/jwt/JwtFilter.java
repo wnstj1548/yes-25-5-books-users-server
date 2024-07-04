@@ -7,6 +7,7 @@ import com.yes255.yes255booksusersserver.infrastructure.adaptor.AuthAdaptor;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NoneMemberLoginResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.JwtAuthResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -60,15 +61,19 @@ public class JwtFilter extends GenericFilterBean {
              * 4. JwtUserDetails 등록
              */
 
-            CustomerResponse customerResponse = customerService.createCustomer(new CustomerRequest("NONE_MEMBER"));
-            NoneMemberLoginResponse noneMemberLoginResponse = authAdaptor.loginNoneMember(customerResponse);
+            CustomerResponse customerResponse = customerService.createCustomer(
+                new CustomerRequest("NONE_MEMBER"));
+            NoneMemberLoginResponse noneMemberLoginResponse = authAdaptor.loginNoneMember(
+                customerResponse);
 
             JwtUserDetails jwtUserDetails = JwtUserDetails.of(noneMemberLoginResponse.customerId(),
-                noneMemberLoginResponse.role(), noneMemberLoginResponse.accessToken(), noneMemberLoginResponse.refreshToken());
+                noneMemberLoginResponse.role(), noneMemberLoginResponse.accessToken(),
+                noneMemberLoginResponse.refreshToken());
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 jwtUserDetails, null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + noneMemberLoginResponse.role()))
+                Collections.singletonList(
+                    new SimpleGrantedAuthority("ROLE_" + noneMemberLoginResponse.role()))
             );
 
             response.setHeader("Authorization", "Bearer " + noneMemberLoginResponse.accessToken());
@@ -80,20 +85,20 @@ public class JwtFilter extends GenericFilterBean {
         }
 
         String token = getToken((HttpServletRequest) servletRequest);
+        String uuid = jwtProvider.getUserNameFromToken(token);
+        JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
 
-        if (jwtProvider.isValidToken(token)) {
-            Long userName = jwtProvider.getUserNameFromToken(token);
-            String role = jwtProvider.getRolesFromToken(token);
+        JwtUserDetails jwtUserDetails = JwtUserDetails.of(jwtAuthResponse.customerId(),
+            jwtAuthResponse.role(), token);
 
-            JwtUserDetails jwtUserDetails = JwtUserDetails.of(userName, role, token);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+            jwtUserDetails, null,
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
+        );
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                jwtUserDetails, null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-            );
+        response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
+        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(servletRequest, servletResponse);
     }

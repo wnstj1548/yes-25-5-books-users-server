@@ -51,7 +51,7 @@ public class CartBookServiceImpl implements CartBookService {
                 ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 404, LocalDateTime.now()));
         }
 
-        if (cartBookRepository.existsByBookAndCart(book, cart)) {
+        if (Boolean.TRUE.equals(cartBookRepository.existsByBookAndCart(book, cart))) {
             throw new CartBookException(ErrorStatus.toErrorStatus(
                 "장바구니에 이미 같은 도서가 존재합니다.", 409, LocalDateTime.now()
             ));
@@ -124,7 +124,8 @@ public class CartBookServiceImpl implements CartBookService {
             .map(cartBook -> new CartBookResponse(userId, cartBook.getCartBookId(),
                 cartBook.getBook().getBookId(),
                 cartBook.getBook().getBookName(), cartBook.getBook().getBookPrice(),
-                cartBook.getBookQuantity(), cartBook.getBook().isBookIsPackable()))
+                cartBook.getBookQuantity(), cartBook.getBook().isBookIsPackable(),
+                cartBook.getBook().getBookImage() != null ? cartBook.getBook().getBookImage() : ""))
             .toList();
     }
 
