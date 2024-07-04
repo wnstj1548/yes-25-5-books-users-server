@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 사용자의 좋아요 관련 작업을 처리하는 RestController
@@ -83,6 +84,11 @@ public class LikesController {
 
     @GetMapping("/{bookId}/exist")
     public ResponseEntity<Boolean> exist(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        if(jwtUserDetails.userId() == null) {
+            return ResponseEntity.ok(false);
+        }
+
         return ResponseEntity.ok(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId()));
     }
 }
