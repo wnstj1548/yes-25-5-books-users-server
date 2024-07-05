@@ -57,4 +57,4 @@ jwt:
 api:
   order-payment: ${ORDER_PAYMENT_SERVER}
   coupons: ${COUPON_SERVER}
-  auth : ${AUTH_SERVER}
+  auth : http://133.186.153.195:8050
