@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record CreateUserRequest(String userName, LocalDate userBirth, String userEmail,
-                                String userPhone, String userPassword, String userConfirmPassword) {
+                                String userPhone, String userPassword, String userConfirmPassword, String providerName) {   // 페이코 회원 가입을 고려해 providerName 추가
 
 
     public User toEntity(Customer customer, Provider provider, UserState userState, UserGrade userGrade) {
