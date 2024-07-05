@@ -1,10 +1,12 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.OrderUserService;
+import com.yes255.yes255booksusersserver.common.exception.CustomerException;
 import com.yes255.yes255booksusersserver.common.exception.PointException;
 import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.persistance.domain.Point;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
@@ -29,19 +31,28 @@ public class OrderUserServiceImpl implements OrderUserService {
 
     private final JpaPointRepository pointRepository;
     private final JpaUserRepository userRepository;
+    private final JpaCustomerRepository customerRepository;
     private final JpaUserAddressRepository userAddressRepository;
 
     @Transactional(readOnly = true)
     @Override
     public ReadOrderUserInfoResponse orderUserInfo(Long userId) {
+        Customer customer = customerRepository.findById(userId)
+            .orElseThrow(() -> new CustomerException(
+                ErrorStatus.toErrorStatus("고객을 찾을 수 없습니다. 고객 ID : " + userId, 404, LocalDateTime.now())
+            ));
+
+        if (customer.getUserRole().equals("NONE_MEMBER")) {
+            return ReadOrderUserInfoResponse.fromNoneMember(customer);
+        }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 404, LocalDateTime.now())));
 
         Point point = pointRepository.findByUser_UserId(userId);
 
         if (Objects.isNull(point)) {
-            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 400, LocalDateTime.now()));
+            throw new PointException(ErrorStatus.toErrorStatus("포인트가 존재하지 않습니다.", 404, LocalDateTime.now()));
         }
 
         return ReadOrderUserInfoResponse.builder()
