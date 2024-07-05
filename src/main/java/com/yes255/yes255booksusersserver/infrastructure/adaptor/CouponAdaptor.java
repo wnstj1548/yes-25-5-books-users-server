@@ -1,5 +1,7 @@
 package com.yes255.yes255booksusersserver.infrastructure.adaptor;
 
+import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
+import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,4 +20,14 @@ public interface CouponAdaptor {
     // 쿠폰 서버로부터 쿠폰함에 필요한 정보 획득
     @GetMapping("/info")
     List<CouponInfoResponse> getCouponsInfo(@RequestParam List<Long> couponIdList);
+
+    @PostMapping("/issueWelcomeCoupon")
+    void issueWelcomeCoupon(@RequestParam("userId") Long userId);
+
+    @PostMapping("/issueBirthdayCoupon")
+    void issueBirthdayCoupon(@RequestParam("userId") Long userId);
+
+    @PostMapping("/expiredWithUserId")
+    ExpiredCouponUserResponse getCouponExpiredDateWithUserId(@RequestParam("couponId") Long couponId, @RequestParam("userId") Long userId);
+
 }
