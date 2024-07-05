@@ -57,6 +57,10 @@ public class UserServiceImpl implements UserService {
             throw new UserException(ErrorStatus.toErrorStatus("회원이 존재 하지 않습니다.", 400, LocalDateTime.now()));
         }
 
+        if (user.getUserState().getUserStateName().equals("WITHDRAWAL")) {
+            throw new UserException(ErrorStatus.toErrorStatus("탈퇴한 회원입니다.", 400, LocalDateTime.now()));
+        }
+
         if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
             throw new UserException(ErrorStatus.toErrorStatus("비밀번호가 일치하지 않습니다.", 400, LocalDateTime.now()));
         }
@@ -206,10 +210,6 @@ public class UserServiceImpl implements UserService {
             pointRepository.save(point);
         }
 
-        // todo : 웰컴 쿠폰 주석 해제
-        // 회원 가입 쿠폰 지급
-//        couponAdaptor.issueWelcomeCoupon(user.getUserId());
-
         log.info("User : {}", user);
 
         return UserResponse.builder()
@@ -346,5 +346,8 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
-
+    @Override
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.existsByUserEmail(email);
+    }
 }

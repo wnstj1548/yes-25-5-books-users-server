@@ -30,4 +30,6 @@ public interface UserService {
     boolean findUserPasswordByEmailByName(FindPasswordRequest passwordRequest);
 
     boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest);
+
+    boolean isEmailDuplicate(String email);
 }

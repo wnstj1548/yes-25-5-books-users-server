@@ -147,4 +147,10 @@ public class UserController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Operation(summary = "이메일 중복 체크", description = "회원가입 시 이메일 중복을 확인합니다.")
+    @GetMapping("/users/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        return ResponseEntity.ok(userService.isEmailDuplicate(email));
+    }
 }
