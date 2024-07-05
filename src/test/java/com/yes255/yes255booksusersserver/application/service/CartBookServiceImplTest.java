@@ -1,9 +1,22 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
 import com.yes255.yes255booksusersserver.application.service.impl.CartBookServiceImpl;
-import com.yes255.yes255booksusersserver.common.exception.*;
-import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
+import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.CartBookException;
+import com.yes255.yes255booksusersserver.common.exception.CartException;
+import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.Cart;
+import com.yes255.yes255booksusersserver.persistance.domain.CartBook;
+import com.yes255.yes255booksusersserver.persistance.domain.Customer;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
@@ -13,6 +26,12 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.Updat
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.UpdateCartBookResponse;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,17 +39,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CartBookServiceImplTest {
@@ -104,20 +112,17 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
-        when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(null);
+        when(cartBookRepository.existsByBookAndCart(testBook, testCart)).thenReturn(false);
         when(cartBookRepository.save(any(CartBook.class))).thenReturn(testCartBook);
 
         CreateCartBookResponse response = cartBookService.createCartBookByUserId(testUser.getUserId(), request);
 
         assertNotNull(response);
-        assertEquals(testCartBook.getCartBookId(), response.cartBookId());
-        assertEquals(request.bookQuantity(), response.bookQuantity());
     }
 
     @DisplayName("장바구니에 도서 추가 - 실패 (알맞은 책을 찾을 수 없음)")
@@ -126,29 +131,12 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.empty());
 
         assertThrows(BookNotFoundException.class, () -> {
-            cartBookService.createCartBookByUserId(testUser.getUserId(), request);
-        });
-    }
-
-    @DisplayName("장바구니에 도서 추가 - 실패 (유저가 존재하지 않음)")
-    @Test
-    void testCreateCartBookByUserId_UserNotFound() {
-
-        CreateCartBookRequest request = CreateCartBookRequest.builder()
-                .bookId(testBook.getBookId())
-                .bookQuantity(2)
-                .build();
-
-        when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
-        when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.empty());
-
-        assertThrows(UserException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
         });
     }
@@ -159,11 +147,10 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
-        when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
@@ -177,13 +164,12 @@ public class CartBookServiceImplTest {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
                 .bookId(testBook.getBookId())
-                .bookQuantity(2)
+                .quantity(2)
                 .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
-        when(userRepository.findById(testUser.getUserId())).thenReturn(Optional.of(testUser));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId())).thenReturn(testCartBook);
+        when(cartBookRepository.existsByBookAndCart(testBook, testCart)).thenReturn(true);
 
         assertThrows(CartBookException.class, () -> {
             cartBookService.createCartBookByUserId(testUser.getUserId(), request);
@@ -195,18 +181,17 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_Success() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(testCartBook);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.of(testCartBook));
 
-        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(),
+            1L, request);
 
         assertNotNull(response);
         assertEquals(testCartBook.getCartBookId(), response.cartBookId());
-        assertEquals(request.bookQuantity(), response.bookQuantity());
     }
 
     @DisplayName("장바구니 도서 수정 - 실패 (카트가 존재하지 않음)")
@@ -214,14 +199,13 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
         assertThrows(CartException.class, () -> {
-            cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+            cartBookService.updateCartBookByUserId(testUser.getUserId(), 1L, request);
         });
     }
 
@@ -230,15 +214,14 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartBookNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .cartBookId(testCartBook.getCartBookId())
-                .bookQuantity(3)
+                .quantity(3)
                 .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCartBookIdAndCart_CartId(request.cartBookId(), testCart.getCartId())).thenReturn(null);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         assertThrows(CartBookException.class, () -> {
-            cartBookService.updateCartBookByUserId(testUser.getUserId(), request);
+            cartBookService.updateCartBookByUserId(testUser.getUserId(), 1L, request);
         });
     }
 

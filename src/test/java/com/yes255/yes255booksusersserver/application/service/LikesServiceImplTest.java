@@ -67,7 +67,7 @@ public class LikesServiceImplTest {
 
         testBook = new Book(1L, "1234567890", "Test Book", "Description", "Index",  "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg",
-                100, 0, 0, 0, true);
+                100, 0, 0, 0, true, false);
 
         // Inject mocks into service
         ReflectionTestUtils.setField(likesService, "jpaLikesRepository", jpaLikesRepository);

@@ -1,0 +1,6 @@
+POST localhost:8061/books/searchByDescription
+Content-Type: application/json
+
+{
+  "keyword": "히히"
+}

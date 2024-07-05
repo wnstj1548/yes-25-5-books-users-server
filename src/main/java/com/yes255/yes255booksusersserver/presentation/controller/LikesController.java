@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 사용자의 좋아요 관련 작업을 처리하는 RestController
@@ -71,6 +72,7 @@ public class LikesController {
         return ResponseEntity.ok(likesService.updateLikeStatus(bookId, jwtUserDetails.userId()));
     }
 
+    @Operation(summary = "좋아요 검색", description = "책의 아이디와 토큰에 들어있는 유저로 좋아요를 조회합니다.")
     @GetMapping("/{bookId}")
     public ResponseEntity<LikesResponse> findByBookIdAndUserId(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
 
@@ -81,8 +83,14 @@ public class LikesController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "좋아요 존재 확인", description = "책의 아이디와 토큰에 들어있는 유저로 좋아요가 존재하는지 확인합니다.")
     @GetMapping("/{bookId}/exist")
     public ResponseEntity<Boolean> exist(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        if(jwtUserDetails.userId() == null) {
+            return ResponseEntity.ok(false);
+        }
+
         return ResponseEntity.ok(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId()));
     }
 }

@@ -60,7 +60,7 @@ public class BookServiceImplTest {
         MockitoAnnotations.initMocks(this);
         testBook = new Book(1L, "1234567890", "Test Book", "Description", "Index", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg",
-                100, 0, 0, 0, true);
+                100, 0, 0, 0, true, false);
     }
 
     @DisplayName("책 생성 - 성공")
@@ -113,12 +113,12 @@ public class BookServiceImplTest {
         // given
         Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "Index",  "Publisher",
                 sdf.parse("2014-04-02"), new BigDecimal("25.00"), new BigDecimal("19.99"), "another.jpg",
-                150, 0, 0, 0, true);
+                150, 0, 0, 0, true, false);
 
         List<Book> books = Arrays.asList(testBook, anotherBook);
         Page<Book> bookPage = new PageImpl<>(books, PageRequest.of(0, 10), books.size());
 
-        when(jpaBookRepository.findAll(any(Pageable.class))).thenReturn(bookPage);
+        when(jpaBookRepository.findByBookIsDeletedFalse(any(Pageable.class))).thenReturn(bookPage);
 
         // when
         Pageable pageable = PageRequest.of(0, 10);
@@ -135,7 +135,7 @@ public class BookServiceImplTest {
     void updateBook_success() throws ParseException {
         // given
         Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description", "Old Index",  "Old Publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0, true);
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0, true, false);
 
         UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
                 sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), 150, "new_image.jpg", true);
@@ -174,7 +174,7 @@ public class BookServiceImplTest {
         // given
         Long bookId = 1L;
         Book book = new Book(bookId, "1234567890", "Test Book", "Description", "index", "Publisher",
-                null, null, null, null, 0, 0, 0, 0, true);
+                null, null, null, null, 0, 0, 0, 0, true, false);
 
         List<BookCategory> bookCategoryList = new ArrayList<>();
         List<BookTag> bookTagList = new ArrayList<>();
@@ -194,7 +194,6 @@ public class BookServiceImplTest {
         verify(jpaBookCategoryRepository, times(1)).deleteAll(bookCategoryList);
         verify(jpaBookTagRepository, times(1)).findByBook(book);
         verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
-        verify(jpaBookRepository, times(1)).deleteById(bookId);
     }
 
     @DisplayName("책 삭제 - 실패 (존재하지 않는 책)")

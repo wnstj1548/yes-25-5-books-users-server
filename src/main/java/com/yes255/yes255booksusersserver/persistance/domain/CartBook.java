@@ -47,4 +47,8 @@ public class CartBook {
     public void updateCartBookQuantity(int bookQuantity) {
         this.bookQuantity = bookQuantity;
     }
+
+    public void addQuantity(int quantity) {
+        this.bookQuantity = quantity;
+    }
 }
