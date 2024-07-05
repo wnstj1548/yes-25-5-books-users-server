@@ -24,8 +24,6 @@ public interface BookElasticSearchRepository extends ElasticsearchRepository<Boo
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"tags\": \"*?0*\"}}]}}")
     Page<BookIndex> findByTagsContainingIgnoreCase(String tagName, Pageable pageable);
 
-//    @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"book_name\", \"book_description\", \"tags\", \"authors\"]}}")
-
     @Query("{\"multi_match\": {" +
             "\"query\": \"?0\", " +
             "\"fields\": [" +

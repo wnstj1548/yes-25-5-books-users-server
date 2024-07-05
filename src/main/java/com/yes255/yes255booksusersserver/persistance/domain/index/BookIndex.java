@@ -15,8 +15,7 @@ import java.util.List;
 @Builder
 @ToString
 @Document(indexName = "yes255_book", createIndex = true)
-//@Setting(settingPath = "/elasticsearch/settings/settings.json")
-//@Mapping(mappingPath = "/elasticsearch/mappings/mappings.json")
+@Setting(settingPath = "/elasticsearch/settings/settings.json")
 public class BookIndex {
 
     @Id
@@ -26,17 +25,17 @@ public class BookIndex {
     @Field(name = "book_isbn", type = FieldType.Keyword)
     private String bookIsbn;
 
-    @Field(name = "book_name", type = FieldType.Text)
+    @Field(name = "book_name", type = FieldType.Text, analyzer = "synonym_analyzer")
     private String bookName;
 
-    @Field(name = "book_description", type = FieldType.Text)
+    @Field(name = "book_description", type = FieldType.Text, analyzer = "synonym_analyzer")
     private String bookDescription;
 
     @Field(name = "book_publisher", type = FieldType.Text)
     private String bookPublisher;
 
-    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.date)
-    private Date bookPublishDate;
+//    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.date)
+//    private Date bookPublishDate;
 
     @Field(name = "book_price", type = FieldType.Double)
     private BigDecimal bookPrice;
@@ -65,20 +64,23 @@ public class BookIndex {
     @Field(name = "book_is_deleted", type = FieldType.Boolean)
     private boolean bookIsDeleted;
 
-    @Field(name = "authors", type = FieldType.Text)
+    @Field(name = "authors", type = FieldType.Text, analyzer = "synonym_analyzer")
     private List<String> authors;
 
-    @Field(name = "tags", type = FieldType.Text)
+    @Field(name = "tags", type = FieldType.Text, analyzer = "synonym_analyzer")
     private List<String> tags;
 
-    public static BookIndex updateAuthorsAndTags(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags) {
+    @Field(name = "categories", type = FieldType.Text, analyzer = "synonym_analyzer")
+    private List<String> categories;
+
+    public static BookIndex updateAuthorsAndTagsAndCategory(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags, List<CategoryIndex> categories) {
         return BookIndex.builder()
                 .bookId(book.getBookId())
                 .bookIsbn(book.getBookIsbn())
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-                .bookPublishDate(book.getBookPublishDate())
+//                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
@@ -90,6 +92,7 @@ public class BookIndex {
                 .bookIsDeleted(book.isBookIsDeleted())
                 .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
                 .tags(tags.stream().map(TagIndex::getTagName).toList())
+                .categories(categories.stream().map(CategoryIndex::getCategoryName).toList())
                 .build();
     }
 
@@ -100,7 +103,7 @@ public class BookIndex {
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-                .bookPublishDate(book.getBookPublishDate())
+//                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())

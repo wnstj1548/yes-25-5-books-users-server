@@ -6,6 +6,7 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.domain.index.AuthorIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.BookIndex;
+import com.yes255.yes255booksusersserver.persistance.domain.index.CategoryIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.TagIndex;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.BookSearchRequest;
@@ -31,11 +32,14 @@ public class BookSearchServiceImpl implements BookSearchService {
     private final BookElasticSearchRepository bookElasticSearchRepository;
     private final TagElasticSearchRepository tagElasticSearchRepository;
     private final AuthorElasticSearchRepository authorElasticSearchRepository;
+    private final CategoryElasticSearchRepository categoryElasticSearchRepository;
     private final JpaBookAuthorRepository jpaBookAuthorRepository;
     private final JpaBookRepository jpaBookRepository;
     private final JpaBookTagRepository jpaBookTagRepository;
     private final JpaTagRepository jpaTagRepository;
     private final JpaAuthorRepository jpaAuthorRepository;
+    private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     @Override
     public Page<BookIndexResponse> searchBookByNamePaging(BookSearchRequest request, Pageable pageable) {
@@ -105,13 +109,18 @@ public class BookSearchServiceImpl implements BookSearchService {
                     .map(TagIndex::fromTag)
                     .toList();
 
-            result.add(BookIndex.updateAuthorsAndTags(bookIndex, authors, tags));
+            List<CategoryIndex> categories = jpaBookCategoryRepository.findByBook(book).stream()
+                            .map(BookCategory::getCategory)
+                            .map(CategoryIndex::fromCategory)
+                            .toList();
+
+            result.add(BookIndex.updateAuthorsAndTagsAndCategory(bookIndex, authors, tags, categories));
         }
 
         return result;
     }
 
-    @Scheduled(cron = "0 10 * * * ?")
+    @Scheduled(cron = "0 27 * * * ?")
     public void syncBook() {
         log.info("book sync start");
         List<BookIndex> bookDeletedList = jpaBookRepository.findByBookIsDeletedTrue().stream().map(BookIndex::fromBook).toList();
@@ -120,17 +129,24 @@ public class BookSearchServiceImpl implements BookSearchService {
         bookElasticSearchRepository.saveAll(fetchAuthorsAndTags(bookIndexList));
     }
 
-    @Scheduled(cron = "0 21 * * * ?")
+    @Scheduled(cron = "0 26 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
         List<TagIndex> tagIndexList = jpaTagRepository.findAll().stream().map(TagIndex::fromTag).toList();
         tagElasticSearchRepository.saveAll(tagIndexList);
     }
 
-    @Scheduled(cron = "0 21 * * * ?")
+    @Scheduled(cron = "0 26 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
         List<AuthorIndex> authorIndexList = jpaAuthorRepository.findAll().stream().map(AuthorIndex::fromAuthor).toList();
         authorElasticSearchRepository.saveAll(authorIndexList);
+    }
+
+    @Scheduled(cron = "0 26 * * * ?")
+    public void syncCategory() {
+        log.info("category sync start");
+        List<CategoryIndex> categoryIndexList = jpaCategoryRepository.findAll().stream().map(CategoryIndex::fromCategory).toList();
+        categoryElasticSearchRepository.saveAll(categoryIndexList);
     }
 }

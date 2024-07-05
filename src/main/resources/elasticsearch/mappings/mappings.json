@@ -1,5 +1,4 @@
 {
-  "mappings": {
     "book_id": {
       "type": "keyword"
     },
@@ -52,5 +51,4 @@
       "type": "text",
       "analyzer": "synonym_analyzer"
     }
-  }
 }
