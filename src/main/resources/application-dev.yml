@@ -5,7 +5,7 @@ spring:
       password: nhnacademy123!
       repositories:
         enabled: true
-      url: 115.94.72.198:9200
+      url: localhost:9200
 
   application:
     name: book-user-server

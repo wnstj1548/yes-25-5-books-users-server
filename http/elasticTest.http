@@ -1,6 +1,6 @@
-POST localhost:8061/books/searchByDescription
+GET localhost:8061/books/searchAll
 Content-Type: application/json
 
 {
-  "keyword": "히히"
+  "keyword": "넌"
 }

@@ -63,6 +63,9 @@ public class BookIndex {
     @Field(name = "book_is_packable", type = FieldType.Boolean)
     private boolean bookIsPackable;
 
+    @Field(name = "book_is_deleted", type = FieldType.Boolean)
+    private boolean bookIsDeleted;
+
     @Field(name = "authors", type = FieldType.Keyword)
     private List<String> authors;
 
@@ -85,6 +88,7 @@ public class BookIndex {
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .bookIsDeleted(book.isBookIsDeleted())
                 .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
                 .tags(tags.stream().map(TagIndex::getTagName).toList())
                 .build();
@@ -106,6 +110,7 @@ public class BookIndex {
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .bookIsDeleted(book.isBookIsDeleted())
                 .build();
     }
 }
