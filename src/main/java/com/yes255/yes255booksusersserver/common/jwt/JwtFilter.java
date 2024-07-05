@@ -10,8 +10,6 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.customer.None
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.JwtAuthResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,31 +21,29 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 @Component
-public class JwtFilter extends GenericFilterBean {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final CustomerService customerService;
     private final AuthAdaptor authAdaptor;
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-        FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
             "/users/find/email".equals(path) || "/user/find/password".equals(path)) {
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(request, response);
             return;
         }
 
         if (path.startsWith("/books") && StringUtils.isEmpty(request.getHeader("Authorization"))) {
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -80,11 +76,11 @@ public class JwtFilter extends GenericFilterBean {
             response.setHeader("Refresh-Token", noneMemberLoginResponse.refreshToken());
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(request, response);
             return;
         }
 
-        String token = getToken((HttpServletRequest) servletRequest);
+        String token = getToken(request);
         String uuid = jwtProvider.getUserNameFromToken(token);
         JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
 
@@ -100,7 +96,7 @@ public class JwtFilter extends GenericFilterBean {
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        filterChain.doFilter(servletRequest, servletResponse);
+        filterChain.doFilter(request, response);
     }
 
     private String getToken(HttpServletRequest request) {
