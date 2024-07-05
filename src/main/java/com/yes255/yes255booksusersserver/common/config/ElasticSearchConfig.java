@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.common.config;
 
+import co.elastic.clients.elasticsearch._types.analysis.StandardTokenizer;
 import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

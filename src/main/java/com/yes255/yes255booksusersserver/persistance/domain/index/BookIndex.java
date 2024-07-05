@@ -3,10 +3,7 @@ package com.yes255.yes255booksusersserver.persistance.domain.index;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,7 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "yes255_book")
+@Document(indexName = "yes255_book", createIndex = true)
+//@Setting(settingPath = "/elasticsearch/settings/settings.json")
+//@Mapping(mappingPath = "/elasticsearch/mappings/mappings.json")
 public class BookIndex {
 
     @Id
@@ -36,8 +35,8 @@ public class BookIndex {
     @Field(name = "book_publisher", type = FieldType.Text)
     private String bookPublisher;
 
-//    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.date)
-//    private Date bookPublishDate;
+    @Field(name = "book_publish_date", type = FieldType.Date, format = DateFormat.date)
+    private Date bookPublishDate;
 
     @Field(name = "book_price", type = FieldType.Double)
     private BigDecimal bookPrice;
@@ -66,10 +65,10 @@ public class BookIndex {
     @Field(name = "book_is_deleted", type = FieldType.Boolean)
     private boolean bookIsDeleted;
 
-    @Field(name = "authors", type = FieldType.Keyword)
+    @Field(name = "authors", type = FieldType.Text)
     private List<String> authors;
 
-    @Field(name = "tags", type = FieldType.Keyword)
+    @Field(name = "tags", type = FieldType.Text)
     private List<String> tags;
 
     public static BookIndex updateAuthorsAndTags(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags) {
@@ -79,7 +78,7 @@ public class BookIndex {
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-//                .bookPublishDate(book.getBookPublishDate())
+                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
@@ -101,7 +100,7 @@ public class BookIndex {
                 .bookName(book.getBookName())
                 .bookDescription(book.getBookDescription())
                 .bookPublisher(book.getBookPublisher())
-//                .bookPublishDate(book.getBookPublishDate())
+                .bookPublishDate(book.getBookPublishDate())
                 .bookPrice(book.getBookPrice())
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())

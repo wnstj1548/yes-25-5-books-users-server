@@ -1,0 +1,56 @@
+{
+  "mappings": {
+    "book_id": {
+      "type": "keyword"
+    },
+    "book_isbn": {
+      "type": "keyword"
+    },
+    "book_name": {
+      "type": "text",
+      "analyzer": "synonym_analyzer"
+    },
+    "book_description": {
+      "type": "text",
+      "analyzer": "synonym_analyzer"
+    },
+    "book_publisher": {
+      "type": "text"
+    },
+    "book_price": {
+      "type": "double"
+    },
+    "book_selling_price": {
+      "type": "double"
+    },
+    "book_image": {
+      "type": "text"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "review_count": {
+      "type": "integer"
+    },
+    "hits_count": {
+      "type": "integer"
+    },
+    "search_count": {
+      "type": "integer"
+    },
+    "book_is_packable": {
+      "type": "boolean"
+    },
+    "book_is_deleted": {
+      "type": "boolean"
+    },
+    "authors": {
+      "type": "text",
+      "analyzer": "synonym_analyzer"
+    },
+    "tags": {
+      "type": "text",
+      "analyzer": "synonym_analyzer"
+    }
+  }
+}
