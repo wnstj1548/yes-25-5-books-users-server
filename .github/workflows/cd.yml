@@ -80,6 +80,7 @@ jobs:
               -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
               -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
               -e ORDER_PAYMENT_SERVER=${ORDER_PAYMENT_SERVER} \
+              -e AUTH_SERVER=${AUTH_SERVER} \
               -e COUPON_SERVER=${COUPON_SERVER} \
               -e JWT_SECRET=${JWT_SECRET} \
               books-users-app

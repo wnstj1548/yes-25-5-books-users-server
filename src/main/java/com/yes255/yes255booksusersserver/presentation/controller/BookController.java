@@ -76,6 +76,7 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBook(bookId));
     }
 
+    @Operation(summary = "아이디 리스트로 책 조회" ,description = "bookId를 List로 받아 해당 도서의 이름을 조회합니다.")
     @GetMapping("/books/orders")
     public ResponseEntity<List<BookOrderResponse>> findByOrder(@RequestParam List<Long> bookIdList) {
         return ResponseEntity.ok(bookService.getBooksByOrder(bookIdList));
@@ -260,11 +261,13 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "책 이름 검색", description = "책 이름을 받아 그 단어가 포함된 모든 도서를 검색합니다.")
     @GetMapping("/books/search")
     public ResponseEntity<List<BookCouponResponse>> searchByName(@RequestParam String query) {
         return ResponseEntity.ok(bookService.getBookByName(query));
     }
 
+    @Operation(summary = "카테고리로 책 조회", description = "카테고리 아이디로 해당 카테고리인 책들을 조회합니다.")
     @GetMapping("/books/category/{categoryId}/page")
     public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable));

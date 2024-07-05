@@ -1,11 +1,13 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
+import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
@@ -40,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
 
+    private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
     private final CouponAdaptor couponAdaptor;
 
