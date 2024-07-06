@@ -122,9 +122,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void updateReview(UpdateReviewRequest updateReviewRequest, List<MultipartFile> images,
-        Long reviewId) {
+        Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new EntityNotFoundException("해당하는 리뷰를 찾을 수 없습니다. 리뷰 ID : " + reviewId));
+
+        if (!review.isUserIdEqualTo(userId)) {
+            throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
+        }
 
         List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
 
@@ -145,8 +149,15 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReviewByReviewId(Long reviewId) {
-        reviewRepository.deleteByReviewId(reviewId);
+    public void deleteReviewByReviewId(Long reviewId, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new EntityNotFoundException("리뷰를 찾을 수 없습니다. 리뷰 ID : " + reviewId));
+
+        if (!review.isUserIdEqualTo(userId)) {
+            throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
+        }
+
+        reviewRepository.deleteByReviewId(review.getReviewId());
     }
 
     private String getUploadUrl(MultipartFile image) {

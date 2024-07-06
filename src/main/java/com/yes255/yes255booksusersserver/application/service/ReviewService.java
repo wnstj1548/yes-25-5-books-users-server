@@ -18,7 +18,8 @@ public interface ReviewService {
 
     List<ReadReviewRatingResponse> getReviewRatingsByBookId(Long bookId);
 
-    void updateReview(UpdateReviewRequest updateReviewRequest, List<MultipartFile> images, Long reviewId);
+    void updateReview(UpdateReviewRequest updateReviewRequest, List<MultipartFile> images, Long reviewId,
+        Long userId);
 
-    void deleteReviewByReviewId(Long reviewId);
+    void deleteReviewByReviewId(Long reviewId, Long userId);
 }

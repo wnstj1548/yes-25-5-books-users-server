@@ -79,4 +79,8 @@ public class Review {
             this.rating = updateReviewRequest.rating();
         }
     }
+
+    public boolean isUserIdEqualTo(Long userId) {
+        return this.user.getUserId().equals(userId);
+    }
 }

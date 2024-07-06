@@ -61,7 +61,7 @@ public class ReviewController {
         @RequestPart(required = false) List<MultipartFile> images,
         @CurrentUser JwtUserDetails jwtUserDetails) {
         UpdateReviewRequest updateReviewRequest = jsonToRequest(requestJson, UpdateReviewRequest.class);
-        reviewService.updateReview(updateReviewRequest, images, reviewId);
+        reviewService.updateReview(updateReviewRequest, images, reviewId, jwtUserDetails.userId());
 
         return ResponseEntity.noContent()
             .headers(addAuthHeaders(jwtUserDetails))
@@ -71,7 +71,7 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
         @CurrentUser JwtUserDetails jwtUserDetails) {
-        reviewService.deleteReviewByReviewId(reviewId);
+        reviewService.deleteReviewByReviewId(reviewId, jwtUserDetails.userId());
 
         return ResponseEntity.noContent()
             .headers(addAuthHeaders(jwtUserDetails))
