@@ -75,7 +75,7 @@ public class Book {
     @Column(name = "book_is_deleted")
     private boolean bookIsDeleted;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Review> reviews = new ArrayList<>();
 
     @Builder

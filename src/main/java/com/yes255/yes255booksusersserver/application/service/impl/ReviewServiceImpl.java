@@ -6,6 +6,7 @@ import com.yes255.yes255booksusersserver.application.service.ReviewService;
 import com.yes255.yes255booksusersserver.common.exception.AccessDeniedException;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.EntityNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.OrderAdaptor;
@@ -18,6 +19,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewImageRe
 import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateReviewRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.io.IOException;
@@ -116,6 +118,35 @@ public class ReviewServiceImpl implements ReviewService {
         return reviews.stream()
             .map(ReadReviewRatingResponse::fromEntity)
             .toList();
+    }
+
+    @Override
+    public void updateReview(UpdateReviewRequest updateReviewRequest, List<MultipartFile> images,
+        Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new EntityNotFoundException("해당하는 리뷰를 찾을 수 없습니다. 리뷰 ID : " + reviewId));
+
+        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
+
+        List<String> uploadUrls = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(images)) {
+            for (MultipartFile image : images) {
+                String imageUrl = getUploadUrl(image);
+                uploadUrls.add(imageUrl);
+            }
+        }
+
+        for (int i = 0; i < reviewImages.size() && i < uploadUrls.size(); i++) {
+            reviewImages.get(i).updateImageUrl(uploadUrls.get(i));
+        }
+
+        review.updateReview(updateReviewRequest);
+        log.info("모든 리뷰 업데이트에 완료하였습니다. 리뷰 ID : {}", reviewId);
+    }
+
+    @Override
+    public void deleteReviewByReviewId(Long reviewId) {
+        reviewRepository.deleteByReviewId(reviewId);
     }
 
     private String getUploadUrl(MultipartFile image) {

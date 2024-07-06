@@ -44,4 +44,8 @@ public class ReviewImage {
             .reviewImageUrl(imageUrl)
             .build();
     }
+
+    public void updateImageUrl(String imageUrl) {
+        this.reviewImageUrl = imageUrl;
+    }
 }

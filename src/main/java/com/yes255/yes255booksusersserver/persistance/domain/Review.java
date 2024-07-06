@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.persistance.domain;
 
+import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,5 +64,19 @@ public class Review {
         this.reviewImage = reviewImage;
         this.book = book;
         this.user = user;
+    }
+
+    public void updateReview(UpdateReviewRequest updateReviewRequest) {
+        if (updateReviewRequest.message() != null) {
+            this.content = updateReviewRequest.message();
+        }
+
+        if (updateReviewRequest.subject() != null) {
+            this.title = updateReviewRequest.subject();
+        }
+
+        if (updateReviewRequest.rating() != null) {
+            this.rating = updateReviewRequest.rating();
+        }
     }
 }
