@@ -13,18 +13,19 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.Co
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -176,6 +177,7 @@ public class CouponUserServiceImpl implements CouponUserService {
         }
     }
 
+
     // 매일 ??에 한 달 지난 만료된 쿠폰 삭제
     @Transactional
     @Override
@@ -192,4 +194,53 @@ public class CouponUserServiceImpl implements CouponUserService {
 
         couponUserRepository.deleteAll(expiredCoupons);
     }
+
+    @Override
+    @Transactional
+    public void createCouponUserForBirthday(Long userId) {
+        Long birthdayCouponPolicyId = 1L;
+        log.info("Creating birthday coupon for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with id: {}", userId);
+                    return new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now()));
+                });
+
+        log.info("Found user: {}", user);
+
+        ExpiredCouponUserResponse couponUserResponse = couponAdaptor.getCouponExpiredDate(birthdayCouponPolicyId);
+
+        log.info("Coupon expiry date: {}", couponUserResponse.couponExpiredAt());
+
+        couponUserRepository.save(CouponUser.builder()
+                .userCouponType("생일")
+                .userCouponStatus(CouponUser.UserCouponStatus.ACTIVE)
+                .couponExpiredAt(couponUserResponse.couponExpiredAt())
+                .couponId(birthdayCouponPolicyId)
+                .user(user)
+                .build());
+
+        log.info("Birthday coupon created for user: {}", userId);
+    }
+
+    @Override
+    public void createCouponUserForWelcome(Long userId) {
+        // 웰컴 쿠폰 정책 ID를 하드코딩하거나 설정 파일에서 불러옵니다.
+        Long welcomeCouponPolicyId = 2L;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        ExpiredCouponUserResponse couponUserResponse = couponAdaptor.getCouponExpiredDate(welcomeCouponPolicyId);
+
+        couponUserRepository.save(CouponUser.builder()
+                .userCouponType("웰컴")
+                .userCouponStatus(CouponUser.UserCouponStatus.ACTIVE)
+                .couponExpiredAt(couponUserResponse.couponExpiredAt())
+                .couponId(welcomeCouponPolicyId)
+                .user(user)
+                .build());
+    }
+
 }

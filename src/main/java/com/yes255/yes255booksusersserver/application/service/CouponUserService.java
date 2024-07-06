@@ -16,4 +16,9 @@ public interface CouponUserService {
     void checkExpiredCoupon();
 
     void deleteExpiredCoupons();
+
+    void createCouponUserForBirthday(Long userId);
+
+    void createCouponUserForWelcome(Long userId);
+
 }
