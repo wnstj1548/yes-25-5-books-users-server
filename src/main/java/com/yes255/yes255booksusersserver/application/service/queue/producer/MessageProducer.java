@@ -1,9 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service.queue.producer;
 
-import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,12 +11,10 @@ public class MessageProducer {
     private final RabbitTemplate rabbitTemplate;
 
     public void sendBirthdayCouponMessage(Long userId) {
-        rabbitTemplate.convertAndSend("couponExchange", "birthdayCoupon", userId);
+        rabbitTemplate.convertAndSend("yes255CouponExchange", "yes255BirthdayCouponRoutingKey", userId);
     }
 
     public void sendWelcomeCouponMessage(Long userId) {
-        rabbitTemplate.convertAndSend("couponExchange", "welcomeCoupon", userId);
+        rabbitTemplate.convertAndSend("yes255CouponExchange", "yes255WelcomeCouponRoutingKey", userId);
     }
-
-
 }
