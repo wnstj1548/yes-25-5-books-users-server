@@ -78,9 +78,10 @@ public class User {
 
     // 회원 등록 생성자 (전부)
     @Builder
-    public User(Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
+    public User(Long userId, Customer customer, String userName, String userPhone, String userEmail, LocalDate userBirth,
                 UserGrade userGrade, LocalDateTime userRegisterDate, LocalDateTime userLastLoginDate,
                 Provider provider, UserState userState, String userPassword) {
+        this.userId = userId;
 
         this.customer = customer;
         this.userName = userName;

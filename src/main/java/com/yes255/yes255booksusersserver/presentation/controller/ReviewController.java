@@ -34,13 +34,17 @@ public class ReviewController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = "multipart/form-data")
-    public void createReview(@RequestPart("createReviewRequest") String createReviewRequestJson,
+    public ResponseEntity<Void> createReview(@RequestPart("createReviewRequest") String createReviewRequestJson,
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
         @CurrentUser JwtUserDetails jwtUserDetails) {
         CreateReviewRequest createReviewRequest = jsonToRequest(createReviewRequestJson,
             CreateReviewRequest.class);
 
         reviewService.createReview(createReviewRequest, images, jwtUserDetails.userId());
+
+        return ResponseEntity.ok()
+            .headers(addAuthHeaders(jwtUserDetails))
+            .build();
     }
 
     @GetMapping("/books/{bookId}")

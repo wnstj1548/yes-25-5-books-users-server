@@ -138,10 +138,10 @@ public class ReviewServiceImpl implements ReviewService {
                 String imageUrl = getUploadUrl(image);
                 uploadUrls.add(imageUrl);
             }
-        }
 
-        for (int i = 0; i < reviewImages.size() && i < uploadUrls.size(); i++) {
-            reviewImages.get(i).updateImageUrl(uploadUrls.get(i));
+            for (int i = 0; i < reviewImages.size() && i < uploadUrls.size(); i++) {
+                reviewImages.get(i).updateImageUrl(uploadUrls.get(i));
+            }
         }
 
         review.updateReview(updateReviewRequest);
