@@ -63,6 +63,7 @@ public class PointController {
         return new ResponseEntity<>(pointService.updatePointByUserId(userId, pointRequest), HttpStatus.OK);
     }
 
+    @Operation(summary = "포인트 환불 적용", description = "특정 회원의 포인트 환불 적용 및 내역을 갱신합니다.")
     @PatchMapping("/points/refund")
     public ResponseEntity<Void> updatePointsRefund(@RequestBody UpdateRefundRequest refundRequest,
                                                    @CurrentUser JwtUserDetails jwtUserDetails) {
