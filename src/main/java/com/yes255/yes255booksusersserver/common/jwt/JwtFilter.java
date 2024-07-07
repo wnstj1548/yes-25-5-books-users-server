@@ -38,7 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
             "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            "/users/check-email".equals(path) || path.startsWith("/books/search")) {
+            "/users/check-email".equals(path) || path.startsWith("/books/search") ||
+                "/users/coupons/claim".equals(path)) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -2,12 +2,12 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.application.service.UserService;
+import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
@@ -41,10 +41,11 @@ public class UserServiceImpl implements UserService {
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
+    private final JpaPointLogRepository pointLogRepository;
 
-    private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
-    private final CouponAdaptor couponAdaptor;
+
+    private final MessageProducer messageProducer;
 
     // 로그인을 위한 정보 반환
     @Transactional
@@ -136,8 +137,8 @@ public class UserServiceImpl implements UserService {
 
         // 회원 가입 시 고객 ID(권한) 부여
         Customer customer = customerRepository.save(Customer.builder()
-                                                            .userRole("MEMBER")
-                                                            .build());
+                .userRole("MEMBER")
+                .build());
 
         // Local 제공자
         Provider provider = providerRepository.findByProviderName("LOCAL");
@@ -180,35 +181,38 @@ public class UserServiceImpl implements UserService {
 
         // 최초 회원 등급 이력 작성
         userGradeLogRepository.save(UserGradeLog.builder()
-                        .userGradeUpdatedAt(LocalDate.now())
-                        .userGrade(userGrade)
-                        .user(user)
-                        .build());
+                .userGradeUpdatedAt(LocalDate.now())
+                .userGrade(userGrade)
+                .user(user)
+                .build());
 
-//        // 회원 총 구매 금액 테이블 생성
-//        UserTotalAmount userTotalAmount = totalAmountRepository.save(UserTotalAmount.builder()
-//                .user(user)
-//                .userTotalAmount(BigDecimal.valueOf(0))
-//                .build());
-      
         // 회원 장바구니 생성
         Cart cart = cartRepository.save(Cart.builder()
-                        .cartCreatedAt(LocalDate.now())
-                        .customer(customer)
-                        .build());
+                .cartCreatedAt(LocalDate.now())
+                .customer(customer)
+                .build());
 
         // 회원 포인트 생성
         Point point = pointRepository.save(Point.builder()
-                        .pointCurrent(BigDecimal.valueOf(0))
-                        .user(user)
-                        .build());
+                .pointCurrent(BigDecimal.valueOf(0))
+                .user(user)
+                .build());
 
         // 만약 회원가입 정책이 존재한다면 회원 가입 포인트 지급
         PointPolicy singUpPolicy = pointPolicyRepository.findByPointPolicyName("SIGN-UP");
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
+
+            pointLogRepository.save(PointLog.builder()
+                            .point(point)
+                            .pointLogUpdatedType(singUpPolicy.getPointPolicyCondition())
+                            .pointLogAmount(singUpPolicy.getPointPolicyApplyAmount())
+                            .pointLogUpdatedAt(LocalDateTime.now())
+                            .build());
         }
+
+        messageProducer.sendWelcomeCouponMessage(user.getUserId());
 
         log.info("User : {}", user);
 
@@ -346,8 +350,18 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    // 가입 이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return userRepository.existsByUserEmail(email);
     }
+
+    @Override
+    public List<Long> findUserIdsWithBirthdaysInCurrentMonth() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        return userRepository.findUsersByBirthMonth(currentMonth).stream()
+                .map(User::getUserId)
+                .collect(Collectors.toList());
+    }
+
 }
