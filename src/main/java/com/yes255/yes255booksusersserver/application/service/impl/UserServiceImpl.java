@@ -8,7 +8,6 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
@@ -42,10 +41,9 @@ public class UserServiceImpl implements UserService {
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
+    private final JpaPointLogRepository pointLogRepository;
 
-    private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
-    private final CouponAdaptor couponAdaptor;
 
     private final MessageProducer messageProducer;
 
@@ -205,6 +203,13 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
+
+            pointLogRepository.save(PointLog.builder()
+                            .point(point)
+                            .pointLogUpdatedType(singUpPolicy.getPointPolicyCondition())
+                            .pointLogAmount(singUpPolicy.getPointPolicyApplyAmount())
+                            .pointLogUpdatedAt(LocalDateTime.now())
+                            .build());
         }
 
         messageProducer.sendWelcomeCouponMessage(user.getUserId());
@@ -345,6 +350,7 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    // 가입 이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return userRepository.existsByUserEmail(email);

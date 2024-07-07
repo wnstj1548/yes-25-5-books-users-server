@@ -9,6 +9,7 @@ import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCouponUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
@@ -117,10 +118,6 @@ public class CouponUserServiceImpl implements CouponUserService {
         // 회원의 사용된 쿠폰 리스트 가져오기
         List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(userId, userCouponStatus);
 
-//        if (couponUsers.isEmpty()) {
-//            throw new CouponUserException(ErrorStatus.toErrorStatus("사용된 회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
-//        }
-
         List<Long> couponIds = couponUsers.stream()
                 .map(CouponUser::getCouponId)
                 .collect(Collectors.toList());
@@ -158,6 +155,23 @@ public class CouponUserServiceImpl implements CouponUserService {
         return new PageImpl<>(couponBoxResponses, pageable, couponBoxResponses.size());
     }
 
+    // 주문 서버로부터 쿠폰 사용 처리
+    @Override
+    public void updateCouponState(Long userId, UpdateCouponRequest couponRequest) {
+
+        CouponUser couponUser = couponUserRepository.findByCouponIdAndUserUserId(couponRequest.couponId(), userId)
+                .orElseThrow(() -> new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        if (couponRequest.operationType().equals("use")) {
+            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.USED);
+        }
+        else if (couponRequest.operationType().equals("rollback")) {
+            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.ACTIVE);
+        }
+
+        couponUserRepository.save(couponUser);
+    }
+
     // 매일 자정에 쿠폰 만료 여부 체크
     @Transactional
     @Override
@@ -180,8 +194,7 @@ public class CouponUserServiceImpl implements CouponUserService {
         }
     }
 
-
-    // 매일 ??에 한 달 지난 만료된 쿠폰 삭제
+    // 매일 에 한 달 지난 만료된 쿠폰 삭제
     @Transactional
     @Override
     public void deleteExpiredCoupons() {
