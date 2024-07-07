@@ -272,4 +272,10 @@ public class BookController {
     public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable));
     }
+
+    @Operation(summary = "카테고리로 정렬된 책 조회", description = "카테고리 아이디로 해당 카테고리인 책들을 정렬하여 조회합니다.")
+    @GetMapping("/books/category/{categoryId}/page/sort")
+    public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable, String sort) {
+        return ResponseEntity.ok(bookService.getBookByCategoryIdSorted(categoryId, pageable, sort));
+    }
 }

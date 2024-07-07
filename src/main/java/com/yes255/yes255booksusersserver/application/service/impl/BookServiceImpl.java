@@ -12,9 +12,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponRes
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,6 +80,41 @@ public class BookServiceImpl implements BookService {
     public Page<BookResponse> getAllBooks(Pageable pageable) {
 
         Page<Book> bookPage = jpaBookRepository.findByBookIsDeletedFalse(pageable);
+        List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
+
+        return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<BookResponse> getAllBooksSorted(Pageable pageable, String sort) {
+
+        Sort sortOption;
+
+        switch(sort) {
+            case "new-product":
+                sortOption = Sort.by("bookPublishDate").descending();
+                break;
+            case "low-price":
+                sortOption = Sort.by("bookSellingPrice");
+                break;
+            case "high-price":
+                sortOption = Sort.by("bookSellingPrice").descending();
+                break;
+//            case "grade" :
+//                sortOption = Sort.by("grade").descending();
+//                break;
+            case "review":
+                sortOption = Sort.by("reviewCount").descending();
+                break;
+            case "popularity":
+            default:
+                sortOption = Sort.by("hitsCount").descending();
+                break;
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOption);
+        Page<Book> bookPage = jpaBookRepository.findByBookIsDeletedFalse(sortedPageable);
         List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
 
         return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
@@ -159,6 +192,51 @@ public class BookServiceImpl implements BookService {
                 ));
 
         Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
+
+        List<BookResponse> bookList = bookCategoryPage.getContent().stream()
+                .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
+                .map(bookCategory -> toResponse(bookCategory.getBook()))
+                .toList();
+
+        return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
+    }
+
+    @Transactional
+    @Override
+    public Page<BookResponse> getBookByCategoryIdSorted(Long categoryId, Pageable pageable, String sort) {
+
+        Category category = jpaCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
+                ));
+
+        Sort sortOption;
+
+        switch(sort) {
+            case "new-product":
+                sortOption = Sort.by("bookPublishDate").descending();
+                break;
+            case "low-price":
+                sortOption = Sort.by("bookSellingPrice");
+                break;
+            case "high-price":
+                sortOption = Sort.by("bookSellingPrice").descending();
+                break;
+//            case "grade" :
+//                sortOption = Sort.by("grade").descending();
+//                break;
+            case "review":
+                sortOption = Sort.by("reviewCount").descending();
+                break;
+            case "popularity":
+            default:
+                sortOption = Sort.by("hitsCount").descending();
+                break;
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOption);
+
+        Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, sortedPageable);
 
         List<BookResponse> bookList = bookCategoryPage.getContent().stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())

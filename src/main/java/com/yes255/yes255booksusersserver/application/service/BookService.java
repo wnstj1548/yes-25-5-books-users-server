@@ -22,6 +22,8 @@ public interface BookService {
 
     Page<BookResponse> getAllBooks(Pageable pageable);
 
+    Page<BookResponse> getAllBooksSorted(Pageable pageable, String sort);
+
     List<BookResponse> getAllBooks();
 
     BookResponse updateBook(UpdateBookRequest updateBookRequest);
@@ -31,6 +33,8 @@ public interface BookService {
     List<BookResponse> getBookByCategoryId(Long categoryId);
 
     Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable);
+
+    Page<BookResponse> getBookByCategoryIdSorted(Long categoryId, Pageable pageable, String sort);
 
     List<BookCouponResponse> getBookByName(String name);
 }
