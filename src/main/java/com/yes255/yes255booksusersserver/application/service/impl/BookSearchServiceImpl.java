@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 @Slf4j
+@Transactional
 public class BookSearchServiceImpl implements BookSearchService {
 
     private final BookElasticSearchRepository bookElasticSearchRepository;
@@ -48,14 +50,6 @@ public class BookSearchServiceImpl implements BookSearchService {
 
         return result.map(BookIndexResponse::fromIndex);
     }
-
-//    @Override
-//    public List<BookIndexResponse> searchBookByName(String keyword) {
-//
-//        List<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(keyword);
-//
-//        return result.stream().map(BookIndexResponse::fromIndex).toList();
-//    }
 
     @Override
     public Page<BookIndexResponse> searchBookByDescription(String keyword, Pageable pageable) {
