@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 @Getter

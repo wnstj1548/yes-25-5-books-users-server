@@ -3,8 +3,6 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yes255.yes255booksusersserver.application.service.LikesService;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateLikesRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateLikesRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -24,8 +22,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -96,19 +92,4 @@ public class LikesControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
     }
-
-//    @DisplayName("좋아요 상태 업데이트 - 성공")
-//    @Test
-//    void update_success() throws Exception {
-//        LikesResponse mockResponse = new LikesResponse(1L, 1L, 1L, false);
-//
-//        doReturn(mockResponse).when(likesService).updateLikeStatus(anyLong(), anyLong());
-//
-//        mockMvc.perform(put("/books/likes")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .param("bookId", String.valueOf(1L))
-//                        .param("userId", String.valueOf(1L)))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-//    }
 }
