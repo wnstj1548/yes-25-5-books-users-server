@@ -164,9 +164,11 @@ public class CouponUserServiceImpl implements CouponUserService {
 
         if (couponRequest.operationType().equals("use")) {
             couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.USED);
+            couponUser.updateCouponUsedAt(LocalDate.now());
         }
         else if (couponRequest.operationType().equals("rollback")) {
             couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.ACTIVE);
+            couponUser.updateCouponUsedAt(null);
         }
 
         couponUserRepository.save(couponUser);
