@@ -10,6 +10,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UnlockDormantRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final JpaUserRepository userRepository;
@@ -64,7 +66,12 @@ public class UserServiceImpl implements UserService {
             throw new UserException(ErrorStatus.toErrorStatus("탈퇴한 회원입니다.", 400, LocalDateTime.now()));
         }
 
-        if (user.getUserLastLoginDate() != null && user.getUserLastLoginDate().isBefore(LocalDateTime.now().minusMonths(3))) {
+        if (user.getUserState().getUserStateName().equals("INACTIVE")) {
+            throw new ApplicationException(
+                ErrorStatus.toErrorStatus("회원이 휴면처리되었습니다.", 403, LocalDateTime.now()));
+        }
+
+        if ((user.getUserLastLoginDate() != null && user.getUserLastLoginDate().isBefore(LocalDateTime.now().minusMonths(3)))) {
             inactiveStateService.updateInActiveState(user.getUserId());
             throw new ApplicationException(
                 ErrorStatus.toErrorStatus("회원이 휴면처리되었습니다.", 403, LocalDateTime.now()));
@@ -370,6 +377,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUsersByBirthMonth(currentMonth).stream()
                 .map(User::getUserId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void unLockDormantStateByEmail(UnlockDormantRequest request) {
+        User user = userRepository.findByUserEmail(request.email());
+        UserState userState = userStateRepository.findByUserStateName("ACTIVE");
+
+        user.updateLastLoginDate();
+        user.updateUserState(userState);
     }
 
 }

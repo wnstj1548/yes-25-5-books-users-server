@@ -6,6 +6,7 @@ import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UnlockDormantRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -152,5 +153,13 @@ public class UserController {
     @GetMapping("/users/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
         return ResponseEntity.ok(userService.isEmailDuplicate(email));
+    }
+
+    @Operation(summary = "휴면 해제", description = "이메일을 입력받아 휴면을 해제합니다.")
+    @PutMapping("/users/dormant")
+    public ResponseEntity<Void> unLockDormantState(@RequestBody UnlockDormantRequest request) {
+        userService.unLockDormantStateByEmail(request);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -32,6 +32,7 @@ public class SecurityConfig {
                     .requestMatchers("/books/**").permitAll()
                         .requestMatchers("/swagger/**").permitAll()
                     .requestMatchers("/users/cart-books").permitAll()
+                    .requestMatchers("/users/dormant").permitAll()
                     .requestMatchers("/books/likes/**").authenticated()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
