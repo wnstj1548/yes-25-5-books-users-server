@@ -13,4 +13,7 @@ public interface OrderAdaptor {
 
     @GetMapping("/logs")
     List<OrderLogResponse> getOrderLogs(LocalDate date);
+
+    @GetMapping("/exist")
+    boolean existOrderHistory();
 }
