@@ -20,7 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -198,7 +201,7 @@ public class CouponUserServiceImpl implements CouponUserService {
     @Override
     @Transactional
     public void createCouponUserForBirthday(Long userId) {
-        Long birthdayCouponPolicyId = 1L;
+        Long birthdayCouponPolicyId = 2L;
         log.info("Creating birthday coupon for user: {}", userId);
 
         User user = userRepository.findById(userId)
@@ -209,14 +212,18 @@ public class CouponUserServiceImpl implements CouponUserService {
 
         log.info("Found user: {}", user);
 
-        ExpiredCouponUserResponse couponUserResponse = couponAdaptor.getCouponExpiredDate(birthdayCouponPolicyId);
+        // 이번 달의 첫 날과 마지막 날 계산
+        LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
+        LocalDate lastDayOfMonth = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth());
 
-        log.info("Coupon expiry date: {}", couponUserResponse.couponExpiredAt());
+        Date couponExpiredAt = Date.from(lastDayOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        log.info("Calculated coupon expiry date: {}", couponExpiredAt);
 
         couponUserRepository.save(CouponUser.builder()
                 .userCouponType("생일")
                 .userCouponStatus(CouponUser.UserCouponStatus.ACTIVE)
-                .couponExpiredAt(couponUserResponse.couponExpiredAt())
+                .couponExpiredAt(couponExpiredAt)
                 .couponId(birthdayCouponPolicyId)
                 .user(user)
                 .build());
@@ -225,22 +232,29 @@ public class CouponUserServiceImpl implements CouponUserService {
     }
 
     @Override
+    @Transactional
     public void createCouponUserForWelcome(Long userId) {
-        // 웰컴 쿠폰 정책 ID를 하드코딩하거나 설정 파일에서 불러옵니다.
-        Long welcomeCouponPolicyId = 2L;
+        Long welcomeCouponPolicyId = 1L;
+        int welcomeCouponValidDays = 30;
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
-        ExpiredCouponUserResponse couponUserResponse = couponAdaptor.getCouponExpiredDate(welcomeCouponPolicyId);
+        Date couponExpiredAt = calculateExpiryDate(welcomeCouponValidDays);
 
         couponUserRepository.save(CouponUser.builder()
                 .userCouponType("웰컴")
                 .userCouponStatus(CouponUser.UserCouponStatus.ACTIVE)
-                .couponExpiredAt(couponUserResponse.couponExpiredAt())
+                .couponExpiredAt(couponExpiredAt)
                 .couponId(welcomeCouponPolicyId)
                 .user(user)
                 .build());
+    }
+
+    private Date calculateExpiryDate(int validDays) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, validDays);
+        return calendar.getTime();
     }
 
 }
