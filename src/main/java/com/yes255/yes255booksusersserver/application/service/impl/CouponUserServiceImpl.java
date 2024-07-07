@@ -13,6 +13,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.Upd
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ReadUserCouponResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -272,4 +273,42 @@ public class CouponUserServiceImpl implements CouponUserService {
         return calendar.getTime();
     }
 
+    // 특정 회원의 모든 쿠폰 목록 조회 (만료일자 기준 오름차순)
+    @Override
+    public List<ReadUserCouponResponse> getAllUserCouponsByUserId(Long userId) {
+
+        // 회원 쿠폰 리스트 가져오기
+        List<CouponUser> couponUsers = couponUserRepository.findByUserUserId(userId);
+
+        if (couponUsers.isEmpty()) {
+            throw new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        List<Long> couponIds = couponUsers.stream()
+                .map(CouponUser::getCouponId)
+                .collect(Collectors.toList());
+
+        List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
+
+        // CouponInfoResponse를 매핑하기 위한 Map 생성
+        Map<Long, CouponInfoResponse> couponInfoMap = couponInfoResponses.stream()
+                .collect(Collectors.toMap(CouponInfoResponse::couponId, Function.identity()));
+
+        // ReadUserCouponResponse로 변환 및 만료일자 기준으로 정렬
+        return couponUsers.stream()
+                .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
+                .map(couponUser -> {
+                    CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
+                    return ReadUserCouponResponse.builder()
+                            .userCouponId(couponUser.getUserCouponId())
+                            .CouponExpiredAt(couponUser.getCouponExpiredAt())
+                            .couponId(couponUser.getCouponId())
+                            .couponName(couponInfoResponse.couponName())
+                            .couponMinAmount(couponInfoResponse.couponMinAmount())
+                            .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
+                            .couponDiscountRate(couponInfoResponse.couponDiscountRate())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
 }
