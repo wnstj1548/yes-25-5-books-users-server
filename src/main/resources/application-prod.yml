@@ -1,4 +1,23 @@
 spring:
+  rabbitmq:
+    host: 133.186.241.167
+    port: 5672
+    username: admin
+    password: ${RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 1.5
+        default-requeue-rejected: false
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        multiplier: 1.5
   data:
     elasticsearch:
       username: elastic
