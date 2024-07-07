@@ -26,7 +26,6 @@ public record CreateBookRequest(
 
         String bookPublisher,
 
-        @PastOrPresent(message = "출판 일자는 미래일 수 없습니다.")
         Date bookPublishDate,
 
         @NotNull(message = "책 가격은 필수 입력 항목입니다.")

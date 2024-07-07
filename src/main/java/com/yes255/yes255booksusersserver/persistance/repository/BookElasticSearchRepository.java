@@ -13,7 +13,7 @@ public interface BookElasticSearchRepository extends ElasticsearchRepository<Boo
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_name\": \"*?0*\"}}]}}")
     Page<BookIndex> findByBookNameContainsIgnoreCase(String keyword, Pageable pageable);
 
-    List<BookIndex> findByBookNameContainsIgnoreCase(String keyword);
+//    List<BookIndex> findByBookNameContainsIgnoreCase(String keyword);
 
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_description\": \"*?0*\"}}]}}")
     Page<BookIndex> findByBookDescriptionContainsIgnoreCase(String bookDescription, Pageable pageable);
@@ -24,13 +24,17 @@ public interface BookElasticSearchRepository extends ElasticsearchRepository<Boo
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"tags\": \"*?0*\"}}]}}")
     Page<BookIndex> findByTagsContainingIgnoreCase(String tagName, Pageable pageable);
 
+    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"categories\": \"*?0*\"}}]}}")
+    Page<BookIndex> findByCategoriesContainingIgnoreCase(String categoryName, Pageable pageable);
+
     @Query("{\"multi_match\": {" +
             "\"query\": \"?0\", " +
             "\"fields\": [" +
             "\"book_name^2\", " +
             "\"book_description^1.5\", " +
             "\"tags\", " +
-            "\"authors^1.5\"" +
+            "\"authors^1.5\", " +
+            "\"categories^2\"" +
             "]" +
             "}}")
     Page<BookIndex> searchAllFields(String query, Pageable pageable);

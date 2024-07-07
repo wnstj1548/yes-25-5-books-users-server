@@ -42,49 +42,57 @@ public class BookSearchServiceImpl implements BookSearchService {
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     @Override
-    public Page<BookIndexResponse> searchBookByNamePaging(BookSearchRequest request, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByNamePaging(String keyword, Pageable pageable) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(request.keyword(), pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(keyword, pageable);
+
+        return result.map(BookIndexResponse::fromIndex);
+    }
+
+//    @Override
+//    public List<BookIndexResponse> searchBookByName(String keyword) {
+//
+//        List<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(keyword);
+//
+//        return result.stream().map(BookIndexResponse::fromIndex).toList();
+//    }
+
+    @Override
+    public Page<BookIndexResponse> searchBookByDescription(String keyword, Pageable pageable) {
+
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainsIgnoreCase(keyword, pageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public List<BookIndexResponse> searchBookByName(BookSearchRequest request) {
+    public Page<BookIndexResponse> searchBookByTagName(String keyword, Pageable pageable) {
 
-        List<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(request.keyword());
-
-        return result.stream().map(BookIndexResponse::fromIndex).toList();
-    }
-
-    @Override
-    public Page<BookIndexResponse> searchBookByDescription(BookSearchRequest request, Pageable pageable) {
-
-        Page<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainsIgnoreCase(request.keyword(), pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByTagsContainingIgnoreCase(keyword, pageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public Page<BookIndexResponse> searchBookByTagName(BookSearchRequest request, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByAuthorName(String keyword, Pageable pageable) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.findByTagsContainingIgnoreCase(request.keyword(), pageable);
-
-        return result.map(BookIndexResponse::fromIndex);
-    }
-
-    @Override
-    public Page<BookIndexResponse> searchBookByAuthorName(BookSearchRequest request, Pageable pageable) {
-
-        Page<BookIndex> result = bookElasticSearchRepository.findByAuthorsContainingIgnoreCase(request.keyword(), pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByAuthorsContainingIgnoreCase(keyword, pageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public Page<BookIndexResponse> searchAll(BookSearchRequest request, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByCategoryName(String keyword, Pageable pageable) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.searchAllFields(request.keyword(), pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByCategoriesContainingIgnoreCase(keyword, pageable);
+
+        return result.map(BookIndexResponse::fromIndex);
+    }
+
+    @Override
+    public Page<BookIndexResponse> searchAll(String keyword, Pageable pageable) {
+
+        Page<BookIndex> result = bookElasticSearchRepository.searchAllFields(keyword, pageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }

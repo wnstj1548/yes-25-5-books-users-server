@@ -1,6 +1,2 @@
-GET localhost:8061/books/searchAll
+GET localhost:8061/books/searchByName?keyword=스프링
 Content-Type: application/json
-
-{
-  "keyword": "하하"
-}
