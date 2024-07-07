@@ -45,3 +45,7 @@ Content-Type: application/json
 ### 책 삭제하기
 DELETE localhost:8061/books/1
 Content-Type: application/json
+
+###
+GET localhost:8061/books/category/1/page?sortString=high-price
+Content-Type: application/json

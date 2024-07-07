@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -184,7 +185,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable) {
+    public Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable, String sortString) {
 
         Category category = jpaCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ApplicationException(
@@ -193,54 +194,34 @@ public class BookServiceImpl implements BookService {
 
         Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
 
-        List<BookResponse> bookList = bookCategoryPage.getContent().stream()
-                .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
-                .map(bookCategory -> toResponse(bookCategory.getBook()))
-                .toList();
+        Comparator comparator;
 
-        return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
-    }
-
-    @Transactional
-    @Override
-    public Page<BookResponse> getBookByCategoryIdSorted(Long categoryId, Pageable pageable, String sort) {
-
-        Category category = jpaCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ApplicationException(
-                        ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
-                ));
-
-        Sort sortOption;
-
-        switch(sort) {
+        switch(sortString) {
             case "new-product":
-                sortOption = Sort.by("bookPublishDate").descending();
+                comparator = Comparator.comparing(BookResponse::bookPublishDate).reversed();
                 break;
             case "low-price":
-                sortOption = Sort.by("bookSellingPrice");
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
                 break;
             case "high-price":
-                sortOption = Sort.by("bookSellingPrice").descending();
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
                 break;
 //            case "grade" :
-//                sortOption = Sort.by("grade").descending();
+//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
 //                break;
             case "review":
-                sortOption = Sort.by("reviewCount").descending();
+                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
                 break;
             case "popularity":
             default:
-                sortOption = Sort.by("hitsCount").descending();
+                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
                 break;
         }
-
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOption);
-
-        Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, sortedPageable);
 
         List<BookResponse> bookList = bookCategoryPage.getContent().stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
                 .map(bookCategory -> toResponse(bookCategory.getBook()))
+                .sorted(comparator)
                 .toList();
 
         return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
