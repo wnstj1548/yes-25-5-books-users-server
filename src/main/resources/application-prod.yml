@@ -24,7 +24,7 @@ spring:
       password: nhnacademy123!
       repositories:
         enabled: true
-      url: 115.94.72.198:9200
+      url: 133.186.153.195:9200
 
   application:
     name: book-user-server
