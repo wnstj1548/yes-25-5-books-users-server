@@ -159,7 +159,7 @@ public class CouponUserServiceImpl implements CouponUserService {
     @Override
     public void updateCouponState(Long userId, UpdateCouponRequest couponRequest) {
 
-        CouponUser couponUser = couponUserRepository.findByCouponIdAndUserUserId(couponRequest.couponId(), userId)
+        CouponUser couponUser = couponUserRepository.findByUserCouponIdAndUserUserId(couponRequest.userCouponId(), userId)
                 .orElseThrow(() -> new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         if (couponRequest.operationType().equals("use")) {

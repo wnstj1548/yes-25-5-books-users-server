@@ -20,5 +20,5 @@ public interface JpaCouponUserRepository extends JpaRepository<CouponUser, Long>
 
     List<CouponUser> findByUserCouponStatusAndCouponExpiredAtBefore(CouponUser.UserCouponStatus userCouponStatus, Date date);
 
-    Optional<CouponUser> findByCouponIdAndUserUserId(Long couponId, Long userId);
+    Optional<CouponUser> findByUserCouponIdAndUserUserId(Long userCouponId, Long userId);
 }
