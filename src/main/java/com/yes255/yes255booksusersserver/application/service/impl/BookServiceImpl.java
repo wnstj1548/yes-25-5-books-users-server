@@ -194,7 +194,7 @@ public class BookServiceImpl implements BookService {
                         ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
                 ));
 
-        Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
         Comparator comparator;
 
@@ -220,15 +220,18 @@ public class BookServiceImpl implements BookService {
                 break;
         }
 
-        List<BookResponse> bookList = bookCategoryPage.getContent().stream()
+        List<BookResponse> bookList = bookCategoryList.stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
                 .map(bookCategory -> toResponse(bookCategory.getBook()))
                 .sorted(comparator)
                 .toList();
 
-        log.info("bookList : {}", bookList);
 
-        return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), bookList.size());
+        List<BookResponse> paginatedList = bookList.subList(start, end);
+
+        return new PageImpl<>(paginatedList, pageable, bookList.size());
     }
 
     @Override
