@@ -64,6 +64,7 @@ jobs:
           ORDER_PAYMENT_SERVER: ${{ secrets.ORDER_PAYMENT_SERVER }}
           COUPON_SERVER: ${{ secrets.COUPON_SERVER }}
           JWT_SECRET: ${{secrets.JWT_SECRET}}
+          RABBITMQ_PASSWORD : ${{secrets.RABBITMQ_PASSWORD}}
         run: |
           ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
             cd ${REMOTE_DIR}
@@ -83,6 +84,7 @@ jobs:
               -e AUTH_SERVER=${AUTH_SERVER} \
               -e COUPON_SERVER=${COUPON_SERVER} \
               -e JWT_SECRET=${JWT_SECRET} \
+              -e RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD} \
               books-users-app
           EOF
 
