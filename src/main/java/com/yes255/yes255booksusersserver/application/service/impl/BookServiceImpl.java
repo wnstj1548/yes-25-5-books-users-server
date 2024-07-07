@@ -12,6 +12,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponRes
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final JpaBookRepository jpaBookRepository;
@@ -223,6 +225,8 @@ public class BookServiceImpl implements BookService {
                 .map(bookCategory -> toResponse(bookCategory.getBook()))
                 .sorted(comparator)
                 .toList();
+
+        log.info("bookList : {}", bookList);
 
         return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
     }
