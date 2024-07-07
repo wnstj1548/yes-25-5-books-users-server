@@ -17,7 +17,7 @@ spring:
         max-attempts: 3
         multiplier: 1.5
     username: admin
-    password: nhnacademy123!
+    password: ${RABBITMQ_PASSWORD}
   data:
     elasticsearch:
       username: elastic
