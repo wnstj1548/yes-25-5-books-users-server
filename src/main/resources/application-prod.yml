@@ -1,11 +1,30 @@
 spring:
+  rabbitmq:
+    host: 133.186.241.167
+    port: 5672
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 1.5
+        default-requeue-rejected: false
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        multiplier: 1.5
+    username: admin
+    password: ${RABBITMQ_PASSWORD}
   data:
     elasticsearch:
       username: elastic
       password: nhnacademy123!
       repositories:
         enabled: true
-      url: 115.94.72.198:9200
+      url: 133.186.153.195:9200
 
   application:
     name: book-user-server

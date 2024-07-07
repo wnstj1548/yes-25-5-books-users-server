@@ -38,7 +38,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
             "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            "/users/check-email".equals(path)) {
+            "/users/check-email".equals(path) || path.startsWith("/books/search") ||
+                "/users/coupons/claim".equals(path) || path.startsWith("/books/categories") ||
+                path.startsWith("/books/category") || path.startsWith("/books/books/category") ||
+            path.matches("/books/swagger-ui.html")) {
             filterChain.doFilter(request, response);
             return;
         }

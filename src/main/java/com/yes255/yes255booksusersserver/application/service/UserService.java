@@ -32,4 +32,6 @@ public interface UserService {
     boolean setUserPasswordByUserId(Long userId, UpdatePasswordRequest passwordRequest);
 
     boolean isEmailDuplicate(String email);
+
+    List<Long> findUserIdsWithBirthdaysInCurrentMonth();
 }

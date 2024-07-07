@@ -63,7 +63,8 @@ public class UserGradeServiceImpl implements UserGradeService {
 
         UserGrade setUserGrade = null;
 
-        List<UserGrade> userGrades = userGradeRepository.findAll();
+        // 포인트 정책이 활성화된 등급만 반환
+        List<UserGrade> userGrades = userGradeRepository.findByPointPolicyPointPolicyState(true);
 
         if (userGrades.isEmpty()) {
             throw new UserGradeException(ErrorStatus.toErrorStatus("회원 등급이 존재하지 않습니다.", 400, LocalDateTime.now()));

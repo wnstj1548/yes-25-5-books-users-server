@@ -1,0 +1,21 @@
+{
+  "analysis": {
+    "analyzer": {
+      "synonym_analyzer": {
+        "tokenizer": "whitespace",
+        "filter": [
+          "lowercase",
+          "synonym"
+        ]
+      }
+    },
+    "filter": {
+      "synonym": {
+        "type": "synonym",
+        "synonyms": [
+          "히히,하하"
+        ]
+      }
+    }
+  }
+}
