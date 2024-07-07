@@ -12,7 +12,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRe
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalAmountRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPureAmountRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateRefundRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.point.UpdatePointRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.point.PointResponse;
@@ -35,7 +35,7 @@ public class PointServiceImpl implements PointService {
     private final JpaPointRepository pointRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointLogRepository pointLogRepository;
-    private final JpaUserTotalAmountRepository totalAmountRepository;
+    private final JpaUserTotalPureAmountRepository totalAmountRepository;
 
     // 포인트 조회
     @Transactional(readOnly = true)

@@ -9,9 +9,11 @@ import com.yes255.yes255booksusersserver.infrastructure.adaptor.OrderAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
 import com.yes255.yes255booksusersserver.persistance.domain.UserGradeLog;
+import com.yes255.yes255booksusersserver.persistance.domain.UserTotalPureAmount;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPureAmountRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.response.OrderLogResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.usergrade.UserGradeResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class UserGradeServiceImpl implements UserGradeService {
     final JpaUserRepository userRepository;
     final JpaUserGradeRepository userGradeRepository;
     final JpaUserGradeLogRepository userGradeLogRepository;
+    final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
 
     final OrderAdaptor orderAdaptor;
 
@@ -104,8 +107,8 @@ public class UserGradeServiceImpl implements UserGradeService {
     }
 
     // 매달 1일 마다 확인
-    @Scheduled(cron = "0 0 0 1 * ?")
-    public void processMonthlyGrades() {
+    @Override
+    public void updateMonthlyGrades() {
         LocalDate currentDate = LocalDate.now();
 
         // 주문 서버로부터 3개월 치 순수 금액 내역 반환
@@ -117,6 +120,12 @@ public class UserGradeServiceImpl implements UserGradeService {
                     .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
             updateUserGrade(user, orderLogResponse.purePrice(), currentDate);
+
+            // 3개월 치 순수 주문 금액 기록
+            userTotalPureAmountRepository.save(UserTotalPureAmount.builder()
+                            .userTotalPureAmount(orderLogResponse.purePrice())
+                            .user(user)
+                            .build());
         }
     }
 }

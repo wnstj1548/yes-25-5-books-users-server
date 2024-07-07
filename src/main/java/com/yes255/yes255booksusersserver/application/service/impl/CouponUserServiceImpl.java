@@ -196,7 +196,7 @@ public class CouponUserServiceImpl implements CouponUserService {
         }
     }
 
-    // 매일 에 한 달 지난 만료된 쿠폰 삭제
+    // 매일 자정에 한 달 지난 만료된 쿠폰 삭제
     @Transactional
     @Override
     public void deleteExpiredCoupons() {

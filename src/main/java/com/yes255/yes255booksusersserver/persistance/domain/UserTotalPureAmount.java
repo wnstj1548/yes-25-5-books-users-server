@@ -8,11 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class UserTotalAmount {
+public class UserTotalPureAmount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,19 +21,24 @@ public class UserTotalAmount {
 
     @NotNull(message = "유저 누적 금액은 필수입니다.")
     @Column(nullable = false)
-    private BigDecimal userTotalAmount;
+    private BigDecimal userTotalPureAmount;
+
+    @NotNull(message = "유저 총 순수금액 기록일은 필수입니다.")
+    @Column(nullable = false)
+    private LocalDate userTotalPureAmountRecordedAt;
 
     @OneToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
     @Builder
-    public UserTotalAmount(BigDecimal userTotalAmount, User user) {
-        this.userTotalAmount = userTotalAmount;
+    public UserTotalPureAmount(BigDecimal userTotalPureAmount, User user) {
+        this.userTotalPureAmount = userTotalPureAmount;
+        this.userTotalPureAmountRecordedAt = LocalDate.now();
         this.user = user;
     }
 
-    public void updateTotalAmount(BigDecimal totalAmount) {
-        this.userTotalAmount = this.userTotalAmount.add(totalAmount);
+    public void updateTotalPureAmount(BigDecimal totalAmount) {
+        this.userTotalPureAmount = this.userTotalPureAmount.add(totalAmount);
     }
 }

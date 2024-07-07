@@ -2,8 +2,8 @@ package com.yes255.yes255booksusersserver.common.exception;
 
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 
-public class UserTotalAmountException extends ApplicationException{
-    public UserTotalAmountException(ErrorStatus errorStatus) {
+public class UserTotalPureAmountException extends ApplicationException{
+    public UserTotalPureAmountException(ErrorStatus errorStatus) {
         super(errorStatus);
     }
 }

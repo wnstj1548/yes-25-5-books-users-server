@@ -1,4 +1,4 @@
-package com.yes255.yes255booksusersserver.application.service.impl;
+package com.yes255.yes255booksusersserver.application.service.scheduler;
 
 import com.yes255.yes255booksusersserver.application.service.UserStateService;
 import lombok.RequiredArgsConstructor;
