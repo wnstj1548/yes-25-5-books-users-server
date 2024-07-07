@@ -2,8 +2,6 @@ spring:
   rabbitmq:
     host: 133.186.241.167
     port: 5672
-    username: admin
-    password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
         retry:
@@ -18,6 +16,8 @@ spring:
         initial-interval: 1000
         max-attempts: 3
         multiplier: 1.5
+    username: admin
+    password: ${RABBITMQ_PASSWORD}
   data:
     elasticsearch:
       username: elastic
