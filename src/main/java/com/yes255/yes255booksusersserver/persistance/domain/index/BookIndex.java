@@ -3,13 +3,9 @@ package com.yes255.yes255booksusersserver.persistance.domain.index;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -17,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "yes255_book")
+@Document(indexName = "yes255_book", createIndex = true)
+@Setting(settingPath = "/elasticsearch/settings/settings.json")
 public class BookIndex {
 
     @Id
@@ -27,10 +24,10 @@ public class BookIndex {
     @Field(name = "book_isbn", type = FieldType.Keyword)
     private String bookIsbn;
 
-    @Field(name = "book_name", type = FieldType.Text)
+    @Field(name = "book_name", type = FieldType.Text, analyzer = "synonym_analyzer")
     private String bookName;
 
-    @Field(name = "book_description", type = FieldType.Text)
+    @Field(name = "book_description", type = FieldType.Text, analyzer = "synonym_analyzer")
     private String bookDescription;
 
     @Field(name = "book_publisher", type = FieldType.Text)
@@ -63,13 +60,19 @@ public class BookIndex {
     @Field(name = "book_is_packable", type = FieldType.Boolean)
     private boolean bookIsPackable;
 
-    @Field(name = "authors", type = FieldType.Keyword)
+    @Field(name = "book_is_deleted", type = FieldType.Boolean)
+    private boolean bookIsDeleted;
+
+    @Field(name = "authors", type = FieldType.Text, analyzer = "synonym_analyzer")
     private List<String> authors;
 
-    @Field(name = "tags", type = FieldType.Keyword)
+    @Field(name = "tags", type = FieldType.Text, analyzer = "synonym_analyzer")
     private List<String> tags;
 
-    public static BookIndex updateAuthorsAndTags(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags) {
+    @Field(name = "categories", type = FieldType.Text, analyzer = "synonym_analyzer")
+    private List<String> categories;
+
+    public static BookIndex updateAuthorsAndTagsAndCategory(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags, List<CategoryIndex> categories) {
         return BookIndex.builder()
                 .bookId(book.getBookId())
                 .bookIsbn(book.getBookIsbn())
@@ -85,8 +88,10 @@ public class BookIndex {
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .bookIsDeleted(book.isBookIsDeleted())
                 .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
                 .tags(tags.stream().map(TagIndex::getTagName).toList())
+                .categories(categories.stream().map(CategoryIndex::getCategoryName).toList())
                 .build();
     }
 
@@ -106,6 +111,7 @@ public class BookIndex {
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .bookIsDeleted(book.isBookIsDeleted())
                 .build();
     }
 }

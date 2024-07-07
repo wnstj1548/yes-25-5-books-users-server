@@ -31,7 +31,6 @@ public record UpdateBookRequest(
 
         String bookPublisher,
 
-        @PastOrPresent(message = "책 출간일은 미래일 수 없습니다.")
         Date bookPublishDate,
 
         @NotNull(message = "책 가격은 필수 입력 항목입니다.")

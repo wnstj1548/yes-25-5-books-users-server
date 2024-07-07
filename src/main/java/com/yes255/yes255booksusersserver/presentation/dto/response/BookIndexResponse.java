@@ -26,6 +26,7 @@ public record BookIndexResponse(
 )
 {
     public static BookIndexResponse fromIndex(BookIndex bookIndex) {
+
         return BookIndexResponse.builder()
                 .bookId(bookIndex.getBookId())
                 .bookDescription(bookIndex.getBookDescription())
