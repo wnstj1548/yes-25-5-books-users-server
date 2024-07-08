@@ -1,4 +1,23 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 1.5
+        default-requeue-rejected: false
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        multiplier: 1.5
+    username: guest
+    password: guest
   data:
     elasticsearch:
       username: elastic
@@ -6,6 +25,11 @@ spring:
       repositories:
         enabled: true
       url: 115.94.72.198:9200
+    redis:
+      host: 133.186.241.167
+      port: 6379
+      database: 36
+      password: ${YES25_5_REDIS_PASSWORD}
 
   application:
     name: book-user-server
@@ -69,3 +93,4 @@ api:
   auth : http://localhost:8050
 app:
   mode: development
+
