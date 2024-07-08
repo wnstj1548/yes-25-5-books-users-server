@@ -42,8 +42,9 @@ public record CreateUserRequest(String userName,
 
     private static boolean isValidPaycoId(String id) {
         // PAYCO ID의 구체적인 형식에 맞춰 정규식을 조정할 수 있습니다.
-        String paycoIdRegex = "^[a-z; ]{6,30}$";
-        return java.util.regex.Pattern.compile(paycoIdRegex).matcher(id).matches();
+        //String paycoIdRegex = "^[a-z; ]{6,30}$";
+        //return java.util.regex.Pattern.compile(paycoIdRegex).matcher(id).matches();
+        return true;
     }
 
     public User toEntity(Customer customer, Provider provider, UserState userState, UserGrade userGrade) {
