@@ -223,7 +223,6 @@ class ReviewServiceImplTest {
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(reviewRepository.existsByUser_UserIdAndBook_BookIdAndIsActiveTrue(anyLong(), anyLong())).thenReturn(true);
 
         JsonNode fileNode = mock(JsonNode.class);
         when(fileNode.path("url")).thenReturn(fileNode);
@@ -235,6 +234,7 @@ class ReviewServiceImplTest {
 
         ResponseEntity<String> responseEntity = new ResponseEntity<>("{\"file\": {\"url\": \"http://mockurl.com/image.jpg\"}}", HttpStatus.OK);
         when(restTemplate.exchange(anyString(), any(), any(), eq(String.class))).thenReturn(responseEntity);
+        when(pointRepository.findByUser_UserId(anyLong())).thenReturn(point);
 
         // when
         reviewService.createReview(createReviewRequest, images, 1L);
