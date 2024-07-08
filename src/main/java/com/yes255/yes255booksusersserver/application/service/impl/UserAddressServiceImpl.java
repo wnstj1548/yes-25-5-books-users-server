@@ -19,6 +19,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.C
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,26 +143,24 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserAddressResponse> findAllAddresses(Long userId) {
+    public Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable) {
 
-        List<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId);
+        Page<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId, pageable);
 
         if (userAddressList.isEmpty()) {
             throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
-        return userAddressList.stream()
-                .map(userAddress -> UserAddressResponse.builder()
-                        .userAddressId(userAddress.getUserAddressId())
-                        .addressId(userAddress.getAddress().getAddressId())
-                        .addressZip(userAddress.getAddress().getAddressZip())
-                        .addressRaw(userAddress.getAddress().getAddressRaw())
-                        .addressName(userAddress.getAddressName())
-                        .addressDetail(userAddress.getAddressDetail())
-                        .addressBased(userAddress.isAddressBased())
-                        .userId(userId)
-                        .build())
-                .collect(Collectors.toList());
+        return userAddressList.map(userAddress -> UserAddressResponse.builder()
+                .userAddressId(userAddress.getUserAddressId())
+                .addressId(userAddress.getAddress().getAddressId())
+                .addressZip(userAddress.getAddress().getAddressZip())
+                .addressRaw(userAddress.getAddress().getAddressRaw())
+                .addressName(userAddress.getAddressName())
+                .addressDetail(userAddress.getAddressDetail())
+                .addressBased(userAddress.isAddressBased())
+                .userId(userId)
+                .build());
     }
 
     @Transactional

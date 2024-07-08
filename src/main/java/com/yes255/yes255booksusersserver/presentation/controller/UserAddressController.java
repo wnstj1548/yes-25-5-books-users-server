@@ -11,6 +11,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.U
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,11 +91,12 @@ public class UserAddressController {
      */
     @Operation(summary = "회원 주소 목록 조회", description = "회원의 모든 주소 목록을 조회합니다.")
     @GetMapping
-    public ResponseEntity<List<UserAddressResponse>> findAllUserAddresses(@CurrentUser JwtUserDetails jwtUserDetails) {
+    public ResponseEntity<Page<UserAddressResponse>> findAllUserAddresses(Pageable pageable,
+                                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
 
-        return ResponseEntity.ok(userAddressService.findAllAddresses(userId));
+        return ResponseEntity.ok(userAddressService.findAllAddresses(userId, pageable));
     }
 
     /**

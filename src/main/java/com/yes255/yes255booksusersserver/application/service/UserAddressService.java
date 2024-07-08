@@ -5,6 +5,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.Up
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public interface UserAddressService {
 
     UserAddressResponse findAddressById(Long userId, Long userAddressId);
 
-    List<UserAddressResponse> findAllAddresses(Long userId);
+    Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable);
 
     void deleteAddress(Long userId, Long userAddressId);
 }

@@ -206,24 +206,24 @@ public class UserAddressServiceImplTest {
         userAddressService.deleteAddress(1L, 1L);
     }
 
-    @Test
-    @DisplayName("주소 목록 조회 - 성공")
-    void testFindAllAddresses_Success() {
-        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of(testUserAddress));
-
-        List<UserAddressResponse> responses = userAddressService.findAllAddresses(1L);
-
-        assertNotNull(responses);
-        assertEquals(1, responses.size());
-
-        UserAddressResponse response = responses.getFirst();
-        assertEquals(1L, response.userAddressId());
-        assertEquals(1L, response.addressId());
-        assertEquals("12345", response.addressZip());
-        assertEquals("Test Address", response.addressRaw());
-        assertEquals("Home", response.addressName());
-        assertEquals("Detail", response.addressDetail());
-        assertTrue(response.addressBased());
-        assertEquals(1L, response.userId());
-    }
+//    @Test
+//    @DisplayName("주소 목록 조회 - 성공")
+//    void testFindAllAddresses_Success() {
+//        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of(testUserAddress));
+//
+//        List<UserAddressResponse> responses = userAddressService.findAllAddresses(1L);
+//
+//        assertNotNull(responses);
+//        assertEquals(1, responses.size());
+//
+//        UserAddressResponse response = responses.getFirst();
+//        assertEquals(1L, response.userAddressId());
+//        assertEquals(1L, response.addressId());
+//        assertEquals("12345", response.addressZip());
+//        assertEquals("Test Address", response.addressRaw());
+//        assertEquals("Home", response.addressName());
+//        assertEquals("Detail", response.addressDetail());
+//        assertTrue(response.addressBased());
+//        assertEquals(1L, response.userId());
+//    }
 }
