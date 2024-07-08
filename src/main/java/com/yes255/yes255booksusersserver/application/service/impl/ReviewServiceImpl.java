@@ -131,7 +131,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public Page<ReadReviewResponse> getReviewsByPaging(Long bookId, Pageable pageable) {
-        Page<Review> reviews = reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(bookId, pageable);
+        Page<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(bookId, pageable);
 
         return reviews.map(ReadReviewResponse::fromEntity);
     }
@@ -139,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public List<ReadReviewRatingResponse> getReviewRatingsByBookId(Long bookId) {
-        List<Review> reviews = reviewRepository.findAllByBook_BookId(bookId);
+        List<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrue(bookId);
 
         return reviews.stream()
             .map(ReadReviewRatingResponse::fromEntity)
@@ -183,7 +183,28 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
         }
 
-        reviewRepository.deleteByReviewId(review.getReviewId());
+        if (!review.getIsActive()) {
+            throw new AccessDeniedException("이미 삭제한 리뷰입니다.");
+        }
+
+        review.updateIsActive(false);
+        int reviewPoints = review.getReviewImage().isEmpty() ? 200 : 500;
+        deductPoints(userId, reviewPoints);
+
+        log.info("리뷰가 비활성화되었습니다. 리뷰 ID: {}", reviewId);
+    }
+
+    private void deductPoints(Long userId, int points) {
+        Point point = pointRepository.findByUser_UserId(userId);
+        BigDecimal newPointValue = point.getPointCurrent().subtract(BigDecimal.valueOf(points));
+        point.updatePointCurrent(newPointValue);
+
+        pointLogRepository.save(PointLog.builder()
+            .pointLogUpdatedAt(LocalDateTime.now())
+            .pointLogUpdatedType("리뷰 삭제 - 포인트 회수")
+            .pointLogAmount(BigDecimal.valueOf(points))
+            .point(point)
+            .build());
     }
 
     private String getUploadUrl(MultipartFile image) {
