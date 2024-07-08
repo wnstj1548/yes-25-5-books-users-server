@@ -24,13 +24,12 @@ spring:
       password: nhnacademy123!
       repositories:
         enabled: true
-      url: 115.94.72.198:9200
+      url: 133.186.153.195:9200
     redis:
       host: 133.186.241.167
       port: 6379
       database: 36
       password: ${YES25_5_REDIS_PASSWORD}
-      url: 133.186.153.195:9200
 
   application:
     name: book-user-server
