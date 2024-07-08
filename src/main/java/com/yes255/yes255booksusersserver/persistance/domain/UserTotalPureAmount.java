@@ -27,7 +27,7 @@ public class UserTotalPureAmount {
     @Column(nullable = false)
     private LocalDate userTotalPureAmountRecordedAt;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
@@ -36,9 +36,5 @@ public class UserTotalPureAmount {
         this.userTotalPureAmount = userTotalPureAmount;
         this.userTotalPureAmountRecordedAt = LocalDate.now();
         this.user = user;
-    }
-
-    public void updateTotalPureAmount(BigDecimal totalAmount) {
-        this.userTotalPureAmount = this.userTotalPureAmount.add(totalAmount);
     }
 }

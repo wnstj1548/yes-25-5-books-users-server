@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface JpaUserTotalPureAmountRepository extends JpaRepository<UserTotalPureAmount, Long> {
 
-    Optional<UserTotalPureAmount> findByUser_UserId(Long userId);
+    Optional<UserTotalPureAmount> findByUserUserId(Long userId);
+
+    Optional<UserTotalPureAmount> findFirstByUserUserIdOrderByUserTotalPureAmountRecordedAtDesc(Long userId);
 
     void deleteByUser(User user);
 }
