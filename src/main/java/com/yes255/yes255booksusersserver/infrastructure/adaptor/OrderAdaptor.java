@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.OrderLogRespo
 import org.hibernate.query.Order;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 public interface OrderAdaptor {
 
     @GetMapping("/logs")
-    List<OrderLogResponse> getOrderLogs(LocalDate date);
+    List<OrderLogResponse> getOrderLogs(@RequestParam LocalDate date);
 
     @GetMapping("/exist")
     boolean existOrderHistory();
