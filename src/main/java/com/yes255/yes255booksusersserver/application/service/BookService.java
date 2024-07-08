@@ -22,8 +22,6 @@ public interface BookService {
 
     Page<BookResponse> getAllBooks(Pageable pageable);
 
-    Page<BookResponse> getAllBooksSorted(Pageable pageable, String sort);
-
     List<BookResponse> getAllBooks();
 
     BookResponse updateBook(UpdateBookRequest updateBookRequest);

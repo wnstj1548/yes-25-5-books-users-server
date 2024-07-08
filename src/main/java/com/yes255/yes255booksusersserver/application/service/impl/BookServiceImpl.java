@@ -72,7 +72,7 @@ public class BookServiceImpl implements BookService {
 
         for(Long bookId : bookIdList) {
             Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
-            bookOrderResponseList.add(BookOrderResponse.fromEntity(book));
+            bookOrderResponseList.add(toBookOrderResponse(book));
         }
 
         return bookOrderResponseList;
@@ -83,41 +83,6 @@ public class BookServiceImpl implements BookService {
     public Page<BookResponse> getAllBooks(Pageable pageable) {
 
         Page<Book> bookPage = jpaBookRepository.findByBookIsDeletedFalse(pageable);
-        List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
-
-        return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Page<BookResponse> getAllBooksSorted(Pageable pageable, String sort) {
-
-        Sort sortOption;
-
-        switch(sort) {
-            case "new-product":
-                sortOption = Sort.by("bookPublishDate").descending();
-                break;
-            case "low-price":
-                sortOption = Sort.by("bookSellingPrice");
-                break;
-            case "high-price":
-                sortOption = Sort.by("bookSellingPrice").descending();
-                break;
-//            case "grade" :
-//                sortOption = Sort.by("grade").descending();
-//                break;
-            case "review":
-                sortOption = Sort.by("reviewCount").descending();
-                break;
-            case "popularity":
-            default:
-                sortOption = Sort.by("hitsCount").descending();
-                break;
-        }
-
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortOption);
-        Page<Book> bookPage = jpaBookRepository.findByBookIsDeletedFalse(sortedPageable);
         List<BookResponse> responses = bookPage.stream().map(this::toResponse).toList();
 
         return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
@@ -280,6 +245,25 @@ public class BookServiceImpl implements BookService {
                 .bookName(book.getBookName())
                 .authorName(authorString)
                 .bookPublisher(book.getBookPublisher())
+                .build();
+    }
+
+    public BookOrderResponse toBookOrderResponse(Book book) {
+
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
+
+        return BookOrderResponse.builder()
+                .bookId(book.getBookId())
+                .bookName(book.getBookName())
+                .bookPrice(book.getBookPrice())
+                .bookIsPackable(book.isBookIsPackable())
+                .bookImage(book.getBookImage())
+                .quantity(book.getQuantity())
+                .author(authorString)
                 .build();
     }
 }

@@ -14,7 +14,9 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookIndexResp
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -44,49 +46,73 @@ public class BookSearchServiceImpl implements BookSearchService {
     private final JpaBookCategoryRepository jpaBookCategoryRepository;
 
     @Override
-    public Page<BookIndexResponse> searchBookByNamePaging(String keyword, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByNamePaging(String keyword, Pageable pageable, String sortString) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(keyword, pageable);
+        Sort sort = getSort(sortString);
 
-        return result.map(BookIndexResponse::fromIndex);
-    }
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-    @Override
-    public Page<BookIndexResponse> searchBookByDescription(String keyword, Pageable pageable) {
-
-        Page<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainsIgnoreCase(keyword, pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookNameContainsIgnoreCase(keyword, sortedPageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public Page<BookIndexResponse> searchBookByTagName(String keyword, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByDescription(String keyword, Pageable pageable, String sortString) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.findByTagsContainingIgnoreCase(keyword, pageable);
+        Sort sort = getSort(sortString);
 
-        return result.map(BookIndexResponse::fromIndex);
-    }
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-    @Override
-    public Page<BookIndexResponse> searchBookByAuthorName(String keyword, Pageable pageable) {
-
-        Page<BookIndex> result = bookElasticSearchRepository.findByAuthorsContainingIgnoreCase(keyword, pageable);
+        Page<BookIndex> result = bookElasticSearchRepository.findByBookDescriptionContainsIgnoreCase(keyword, sortedPageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public Page<BookIndexResponse> searchBookByCategoryName(String keyword, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByTagName(String keyword, Pageable pageable, String sortString) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.findByCategoriesContainingIgnoreCase(keyword, pageable);
+        Sort sort = getSort(sortString);
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<BookIndex> result = bookElasticSearchRepository.findByTagsContainingIgnoreCase(keyword, sortedPageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
 
     @Override
-    public Page<BookIndexResponse> searchAll(String keyword, Pageable pageable) {
+    public Page<BookIndexResponse> searchBookByAuthorName(String keyword, Pageable pageable, String sortString) {
 
-        Page<BookIndex> result = bookElasticSearchRepository.searchAllFields(keyword, pageable);
+        Sort sort = getSort(sortString);
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<BookIndex> result = bookElasticSearchRepository.findByAuthorsContainingIgnoreCase(keyword, sortedPageable);
+
+        return result.map(BookIndexResponse::fromIndex);
+    }
+
+    @Override
+    public Page<BookIndexResponse> searchBookByCategoryName(String keyword, Pageable pageable, String sortString) {
+
+        Sort sort = getSort(sortString);
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<BookIndex> result = bookElasticSearchRepository.findByCategoriesContainingIgnoreCase(keyword, sortedPageable);
+
+        return result.map(BookIndexResponse::fromIndex);
+    }
+
+    @Override
+    public Page<BookIndexResponse> searchAll(String keyword, Pageable pageable, String sortString) {
+
+        Sort sort = getSort(sortString);
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<BookIndex> result = bookElasticSearchRepository.searchAllFields(keyword, sortedPageable);
 
         return result.map(BookIndexResponse::fromIndex);
     }
@@ -150,5 +176,31 @@ public class BookSearchServiceImpl implements BookSearchService {
         log.info("category sync start");
         List<CategoryIndex> categoryIndexList = jpaCategoryRepository.findAll().stream().map(CategoryIndex::fromCategory).toList();
         categoryElasticSearchRepository.saveAll(categoryIndexList);
+    }
+
+    private Sort getSort(String sortString) {
+
+        Sort sort;
+
+        switch(sortString) {
+            case "new-product":
+                sort = Sort.by(Sort.Order.desc("bookPublishDate"));
+                break;
+            case "low-price":
+                sort = Sort.by(Sort.Order.asc("bookSellingPrice"));
+                break;
+            case "high-price":
+                sort = Sort.by(Sort.Order.desc("bookSellingPrice"));
+                break;
+            case "review":
+                sort = Sort.by(Sort.Order.desc("reviewCount"));
+                break;
+            case "popularity":
+            default:
+                sort = Sort.by(Sort.Order.desc("hitsCount"));
+                break;
+        }
+
+        return sort;
     }
 }
