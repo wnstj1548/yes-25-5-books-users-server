@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
     private final JpaPointLogRepository pointLogRepository;
+    private final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
 
     private final InactiveStateService inactiveStateService;
 
@@ -198,6 +199,12 @@ public class UserServiceImpl implements UserService {
         userGradeLogRepository.save(UserGradeLog.builder()
                 .userGradeUpdatedAt(LocalDate.now())
                 .userGrade(userGrade)
+                .user(user)
+                .build());
+
+        // 최초 회원 순수 주문 금액 이력 작성
+        userTotalPureAmountRepository.save(UserTotalPureAmount.builder()
+                .userTotalPureAmount(BigDecimal.ZERO)
                 .user(user)
                 .build());
 

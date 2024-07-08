@@ -22,6 +22,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepos
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
@@ -29,9 +30,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.Upda
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -267,5 +267,66 @@ public class CartBookServiceImplTest {
         assertThrows(CartException.class, () -> {
             cartBookService.findAllCartBookById(testUser.getUserId());
         });
+    }
+
+    @DisplayName("장바구니 도서 수량 업데이트 - 성공")
+    @Test
+    void testUpdateCartBookOrderByUserId_Success() {
+        List<UpdateCartBookOrderRequest> requests = Arrays.asList(
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build(),
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+        );
+
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
+                .thenReturn(Optional.of(testCartBook));
+
+        cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
+    }
+
+    @DisplayName("장바구니 도서 수량 업데이트 - 실패 (카트가 존재하지 않음)")
+    @Test
+    void testUpdateCartBookOrderByUserId_CartNotFound() {
+        List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+        );
+
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
+
+        assertThrows(CartException.class, () -> {
+            cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
+        });
+    }
+
+    @DisplayName("장바구니 도서 수량 업데이트 - 실패 (장바구니 도서가 존재하지 않음)")
+    @Test
+    void testUpdateCartBookOrderByUserId_CartBookNotFound() {
+        List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+        );
+
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CartBookException.class, () -> {
+            cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
+        });
+    }
+
+    @DisplayName("장바구니 도서 수량 업데이트 - 성공 (도서 수량 감소로 인한 삭제)")
+    @Test
+    void testUpdateCartBookOrderByUserId_DeleteCartBook() {
+        List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+        );
+
+        when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
+                .thenReturn(Optional.of(testCartBook));
+
+        testCartBook.updateCartBookQuantity(1);
+
+        cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
     }
 }
