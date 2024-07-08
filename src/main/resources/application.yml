@@ -21,3 +21,8 @@ springdoc:
     operations-sorter: alpha
   api-docs:
     path: /books/v3/api-docs
+nhncloud:
+  manager:
+    url: https://api-image.nhncloudservice.com/image/v2.0/appkeys
+    appkey: vyiy4M85i8mJ5mgP
+    secretKey: ffpUQvzkmH8RsQDTuvpZD7U9tWlqExe4

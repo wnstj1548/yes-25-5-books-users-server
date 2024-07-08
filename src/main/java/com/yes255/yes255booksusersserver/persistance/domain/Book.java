@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.persistance.domain;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -72,6 +74,9 @@ public class Book {
     @ColumnDefault("false")
     @Column(name = "book_is_deleted")
     private boolean bookIsDeleted;
+
+    @OneToMany(mappedBy = "book", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
