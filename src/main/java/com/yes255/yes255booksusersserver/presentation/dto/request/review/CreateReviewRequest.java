@@ -17,6 +17,7 @@ public record CreateReviewRequest(String name, String subject, Integer rating, S
             .book(book)
             .user(user)
             .reviewTime(LocalDate.now())
+            .isActive(true)
             .build();
     }
 }

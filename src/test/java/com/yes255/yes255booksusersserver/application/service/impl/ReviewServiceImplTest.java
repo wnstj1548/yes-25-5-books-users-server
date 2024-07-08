@@ -4,13 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,17 +17,20 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yes255.yes255booksusersserver.common.exception.AccessDeniedException;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.EntityNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.OrderAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.Review;
 import com.yes255.yes255booksusersserver.persistance.domain.ReviewImage;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewImageRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
@@ -37,6 +38,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateR
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +79,12 @@ class ReviewServiceImplTest {
     private ObjectMapper objectMapper;
 
     @Mock
+    private JpaPointRepository pointRepository;
+
+    @Mock
+    private JpaPointLogRepository pointLogRepository;
+
+    @Mock
     private OrderAdaptor orderAdaptor;
 
     @Mock
@@ -90,6 +99,8 @@ class ReviewServiceImplTest {
     private Book book;
     private ReviewImage reviewImage;
     private Review review;
+    private Point point;
+    private PointLog pointLog;
 
     @BeforeEach
     void setUp() {
@@ -128,6 +139,17 @@ class ReviewServiceImplTest {
             .rating(5)
             .reviewImage(List.of(reviewImage))
             .build();
+
+        point = Point.builder()
+            .pointCurrent(BigDecimal.ZERO)
+            .user(user)
+            .build();
+
+        pointLog = PointLog.builder()
+            .point(point)
+            .pointLogId(1L)
+            .pointLogUpdatedAt(LocalDateTime.now())
+            .build();
     }
 
     @Test
@@ -141,6 +163,7 @@ class ReviewServiceImplTest {
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(pointRepository.findByUser_UserId(anyLong())).thenReturn(point);
 
         // when
         reviewService.createReview(createReviewRequest, null, 1L);
@@ -211,6 +234,7 @@ class ReviewServiceImplTest {
 
         ResponseEntity<String> responseEntity = new ResponseEntity<>("{\"file\": {\"url\": \"http://mockurl.com/image.jpg\"}}", HttpStatus.OK);
         when(restTemplate.exchange(anyString(), any(), any(), eq(String.class))).thenReturn(responseEntity);
+        when(pointRepository.findByUser_UserId(anyLong())).thenReturn(point);
 
         // when
         reviewService.createReview(createReviewRequest, images, 1L);
@@ -240,7 +264,7 @@ class ReviewServiceImplTest {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Review> reviews = new PageImpl<>(Collections.singletonList(review));
 
-        when(reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
+        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
             .thenReturn(reviews);
 
         // when
@@ -270,7 +294,7 @@ class ReviewServiceImplTest {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Review> reviews = new PageImpl<>(Collections.singletonList(review));
 
-        when(reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
+        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
             .thenReturn(reviews);
 
         // when
@@ -290,7 +314,7 @@ class ReviewServiceImplTest {
     void getReviewRatings() {
         // given
         List<Review> reviews = List.of(review);
-        when(reviewRepository.findAllByBook_BookId(anyLong())).thenReturn(reviews);
+        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrue(anyLong())).thenReturn(reviews);
 
         // when
         List<ReadReviewRatingResponse> responses = reviewService.getReviewRatingsByBookId(1L);
@@ -360,13 +384,21 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 삭제 요청을 했을 때 성공적으로 리뷰가 삭제되는지 확인한다.")
     void deleteReviewByReviewId() {
         // given
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+        Review deleteReview = Review.builder()
+            .reviewId(1L)
+            .isActive(true)
+            .reviewImage(List.of(reviewImage))
+            .user(user)
+            .build();
+
+        when(pointRepository.findByUser_UserId(anyLong())).thenReturn(point);
+        when(reviewRepository.findById(1L)).thenReturn(Optional.of(deleteReview));
 
         // when
         reviewService.deleteReviewByReviewId(1L, 1L);
 
         // then
-        verify(reviewRepository, times(1)).deleteByReviewId(anyLong());
+        assertThat(deleteReview.getIsActive()).isFalse();
     }
 
     @Test

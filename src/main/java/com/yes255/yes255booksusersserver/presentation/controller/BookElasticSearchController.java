@@ -23,42 +23,42 @@ public class BookElasticSearchController {
     @Operation(summary = "책 이름 검색", description = "책 이름으로 단어가 포함된 책들을 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchByName")
-    public ResponseEntity<Page<BookIndexResponse>> searchByName(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchBookByNamePaging(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchByName(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchBookByNamePaging(keyword, pageable, sortString));
     }
 
     @Operation(summary = "책 설명 검색", description = "책 설명으로 설명이 포함된 책들을 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchByDescription")
-    public ResponseEntity<Page<BookIndexResponse>> searchByDescription(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchBookByDescription(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchByDescription(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchBookByDescription(keyword, pageable, sortString));
     }
 
     @Operation(summary = "태그로 검색", description = "책에 관련된 태그로 책들을 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchByTagName")
-    public ResponseEntity<Page<BookIndexResponse>> searchByTagName(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchBookByTagName(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchByTagName(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchBookByTagName(keyword, pageable, sortString));
     }
 
     @Operation(summary = "작가로 검색", description = "책의 작가로 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchByAuthorName")
-    public ResponseEntity<Page<BookIndexResponse>> searchByAuthorName(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchBookByAuthorName(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchByAuthorName(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchBookByAuthorName(keyword, pageable, sortString));
     }
 
     @Operation(summary = "카테고리로 검색", description = "책의 카테고리로 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchByCategoryName")
-    public ResponseEntity<Page<BookIndexResponse>> searchByCategoryName(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchBookByCategoryName(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchByCategoryName(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchBookByCategoryName(keyword, pageable, sortString));
     }
 
     @Operation(summary = "제목, 설명, 태그, 작가로 검색", description = "책 제목,설명,태그,작가에 검색어가 포함되어있는 책들을 검색합니다.")
     @Parameter(name = "keyword", description = " 검색하고자 하는 검색어를 포함합니다.")
     @GetMapping("/searchAll")
-    public ResponseEntity<Page<BookIndexResponse>> searchAll(@RequestParam String keyword, Pageable pageable) {
-        return ResponseEntity.ok(bookSearchService.searchAll(keyword, pageable));
+    public ResponseEntity<Page<BookIndexResponse>> searchAll(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookSearchService.searchAll(keyword, pageable, sortString));
     }
 }

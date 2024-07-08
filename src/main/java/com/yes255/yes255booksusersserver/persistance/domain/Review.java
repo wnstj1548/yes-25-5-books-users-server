@@ -53,9 +53,12 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private Boolean isActive;
+
     @Builder
     public Review(Long reviewId, String content, String title, Integer rating, LocalDate reviewTime,
-        List<ReviewImage> reviewImage, Book book, User user) {
+        List<ReviewImage> reviewImage, Book book, User user, Boolean isActive) {
         this.reviewId = reviewId;
         this.content = content;
         this.title = title;
@@ -64,6 +67,7 @@ public class Review {
         this.reviewImage = reviewImage;
         this.book = book;
         this.user = user;
+        this.isActive = isActive;
     }
 
     public void updateReview(UpdateReviewRequest updateReviewRequest) {
@@ -82,5 +86,9 @@ public class Review {
 
     public boolean isUserIdEqualTo(Long userId) {
         return this.user.getUserId().equals(userId);
+    }
+
+    public void updateIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

@@ -12,20 +12,21 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponRes
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final JpaBookRepository jpaBookRepository;
@@ -71,7 +72,7 @@ public class BookServiceImpl implements BookService {
 
         for(Long bookId : bookIdList) {
             Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책 값이 비어있습니다.", 400, LocalDateTime.now())));
-            bookOrderResponseList.add(BookOrderResponse.fromEntity(book));
+            bookOrderResponseList.add(toBookOrderResponse(book));
         }
 
         return bookOrderResponseList;
@@ -151,21 +152,51 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable) {
+    public Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable, String sortString) {
 
         Category category = jpaCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ApplicationException(
                         ErrorStatus.toErrorStatus("일치하는 카테고리가 없습니다.", 404, LocalDateTime.now())
                 ));
 
-        Page<BookCategory> bookCategoryPage = jpaBookCategoryRepository.findByCategory(category, pageable);
+        List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
-        List<BookResponse> bookList = bookCategoryPage.getContent().stream()
+        Comparator comparator;
+
+        switch(sortString) {
+            case "new-product":
+                comparator = Comparator.comparing(BookResponse::bookPublishDate).reversed();
+                break;
+            case "low-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
+                break;
+            case "high-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
+                break;
+//            case "grade" :
+//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
+//                break;
+            case "review":
+                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
+                break;
+            case "popularity":
+            default:
+                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
+                break;
+        }
+
+        List<BookResponse> bookList = bookCategoryList.stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
                 .map(bookCategory -> toResponse(bookCategory.getBook()))
+                .sorted(comparator)
                 .toList();
 
-        return new PageImpl<>(bookList, pageable, bookCategoryPage.getTotalElements());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), bookList.size());
+        List<BookResponse> paginatedList = bookList.subList(start, end);
+
+        return new PageImpl<>(paginatedList, pageable, bookList.size());
     }
 
     @Override
@@ -214,6 +245,25 @@ public class BookServiceImpl implements BookService {
                 .bookName(book.getBookName())
                 .authorName(authorString)
                 .bookPublisher(book.getBookPublisher())
+                .build();
+    }
+
+    public BookOrderResponse toBookOrderResponse(Book book) {
+
+        List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+
+        String authorString = bookAuthorList.stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getAuthorName())
+                .collect(Collectors.joining(","));
+
+        return BookOrderResponse.builder()
+                .bookId(book.getBookId())
+                .bookName(book.getBookName())
+                .bookPrice(book.getBookPrice())
+                .bookIsPackable(book.isBookIsPackable())
+                .bookImage(book.getBookImage())
+                .quantity(book.getQuantity())
+                .author(authorString)
                 .build();
     }
 }
