@@ -75,7 +75,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void createReview(CreateReviewRequest createReviewRequest, List<MultipartFile> images,
         Long userId) {
-        if (!orderAdaptor.existOrderHistory()) {
+        if (!orderAdaptor.existOrderHistory(createReviewRequest.bookId())) {
             throw new AccessDeniedException("주문한 적이 없으면 리뷰를 남길 수 없습니다.");
         }
 
