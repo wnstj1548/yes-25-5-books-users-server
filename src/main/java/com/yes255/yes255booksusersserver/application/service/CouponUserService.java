@@ -1,10 +1,15 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
+import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.ReadMaximumDiscountCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ReadMaximumDiscountCouponResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ReadUserCouponResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface CouponUserService {
 
@@ -24,4 +29,7 @@ public interface CouponUserService {
 
     void createCouponUserForWelcome(Long userId);
 
+    List<ReadUserCouponResponse> getAllUserCouponsByUserId(Long userId);
+
+    ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, ReadMaximumDiscountCouponRequest couponRequest);
 }

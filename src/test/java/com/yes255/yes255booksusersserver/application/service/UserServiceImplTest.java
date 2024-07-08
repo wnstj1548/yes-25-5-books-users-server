@@ -73,7 +73,7 @@ public class UserServiceImplTest {
     private JpaPointLogRepository pointLogRepository;
 
     @Mock
-    private JpaUserTotalAmountRepository totalAmountRepository;
+    private JpaUserTotalPureAmountRepository totalAmountRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;

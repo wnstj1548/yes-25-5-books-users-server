@@ -45,7 +45,7 @@ public class PointServiceImplTest {
     private JpaPointLogRepository pointLogRepository;
 
     @Mock
-    private JpaUserTotalAmountRepository totalAmountRepository;
+    private JpaUserTotalPureAmountRepository totalAmountRepository;
 
     @InjectMocks
     private PointServiceImpl pointService;
