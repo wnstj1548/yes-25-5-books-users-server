@@ -11,10 +11,14 @@ import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.OrderAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.Review;
 import com.yes255.yes255booksusersserver.persistance.domain.ReviewImage;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewImageRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
@@ -23,6 +27,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateR
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +58,9 @@ public class ReviewServiceImpl implements ReviewService {
     private final JpaReviewImageRepository reviewImageRepository;
     private final JpaBookRepository bookRepository;
     private final JpaUserRepository userRepository;
+    private final JpaPointRepository pointRepository;
+    private final JpaPointLogRepository pointLogRepository;
+
     private final ObjectMapper objectMapper;
 
     @Value("${nhncloud.manager.appkey}")
@@ -98,14 +106,32 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
+        accumulatePoints(images, userId);
+
         reviewImageRepository.saveAll(reviewImages);
         log.info("리뷰가 업로드되었습니다. 요청: {}", createReviewRequest);
+    }
+
+    private void accumulatePoints(List<MultipartFile> images, Long userId) {
+        int reviewPoints = CollectionUtils.isEmpty(images) ? 200 : 500;
+        String logType = reviewPoints == 200 ? "리뷰 적립 - 일반" : "리뷰 적립 - 사진 첨부";
+
+        Point point = pointRepository.findByUser_UserId(userId);
+        BigDecimal newPointValue = point.getPointCurrent().add(BigDecimal.valueOf(reviewPoints));
+        point.updatePointCurrent(newPointValue);
+
+        pointLogRepository.save(PointLog.builder()
+            .pointLogUpdatedAt(LocalDateTime.now())
+            .pointLogUpdatedType(logType)
+            .pointLogAmount(BigDecimal.valueOf(reviewPoints))
+            .point(point)
+            .build());
     }
 
     @Transactional(readOnly = true)
     @Override
     public Page<ReadReviewResponse> getReviewsByPaging(Long bookId, Pageable pageable) {
-        Page<Review> reviews = reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(bookId, pageable);
+        Page<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(bookId, pageable);
 
         return reviews.map(ReadReviewResponse::fromEntity);
     }
@@ -113,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public List<ReadReviewRatingResponse> getReviewRatingsByBookId(Long bookId) {
-        List<Review> reviews = reviewRepository.findAllByBook_BookId(bookId);
+        List<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrue(bookId);
 
         return reviews.stream()
             .map(ReadReviewRatingResponse::fromEntity)
@@ -157,7 +183,28 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
         }
 
-        reviewRepository.deleteByReviewId(review.getReviewId());
+        if (!review.getIsActive()) {
+            throw new AccessDeniedException("이미 삭제한 리뷰입니다.");
+        }
+
+        review.updateIsActive(false);
+        int reviewPoints = review.getReviewImage().isEmpty() ? 200 : 500;
+        deductPoints(userId, reviewPoints);
+
+        log.info("리뷰가 비활성화되었습니다. 리뷰 ID: {}", reviewId);
+    }
+
+    private void deductPoints(Long userId, int points) {
+        Point point = pointRepository.findByUser_UserId(userId);
+        BigDecimal newPointValue = point.getPointCurrent().subtract(BigDecimal.valueOf(points));
+        point.updatePointCurrent(newPointValue);
+
+        pointLogRepository.save(PointLog.builder()
+            .pointLogUpdatedAt(LocalDateTime.now())
+            .pointLogUpdatedType("리뷰 삭제 - 포인트 회수")
+            .pointLogAmount(BigDecimal.valueOf(points))
+            .point(point)
+            .build());
     }
 
     private String getUploadUrl(MultipartFile image) {
