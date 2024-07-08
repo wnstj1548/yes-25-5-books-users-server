@@ -11,16 +11,9 @@ public record BookOrderResponse(
         String bookName,
         BigDecimal bookPrice,
         Boolean bookIsPackable,
-        String bookImage
+        String bookImage,
+        Integer quantity,
+        String author
 )
 {
-    public static BookOrderResponse fromEntity(Book book) {
-        return BookOrderResponse.builder()
-                .bookId(book.getBookId())
-                .bookName(book.getBookName())
-                .bookPrice(book.getBookPrice())
-                .bookIsPackable(book.isBookIsPackable())
-                .bookImage(book.getBookImage())
-                .build();
-    }
 }

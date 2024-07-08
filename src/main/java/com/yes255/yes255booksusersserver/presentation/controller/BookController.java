@@ -269,7 +269,7 @@ public class BookController {
 
     @Operation(summary = "카테고리로 책 조회", description = "카테고리 아이디로 해당 카테고리인 책들을 조회합니다.")
     @GetMapping("/books/category/{categoryId}/page")
-    public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable));
+    public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
+        return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable, sortString));
     }
 }
