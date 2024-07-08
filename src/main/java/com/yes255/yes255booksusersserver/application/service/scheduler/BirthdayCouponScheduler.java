@@ -22,8 +22,7 @@ public class BirthdayCouponScheduler {
     private final MessageProducer messageProducer;
     private final RedisTemplate<String, String> redisTemplate;
 
-//    @Scheduled(cron = "0 0 0 * * *")
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(cron = "0 0 0 * * *")
     public void scheduleBirthdayCoupons() {
         log.info("Scheduler started - Birthday coupon scheduler triggered");
 
