@@ -183,9 +183,9 @@ public class BookSearchServiceImpl implements BookSearchService {
         Sort sort;
 
         switch(sortString) {
-            case "new-product":
-                sort = Sort.by(Sort.Order.desc("bookPublishDate"));
-                break;
+//            case "new-product":
+//                sort = Sort.by(Sort.Order.desc("bookPublishDate"));
+//                break;
             case "low-price":
                 sort = Sort.by(Sort.Order.asc("bookSellingPrice"));
                 break;

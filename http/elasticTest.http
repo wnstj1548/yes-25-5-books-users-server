@@ -1,2 +1,2 @@
-GET localhost:8061/books/searchAll?keyword=국내도서&sortString=low-price
+GET localhost:8061/books/searchByCategoryName?keyword=국내도서&sortString=low-price
 Content-Type: application/json
