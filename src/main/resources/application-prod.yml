@@ -30,6 +30,7 @@ spring:
       port: 6379
       database: 36
       password: ${YES25_5_REDIS_PASSWORD}
+      url: 133.186.153.195:9200
 
   application:
     name: book-user-server

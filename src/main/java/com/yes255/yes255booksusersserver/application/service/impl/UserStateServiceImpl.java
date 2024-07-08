@@ -10,6 +10,8 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepo
 import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.CreateUserStateRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.UpdateUserStateRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.userstate.UserStateResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Tag(name = "회원 상태 API", description = "회원 상태 관련 API 입니다.")
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class UserStateServiceImpl implements UserStateService {
     private final JpaUserStateRepository userStateRepository;
     private final JpaUserRepository userRepository;
 
+    @Operation(summary = "회원 상태 생성", description = "회원 상태를 생성합니다. ex) ACTIVE, INACTIVE")
     @Override
     public UserStateResponse createUserState(CreateUserStateRequest userStateRequest) {
 
@@ -46,6 +50,7 @@ public class UserStateServiceImpl implements UserStateService {
                 .build();
     }
 
+    @Operation(summary = "회원 상태 수정", description = "회원 상태를 수정합니다.")
     @Override
     public UserStateResponse updateUserState(Long userStateId, UpdateUserStateRequest userStateRequest) {
 
@@ -61,6 +66,7 @@ public class UserStateServiceImpl implements UserStateService {
                 .build();
     }
 
+    @Operation(summary = "특정 회원 상태 조회", description = "특정 회원 상태를 조회합니다.")
     @Transactional(readOnly = true)
     @Override
     public UserStateResponse findByUserStateId(Long userStateId) {
@@ -74,6 +80,7 @@ public class UserStateServiceImpl implements UserStateService {
                 .build();
     }
 
+    @Operation(summary = "모든 회원 상태 조회", description = "모든 회원 상태를 조회합니다.")
     @Transactional(readOnly = true)
     @Override
     public List<UserStateResponse> findAllUserStates() {
@@ -92,6 +99,7 @@ public class UserStateServiceImpl implements UserStateService {
                 .collect(Collectors.toList());
     }
 
+    @Operation(summary = "특정 회원 상태 삭제", description = "특정 회원 상태를 삭제합니다.")
     @Override
     public void deleteUserState(Long userStateId) {
 
@@ -102,6 +110,7 @@ public class UserStateServiceImpl implements UserStateService {
     }
 
     // 3개월 이상 미접속 회원 휴면 전환
+    @Operation(summary = "미접속자 휴면 전환", description = "3개월 이상 미접속자를 휴면 상태로 전환합니다.")
     @Override
     public void updateUserStateByUser() {
 

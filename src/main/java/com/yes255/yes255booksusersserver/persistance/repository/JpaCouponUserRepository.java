@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface JpaCouponUserRepository extends JpaRepository<CouponUser, Long> {
 
@@ -18,4 +19,6 @@ public interface JpaCouponUserRepository extends JpaRepository<CouponUser, Long>
     List<CouponUser> findByUserCouponStatus(CouponUser.UserCouponStatus status);
 
     List<CouponUser> findByUserCouponStatusAndCouponExpiredAtBefore(CouponUser.UserCouponStatus userCouponStatus, Date date);
+
+    Optional<CouponUser> findByUserCouponIdAndUserUserId(Long userCouponId, Long userId);
 }

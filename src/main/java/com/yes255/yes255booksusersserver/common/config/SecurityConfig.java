@@ -30,9 +30,11 @@ public class SecurityConfig {
                 authorizeRequests
                     .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email", "/users/check-email", "/users/coupons/claim").permitAll()
                     .requestMatchers("/books/**").permitAll()
-                        .requestMatchers("/swagger/**").permitAll()
+                        .requestMatchers("/books/swagger/**", "/books/v3/api-docs/**").permitAll()
                     .requestMatchers("/users/cart-books").permitAll()
+                    .requestMatchers("/users/dormant").permitAll()
                     .requestMatchers("/books/likes/**").authenticated()
+                    .requestMatchers("/reviews/books/**").permitAll()
                     .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

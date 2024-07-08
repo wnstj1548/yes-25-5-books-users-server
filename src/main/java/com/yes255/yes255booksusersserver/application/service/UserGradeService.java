@@ -11,4 +11,6 @@ public interface UserGradeService {
     UserGradeResponse getUserGrade(Long userId);
 
     void updateUserGrade(User user, BigDecimal purePrices, LocalDate currentDate);
+
+    void updateMonthlyGrades();
 }

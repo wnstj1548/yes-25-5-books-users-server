@@ -1,17 +1,16 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.CustomerService;
+import com.yes255.yes255booksusersserver.application.service.InactiveStateService;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UnlockDormantRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final JpaUserRepository userRepository;
@@ -42,10 +43,11 @@ public class UserServiceImpl implements UserService {
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
+    private final JpaPointLogRepository pointLogRepository;
 
-    private final CustomerService customerService;
+    private final InactiveStateService inactiveStateService;
+
     private final PasswordEncoder passwordEncoder;
-    private final CouponAdaptor couponAdaptor;
 
     private final MessageProducer messageProducer;
 
@@ -62,6 +64,17 @@ public class UserServiceImpl implements UserService {
 
         if (user.getUserState().getUserStateName().equals("WITHDRAWAL")) {
             throw new UserException(ErrorStatus.toErrorStatus("탈퇴한 회원입니다.", 400, LocalDateTime.now()));
+        }
+
+        if (user.getUserState().getUserStateName().equals("INACTIVE")) {
+            throw new ApplicationException(
+                ErrorStatus.toErrorStatus("회원이 휴면처리되었습니다.", 403, LocalDateTime.now()));
+        }
+
+        if ((user.getUserLastLoginDate() != null && user.getUserLastLoginDate().isBefore(LocalDateTime.now().minusMonths(3)))) {
+            inactiveStateService.updateInActiveState(user.getUserId());
+            throw new ApplicationException(
+                ErrorStatus.toErrorStatus("회원이 휴면처리되었습니다.", 403, LocalDateTime.now()));
         }
 
         if (!passwordEncoder.matches(userRequest.password(), user.getUserPassword())) {
@@ -205,6 +218,13 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(singUpPolicy)) {
             point.updatePointCurrent(singUpPolicy.getPointPolicyApplyAmount());
             pointRepository.save(point);
+
+            pointLogRepository.save(PointLog.builder()
+                            .point(point)
+                            .pointLogUpdatedType(singUpPolicy.getPointPolicyCondition())
+                            .pointLogAmount(singUpPolicy.getPointPolicyApplyAmount())
+                            .pointLogUpdatedAt(LocalDateTime.now())
+                            .build());
         }
 
         messageProducer.sendWelcomeCouponMessage(user.getUserId());
@@ -345,6 +365,7 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    // 가입 이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return userRepository.existsByUserEmail(email);
@@ -356,6 +377,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUsersByBirthMonth(currentMonth).stream()
                 .map(User::getUserId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void unLockDormantStateByEmail(UnlockDormantRequest request) {
+        User user = userRepository.findByUserEmail(request.email());
+        UserState userState = userStateRepository.findByUserStateName("ACTIVE");
+
+        user.updateLastLoginDate();
+        user.updateUserState(userState);
     }
 
 }

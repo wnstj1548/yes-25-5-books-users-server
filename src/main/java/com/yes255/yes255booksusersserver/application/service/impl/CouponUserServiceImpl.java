@@ -9,9 +9,9 @@ import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCouponUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.ReadMaximumDiscountCouponRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -117,10 +118,6 @@ public class CouponUserServiceImpl implements CouponUserService {
         // 회원의 사용된 쿠폰 리스트 가져오기
         List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(userId, userCouponStatus);
 
-//        if (couponUsers.isEmpty()) {
-//            throw new CouponUserException(ErrorStatus.toErrorStatus("사용된 회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
-//        }
-
         List<Long> couponIds = couponUsers.stream()
                 .map(CouponUser::getCouponId)
                 .collect(Collectors.toList());
@@ -158,6 +155,25 @@ public class CouponUserServiceImpl implements CouponUserService {
         return new PageImpl<>(couponBoxResponses, pageable, couponBoxResponses.size());
     }
 
+    // 주문 서버로부터 쿠폰 사용 처리
+    @Override
+    public void updateCouponState(Long userId, UpdateCouponRequest couponRequest) {
+
+        CouponUser couponUser = couponUserRepository.findByUserCouponIdAndUserUserId(couponRequest.couponId(), userId)
+                .orElseThrow(() -> new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now())));
+
+        if (couponRequest.operationType().equals("use")) {
+            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.USED);
+            couponUser.updateCouponUsedAt(LocalDate.now());
+        }
+        else if (couponRequest.operationType().equals("rollback")) {
+            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.ACTIVE);
+            couponUser.updateCouponUsedAt(null);
+        }
+
+        couponUserRepository.save(couponUser);
+    }
+
     // 매일 자정에 쿠폰 만료 여부 체크
     @Transactional
     @Override
@@ -180,8 +196,7 @@ public class CouponUserServiceImpl implements CouponUserService {
         }
     }
 
-
-    // 매일 ??에 한 달 지난 만료된 쿠폰 삭제
+    // 매일 자정에 한 달 지난 만료된 쿠폰 삭제
     @Transactional
     @Override
     public void deleteExpiredCoupons() {
@@ -255,6 +270,147 @@ public class CouponUserServiceImpl implements CouponUserService {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, validDays);
         return calendar.getTime();
+    }
+
+    // 특정 회원의 모든 쿠폰 목록 조회 (만료일자 기준 오름차순)
+    @Override
+    public List<ReadUserCouponResponse> getAllUserCouponsByUserId(Long userId) {
+
+        // 회원 쿠폰 리스트 가져오기
+        List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(userId, CouponUser.UserCouponStatus.ACTIVE);
+
+        if (couponUsers.isEmpty()) {
+            throw new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        List<Long> couponIds = couponUsers.stream()
+                .map(CouponUser::getCouponId)
+                .collect(Collectors.toList());
+
+        List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
+
+        // CouponInfoResponse를 매핑하기 위한 Map 생성
+        Map<Long, CouponInfoResponse> couponInfoMap = couponInfoResponses.stream()
+                .collect(Collectors.toMap(CouponInfoResponse::couponId, Function.identity()));
+
+        // ReadUserCouponResponse로 변환 및 만료일자 기준으로 정렬
+        return couponUsers.stream()
+                .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
+                .map(couponUser -> {
+                    CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
+                    return ReadUserCouponResponse.builder()
+                            .userCouponId(couponUser.getUserCouponId())
+                            .CouponExpiredAt(couponUser.getCouponExpiredAt())
+                            .couponId(couponUser.getCouponId())
+                            .couponName(couponInfoResponse.couponName())
+                            .couponMinAmount(couponInfoResponse.couponMinAmount())
+                            .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
+                            .couponDiscountRate(couponInfoResponse.couponDiscountRate())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 회원의 가장 할인 금액이 높은 쿠폰 반환
+    @Override
+    public ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, ReadMaximumDiscountCouponRequest couponRequest) {
+
+        // 회원 쿠폰 리스트 가져오기
+        List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(userId, CouponUser.UserCouponStatus.ACTIVE);
+
+        if (couponUsers.isEmpty()) {
+            throw new CouponUserException(ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
+        }
+
+        List<Long> couponIds = couponUsers.stream()
+                .map(CouponUser::getCouponId)
+                .collect(Collectors.toList());
+
+        List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
+
+        // CouponInfoResponse를 매핑하기 위한 Map 생성
+        Map<Long, CouponInfoResponse> couponInfoMap = couponInfoResponses.stream()
+                .collect(Collectors.toMap(CouponInfoResponse::couponId, Function.identity()));
+
+        // CouponBoxResponse로 변환 및 만료일자 기준으로 정렬
+        List<CouponBoxResponse> couponBoxResponses = couponUsers.stream()
+                .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
+                .map(couponUser -> {
+                    CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
+                    return CouponBoxResponse.builder()
+                            .couponId(couponUser.getCouponId())
+                            .CouponExpiredAt(couponUser.getCouponExpiredAt())
+                            .couponMinAmount(couponInfoResponse.couponMinAmount())
+                            .couponMaxAmount(couponInfoResponse.couponMaxAmount())
+                            .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
+                            .couponDiscountRate(couponInfoResponse.couponDiscountRate())
+                            .couponDiscountType(couponInfoResponse.couponDiscountType())
+                            .build();
+                })
+                .toList();
+
+        // 주문 금액
+        BigDecimal totalAmount = BigDecimal.valueOf(couponRequest.totalAmount());
+
+        // 최대 할인 쿠폰을 저장할 변수 초기화
+        CouponBoxResponse maxDiscountCoupon = null;
+        BigDecimal maxDiscountAmount = BigDecimal.ZERO;
+
+        // 각 쿠폰의 할인 금액을 계산하고 최대 할인 쿠폰 선택
+        for (CouponBoxResponse userCoupon : couponBoxResponses) {
+            BigDecimal discountAmount = calculateDiscountAmount(userCoupon, totalAmount);
+
+            if (discountAmount.compareTo(maxDiscountAmount) > 0) {
+                maxDiscountAmount = discountAmount;
+                maxDiscountCoupon = userCoupon;
+            }
+            else if (Objects.nonNull(maxDiscountCoupon) && discountAmount.compareTo(maxDiscountAmount) == 0) {
+                // 할인 금액이 동일한 경우 만료일이 더 가까운 쿠폰을 우선 선택
+                if (userCoupon.CouponExpiredAt().before(Objects.requireNonNull(maxDiscountCoupon).CouponExpiredAt())) {
+                    maxDiscountCoupon = userCoupon;
+                }
+            }
+        }
+
+        // 최대 할인 쿠폰이 없는 경우 (null 처리)
+        if (maxDiscountCoupon == null) {
+
+            return ReadMaximumDiscountCouponResponse.builder()
+                    .couponId(null)
+                    .discountAmount(BigDecimal.ZERO)
+                    .build();
+        }
+
+        // 최대 할인 쿠폰 반환
+        return ReadMaximumDiscountCouponResponse.builder()
+                .couponId(maxDiscountCoupon.couponId())
+                .discountAmount(maxDiscountAmount)
+                .build();
+    }
+
+    private BigDecimal calculateDiscountAmount(CouponBoxResponse userCoupon, BigDecimal totalAmount) {
+        BigDecimal discountAmount;
+
+        if (!userCoupon.couponDiscountType()) {
+            // 정액 할인
+            discountAmount = userCoupon.couponDiscountAmount();
+        }
+        else {
+            // 정율 할인
+            discountAmount = totalAmount.multiply(userCoupon.couponDiscountRate());
+        }
+
+        // 최대 할인 금액 제한 적용
+        if (userCoupon.couponMaxAmount() != null && discountAmount.compareTo(userCoupon.couponMaxAmount()) > 0) {
+            discountAmount = userCoupon.couponMaxAmount();
+        }
+
+        // 최소 주문 금액 조건 체크
+        if (userCoupon.couponMinAmount() != null && totalAmount.compareTo(userCoupon.couponMinAmount()) < 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return discountAmount;
     }
 
 }
