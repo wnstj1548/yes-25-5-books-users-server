@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
                 .build());
 
         // Local 제공자
-        Provider provider = providerRepository.findByProviderName("LOCAL");
+        Provider provider = providerRepository.findByProviderName(userRequest.providerName());  // 페이코 회원 가입을 고려해 providerName으로 변경
 
         if (Objects.isNull(provider)) {
             throw new ProviderException(ErrorStatus.toErrorStatus("제공자가 존재 하지 않습니다.", 400, LocalDateTime.now()));
