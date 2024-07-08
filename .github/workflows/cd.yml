@@ -65,6 +65,7 @@ jobs:
           COUPON_SERVER: ${{ secrets.COUPON_SERVER }}
           JWT_SECRET: ${{secrets.JWT_SECRET}}
           RABBITMQ_PASSWORD : ${{secrets.RABBITMQ_PASSWORD}}
+          YES25_5_REDIS_PASSWORD : ${{secrets.YES25_5_REDIS_PASSWORD}}
         run: |
           ssh -i ~/.ssh/github_rsa -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} << EOF
             cd ${REMOTE_DIR}
@@ -85,6 +86,7 @@ jobs:
               -e COUPON_SERVER=${COUPON_SERVER} \
               -e JWT_SECRET=${JWT_SECRET} \
               -e RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD} \
+              -e YES25_5_REDIS_PASSWORD=${YES25_5_REDIS_PASSWORD} \
               books-users-app
           EOF
 
