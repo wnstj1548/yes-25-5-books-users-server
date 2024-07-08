@@ -7,14 +7,14 @@ import lombok.Builder;
 public record BookAuthorResponse(
         Long bookAuthorId,
         Long bookId,
-        Long AuthorId
+        Long authorId
 )
 {
     public static BookAuthorResponse fromEntity(BookAuthor bookAuthor) {
         return BookAuthorResponse.builder()
                 .bookAuthorId(bookAuthor.getBookAuthorId())
                 .bookId(bookAuthor.getBook().getBookId())
-                .AuthorId(bookAuthor.getAuthor().getAuthorId())
+                .authorId(bookAuthor.getAuthor().getAuthorId())
                 .build();
     }
 }

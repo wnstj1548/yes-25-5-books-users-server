@@ -36,14 +36,19 @@ public class JwtFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
 
+
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
             "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            "/users/check-email".equals(path)) {
+            "/users/check-email".equals(path) || path.startsWith("/books/search") ||
+                "/users/coupons/claim".equals(path) || path.startsWith("/books/categories") ||
+                path.startsWith("/books/category") || path.startsWith("/books/books/category") ||
+            path.matches("/books/swagger-ui.html") || "/users/check-email".equals(path) || "/users/coupons/claim".equals(path) ||
+            "/users/dormant".equals(path) || "/users/find-email".equals(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (path.startsWith("/books") && StringUtils.isEmpty(request.getHeader("Authorization"))) {
+        if ((path.startsWith("/books") || path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization"))) {
             filterChain.doFilter(request, response);
             return;
         }

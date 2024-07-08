@@ -30,7 +30,7 @@ public interface BookService {
 
     List<BookResponse> getBookByCategoryId(Long categoryId);
 
-    Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable);
+    Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable, String sort);
 
     List<BookCouponResponse> getBookByName(String name);
 }

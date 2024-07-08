@@ -143,7 +143,7 @@ class CouponUserServiceImplTest {
     @Test
     @DisplayName("쿠폰 상태 업데이트 - (실패) 사용자 쿠폰을 찾을 수 없음")
     void testUpdateCouponState_UserCouponNotFound() {
-        when(couponUserRepository.findByCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use")));
     }
@@ -151,7 +151,7 @@ class CouponUserServiceImplTest {
     @Test
     @DisplayName("쿠폰 상태 업데이트 - 성공")
     void testUpdateCouponState_Success() {
-        when(couponUserRepository.findByCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.of(testCouponUser));
+        when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.of(testCouponUser));
 
         couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use"));
 

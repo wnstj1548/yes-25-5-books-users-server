@@ -10,15 +10,17 @@ import java.util.List;
 
 public interface BookSearchService {
 
-    Page<BookIndexResponse> searchBookByNamePaging(BookSearchRequest request, Pageable pageable);
+    Page<BookIndexResponse> searchBookByNamePaging(String keyword, Pageable pageable, String sortString);
 
-    List<BookIndexResponse> searchBookByName(BookSearchRequest request);
+//    List<BookIndexResponse> searchBookByName(String keyword);
 
-    Page<BookIndexResponse> searchBookByDescription(BookSearchRequest request, Pageable pageable);
+    Page<BookIndexResponse> searchBookByDescription(String keyword, Pageable pageable, String sortString);
 
-    Page<BookIndexResponse> searchBookByTagName(BookSearchRequest request, Pageable pageable);
+    Page<BookIndexResponse> searchBookByTagName(String keyword, Pageable pageable, String sortString);
 
-    Page<BookIndexResponse> searchBookByAuthorName(BookSearchRequest request, Pageable pageable);
+    Page<BookIndexResponse> searchBookByAuthorName(String keyword, Pageable pageable, String sortString);
 
-    Page<BookIndexResponse> searchAll(BookSearchRequest request, Pageable pageable);
+    Page<BookIndexResponse> searchBookByCategoryName(String keyword, Pageable pageable, String sortString);
+
+    Page<BookIndexResponse> searchAll(String keyword, Pageable pageable, String sortString);
 }

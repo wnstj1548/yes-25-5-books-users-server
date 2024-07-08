@@ -1,6 +1,2 @@
-POST localhost:8061/books/searchByDescription
+GET localhost:8061/books/searchByCategoryName?keyword=국내도서&sortString=low-price
 Content-Type: application/json
-
-{
-  "keyword": "히히"
-}
