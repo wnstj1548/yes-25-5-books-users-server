@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.application.service.scheduler;
 import com.yes255.yes255booksusersserver.application.service.CouponUserService;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCouponUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ public class BirthdayCouponScheduler {
     private final JpaUserRepository userRepository;
     private final MessageProducer messageProducer; // MessageProducer 추가
 
-    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
+    @Scheduled(cron = "0 30 9 * * *") // 매일 자정에 실행
     public void scheduleBirthdayCoupons() {
         log.info("Scheduler started - Birthday coupon scheduler triggered");
 
@@ -33,7 +34,6 @@ public class BirthdayCouponScheduler {
         List<User> usersWithBirthdayToday = userRepository.findUsersByBirthMonthAndDay(month, day);
 
         log.info("Number of users with birthday today: {}", usersWithBirthdayToday.size());
-
         if (usersWithBirthdayToday.isEmpty()) {
             log.info("No users with birthday today");
         } else {
