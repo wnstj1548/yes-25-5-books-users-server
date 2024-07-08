@@ -21,7 +21,7 @@ public class BirthdayCouponScheduler {
     private final JpaUserRepository userRepository;
     private final MessageProducer messageProducer; // MessageProducer 추가
 
-    @Scheduled(cron = "0 30 9 * * *") // 매일 자정에 실행
+    @Scheduled(fixedRate = 180000) // 매일 자정에 실행
     public void scheduleBirthdayCoupons() {
         log.info("Scheduler started - Birthday coupon scheduler triggered");
 
