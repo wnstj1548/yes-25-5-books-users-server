@@ -28,7 +28,7 @@ public class UserTotalPureAmountServiceImpl implements UserTotalPureAmountServic
                 .orElseThrow(() -> new UserTotalPureAmountException(ErrorStatus.toErrorStatus("회원 순수 누적 금액이 존재 하지 않습니다.", 400, LocalDateTime.now())));
 
         return ReadPurePriceResponse.builder()
-                .purPrice(userTotalPureAmount.getUserTotalPureAmount())
+                .purePrice(userTotalPureAmount.getUserTotalPureAmount())
                 .recordedAt(userTotalPureAmount.getUserTotalPureAmountRecordedAt())
                 .build();
     }

@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
-public record ReadPurePriceResponse(BigDecimal purPrice, LocalDate recordedAt) {
+public record ReadPurePriceResponse(BigDecimal purePrice, LocalDate recordedAt) {
 }
