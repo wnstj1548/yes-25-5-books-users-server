@@ -9,7 +9,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.index.BookIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.CategoryIndex;
 import com.yes255.yes255booksusersserver.persistance.domain.index.TagIndex;
 import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.BookSearchRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookIndexResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,7 +147,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         return result;
     }
 
-    @Scheduled(cron = "0 27 * * * ?")
+    @Scheduled(cron = "0 43 * * * ?")
     public void syncBook() {
         log.info("book sync start");
         List<BookIndex> bookDeletedList = jpaBookRepository.findByBookIsDeletedTrue().stream().map(BookIndex::fromBook).toList();
@@ -157,21 +156,21 @@ public class BookSearchServiceImpl implements BookSearchService {
         bookElasticSearchRepository.saveAll(fetchAuthorsAndTags(bookIndexList));
     }
 
-    @Scheduled(cron = "0 26 * * * ?")
+    @Scheduled(cron = "0 42 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
         List<TagIndex> tagIndexList = jpaTagRepository.findAll().stream().map(TagIndex::fromTag).toList();
         tagElasticSearchRepository.saveAll(tagIndexList);
     }
 
-    @Scheduled(cron = "0 26 * * * ?")
+    @Scheduled(cron = "0 42 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
         List<AuthorIndex> authorIndexList = jpaAuthorRepository.findAll().stream().map(AuthorIndex::fromAuthor).toList();
         authorElasticSearchRepository.saveAll(authorIndexList);
     }
 
-    @Scheduled(cron = "0 26 * * * ?")
+    @Scheduled(cron = "0 42 * * * ?")
     public void syncCategory() {
         log.info("category sync start");
         List<CategoryIndex> categoryIndexList = jpaCategoryRepository.findAll().stream().map(CategoryIndex::fromCategory).toList();
@@ -183,9 +182,6 @@ public class BookSearchServiceImpl implements BookSearchService {
         Sort sort;
 
         switch(sortString) {
-//            case "new-product":
-//                sort = Sort.by(Sort.Order.desc("bookPublishDate"));
-//                break;
             case "low-price":
                 sort = Sort.by(Sort.Order.asc("bookSellingPrice"));
                 break;

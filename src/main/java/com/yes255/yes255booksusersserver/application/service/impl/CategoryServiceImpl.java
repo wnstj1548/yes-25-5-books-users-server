@@ -133,7 +133,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> getCategoryByParentCategoryId(long parentCategoryId) {
         return getAllCategories().stream()
                 .filter(category -> Objects.nonNull(category.parentCategoryId()) && category.parentCategoryId() == parentCategoryId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

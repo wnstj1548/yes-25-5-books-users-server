@@ -161,29 +161,7 @@ public class BookServiceImpl implements BookService {
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
-        Comparator comparator;
-
-        switch(sortString) {
-            case "new-product":
-                comparator = Comparator.comparing(BookResponse::bookPublishDate).reversed();
-                break;
-            case "low-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-                break;
-            case "high-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
-                break;
-//            case "grade" :
-//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-//                break;
-            case "review":
-                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
-                break;
-            case "popularity":
-            default:
-                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
-                break;
-        }
+        Comparator comparator = getComparator(sortString);
 
         List<BookResponse> bookList = bookCategoryList.stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
@@ -265,5 +243,31 @@ public class BookServiceImpl implements BookService {
                 .quantity(book.getQuantity())
                 .author(authorString)
                 .build();
+    }
+
+    private Comparator getComparator(String sortString) {
+
+        Comparator comparator;
+
+        switch(sortString) {
+            case "low-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
+                break;
+            case "high-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
+                break;
+//            case "grade" :
+//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
+//                break;
+            case "review":
+                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
+                break;
+            case "popularity":
+            default:
+                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
+                break;
+        }
+
+        return comparator;
     }
 }

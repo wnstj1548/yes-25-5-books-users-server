@@ -103,7 +103,7 @@ public class Book {
     }
 
     public void updateAll(Book book) {
-        updateISBN(book.getBookIsbn());
+        updateIsbn(book.getBookIsbn());
         updateBookName(book.getBookName());
         updateBookDescription(book.getBookDescription());
         updateBookPublisher(book.getBookPublisher());
@@ -115,8 +115,8 @@ public class Book {
         updateBookIsPackable(book.isBookIsPackable());
     }
 
-    public void updateISBN(String ISBN) {
-        this.bookIsbn = ISBN;
+    public void updateIsbn(String isbn) {
+        this.bookIsbn = isbn;
     }
 
     public void updateBookName(String bookName) {

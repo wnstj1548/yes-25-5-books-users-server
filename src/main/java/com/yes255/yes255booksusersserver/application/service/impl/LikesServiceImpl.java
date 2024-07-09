@@ -9,7 +9,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaLikesRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateLikesRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,16 +29,16 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public List<LikesResponse> getLikeByUserId(Long userId) {
 
-        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("해당 유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
-        return jpaLikesRepository.findByUser(user).stream().map(LikesResponse::fromEntity).toList();
+        return jpaLikesRepository.findByUserAndLikesStatus(user, true).stream().map(LikesResponse::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<LikesResponse> getLikeByBookId(Long bookId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("해당 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         return jpaLikesRepository.findByBook(book).stream().map(LikesResponse::fromEntity).toList();
     }
@@ -48,8 +47,8 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public LikesResponse createLike(Long bookId, Long userId) {
 
-        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
-        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("해당 책을 찾을 수 없습니다.", 404, LocalDateTime.now())));
+        User user = jpaUserRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("해당 유저를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
         Likes likes = Likes.builder()
                 .likesId(null)
