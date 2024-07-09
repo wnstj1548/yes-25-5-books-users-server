@@ -1,6 +1,7 @@
 spring:
+  logHost: localhost
   rabbitmq:
-    host: localhost
+    host: yes25_5_book_user
     port: 5672
     listener:
       simple:

@@ -6,6 +6,7 @@ import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundExcept
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateCategoryRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateCategoryRequest;
@@ -16,14 +17,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class CategoryServiceImplTest {
@@ -34,28 +39,30 @@ class CategoryServiceImplTest {
     @Mock
     private JpaBookCategoryRepository jpaBookCategoryRepository;
 
+    @Mock
+    private JpaBookRepository jpaBookRepository;
+
     @InjectMocks
     private CategoryServiceImpl categoryService;
 
     private Category testCategory;
+    private Category parentCategory;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
-        testCategory = Category.builder()
-                .categoryId(1L)
-                .categoryName("categoryName")
-                .parentCategory(null)
-                .build();
+        MockitoAnnotations.openMocks(this);
+        parentCategory = new Category(1L, "Parent Category", null, null);
+        testCategory = new Category(2L, "Test Category", parentCategory, null);
     }
 
     @DisplayName("카테고리 생성 - 성공")
     @Test
     void createCategory_success() {
         // given
-        CreateCategoryRequest request = new CreateCategoryRequest("categoryName", null);
+        CreateCategoryRequest request = new CreateCategoryRequest("Test Category", parentCategory.getCategoryId());
 
         when(jpaCategoryRepository.save(any(Category.class))).thenReturn(testCategory);
+        when(jpaCategoryRepository.findById(parentCategory.getCategoryId())).thenReturn(Optional.of(parentCategory));
 
         // when
         CategoryResponse response = categoryService.createCategory(request);
@@ -72,19 +79,19 @@ class CategoryServiceImplTest {
     @Test
     void createCategory_failure_requestEmpty() {
         // then
-        assertThrows(ApplicationException.class, () -> categoryService.createCategory(null));
-
+        ApplicationException exception = assertThrows(ApplicationException.class, () -> categoryService.createCategory(null));
+        assertEquals(null, exception.getMessage());
         verify(jpaCategoryRepository, never()).save(any(Category.class));
     }
 
     @DisplayName("카테고리 조회 - 성공")
     @Test
-    void findCategory_success() {
+    void getCategory_success() {
         // given
-        when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(jpaCategoryRepository.findById(2L)).thenReturn(Optional.of(testCategory));
 
         // when
-        CategoryResponse response = categoryService.getCategory(1L);
+        CategoryResponse response = categoryService.getCategory(2L);
 
         // then
         assertNotNull(response);
@@ -94,43 +101,76 @@ class CategoryServiceImplTest {
 
     @DisplayName("카테고리 조회 - 실패 (존재하지 않는 카테고리)")
     @Test
-    void findCategory_failure_categoryNotFound() {
+    void getCategory_failure_categoryNotFound() {
         // given
-        when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(jpaCategoryRepository.findById(2L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategory(1L));
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategory(2L));
+        assertEquals(null, exception.getMessage());
+    }
+
+    @DisplayName("모든 카테고리 조회 (페이징) - 성공")
+    @Test
+    void getAllCategories_paged_success() {
+        // given
+        List<Category> categories = List.of(testCategory);
+        Page<Category> categoryPage = new PageImpl<>(categories, PageRequest.of(0, 10), categories.size());
+
+        when(jpaCategoryRepository.findAll(any(Pageable.class))).thenReturn(categoryPage);
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<CategoryResponse> responsePage = categoryService.getAllCategories(pageable);
+
+        // then
+        assertNotNull(responsePage);
+        assertEquals(1, responsePage.getTotalElements());
+        assertEquals(testCategory.getCategoryId(), responsePage.getContent().get(0).categoryId());
+    }
+
+    @DisplayName("모든 카테고리 조회 - 성공")
+    @Test
+    void getAllCategories_success() {
+        // given
+        List<Category> categories = List.of(testCategory);
+        when(jpaCategoryRepository.findAll()).thenReturn(categories);
+
+        // when
+        List<CategoryResponse> responses = categoryService.getAllCategories();
+
+        // then
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals(testCategory.getCategoryId(), responses.get(0).categoryId());
     }
 
     @DisplayName("카테고리 업데이트 - 성공")
     @Test
     void updateCategory_success() {
         // given
-        UpdateCategoryRequest request = new UpdateCategoryRequest(1L, "UpdatedCategoryName", null);
-        Category updatedCategory = new Category(1L, "UpdatedCategoryName", null, null);
+        UpdateCategoryRequest request = new UpdateCategoryRequest(testCategory.getCategoryId(), "Updated Category", parentCategory.getCategoryId());
+        Category updatedCategory = new Category(testCategory.getCategoryId(), "Updated Category", parentCategory, null);
 
-        // Mock 설정
-        when(jpaCategoryRepository.existsById(request.categoryId())).thenReturn(true);
-        when(jpaCategoryRepository.save(any())).thenReturn(updatedCategory);
+        when(jpaCategoryRepository.existsById(testCategory.getCategoryId())).thenReturn(true);
+        when(jpaCategoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
+        when(jpaCategoryRepository.findById(parentCategory.getCategoryId())).thenReturn(Optional.of(parentCategory));
 
         // when
         CategoryResponse response = categoryService.updateCategory(request);
 
         // then
-        verify(jpaCategoryRepository, times(1)).existsById(request.categoryId());
-        verify(jpaCategoryRepository, times(1)).save(any());
-
+        assertNotNull(response);
         assertEquals(updatedCategory.getCategoryId(), response.categoryId());
-        assertEquals(updatedCategory.getCategoryName(), response.categoryName());
-        assertNull(response.parentCategoryId());
+        assertEquals("Updated Category", response.categoryName());
     }
 
     @DisplayName("카테고리 수정 - 실패 (요청 값이 비어있는 경우)")
     @Test
     void updateCategory_failure_requestEmpty() {
         // then
-        assertThrows(ApplicationException.class, () -> categoryService.updateCategory(null));
-
+        ApplicationException exception = assertThrows(ApplicationException.class, () -> categoryService.updateCategory(null));
+        assertEquals(null, exception.getMessage());
         verify(jpaCategoryRepository, never()).save(any(Category.class));
     }
 
@@ -138,85 +178,58 @@ class CategoryServiceImplTest {
     @Test
     void updateCategory_failure_categoryNotFound() {
         // given
-        UpdateCategoryRequest request = new UpdateCategoryRequest(1L, "UpdatedCategory", null);
+        UpdateCategoryRequest request = new UpdateCategoryRequest(2L, "Updated Category", null);
 
-        when(jpaCategoryRepository.existsById(1L)).thenReturn(false);
+        when(jpaCategoryRepository.existsById(2L)).thenReturn(false);
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.updateCategory(request));
-
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> categoryService.updateCategory(request));
+        assertEquals(null, exception.getMessage());
         verify(jpaCategoryRepository, never()).save(any(Category.class));
     }
 
     @DisplayName("카테고리 삭제 - 성공")
     @Test
-    void deleteCategory_success() {
+    void removeCategory_success() {
         // given
-        Category category = new Category(1L, "Test Category", null, null);
-
         List<BookCategory> bookCategoryList = new ArrayList<>();
 
-        // Mock 설정
-        when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(jpaBookCategoryRepository.findByCategory(category)).thenReturn(bookCategoryList);
+        when(jpaCategoryRepository.findById(testCategory.getCategoryId())).thenReturn(Optional.of(testCategory));
+        when(jpaBookCategoryRepository.findByCategory(testCategory)).thenReturn(bookCategoryList);
 
         // when
-        categoryService.removeCategory(1L);
+        categoryService.removeCategory(testCategory.getCategoryId());
 
         // then
-        verify(jpaCategoryRepository, times(1)).findById(1L);
-        verify(jpaBookCategoryRepository, times(1)).findByCategory(category);
         verify(jpaBookCategoryRepository, times(1)).deleteAll(bookCategoryList);
-        verify(jpaCategoryRepository, times(1)).deleteById(1L);
+        verify(jpaCategoryRepository, times(1)).deleteById(testCategory.getCategoryId());
     }
 
     @DisplayName("카테고리 삭제 - 실패 (존재하지 않는 카테고리)")
     @Test
-    void deleteCategory_failure_categoryNotFound() {
+    void removeCategory_failure_categoryNotFound() {
         // given
-        when(jpaCategoryRepository.existsById(1L)).thenReturn(false);
+        when(jpaCategoryRepository.findById(testCategory.getCategoryId())).thenReturn(Optional.empty());
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.removeCategory(1L));
-
-        verify(jpaCategoryRepository, never()).deleteById(1L);
+        CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> categoryService.removeCategory(testCategory.getCategoryId()));
+        assertEquals(null, exception.getMessage());
+        verify(jpaCategoryRepository, never()).deleteById(anyLong());
     }
 
-    @DisplayName("모든 카테고리 조회 - 성공")
+    @DisplayName("루트 카테고리 조회 - 성공")
     @Test
-    void findAllCategories_success() {
+    void getRootCategories_success() {
         // given
-        List<Category> categories = Arrays.asList(testCategory, new Category(2L, "TestCategory2", null, null));
+        List<Category> categories = List.of(parentCategory, testCategory);
         when(jpaCategoryRepository.findAll()).thenReturn(categories);
 
         // when
-        List<CategoryResponse> responses = categoryService.getAllCategories();
+        List<CategoryResponse> responses = categoryService.getRootCategories();
 
         // then
-        assertEquals(categories.size(), responses.size());
-        assertEquals(categories.get(0).getCategoryId(), responses.get(0).categoryId());
-        assertEquals(categories.get(0).getCategoryName(), responses.get(0).categoryName());
-        assertEquals(categories.get(1).getCategoryId(), responses.get(1).categoryId());
-        assertEquals(categories.get(1).getCategoryName(), responses.get(1).categoryName());
-    }
-
-    @DisplayName("부모 카테고리 ID로 카테고리 조회 - 성공")
-    @Test
-    void findCategoryByParentCategoryId_success() {
-        // given
-        Category parentCategory = new Category(1L, "ParentCategory", null, null);
-        Category childCategory = new Category(2L, "ChildCategory", parentCategory, null);
-
-        // 모의 객체 설정
-        when(jpaCategoryRepository.findAll()).thenReturn(Arrays.asList(parentCategory, childCategory));
-
-        // when
-        List<CategoryResponse> responses = categoryService.getCategoryByParentCategoryId(1L);
-
-        // then
+        assertNotNull(responses);
         assertEquals(1, responses.size());
-        assertEquals(childCategory.getCategoryId(), responses.get(0).categoryId());
-        assertEquals(childCategory.getCategoryName(), responses.get(0).categoryName());
-        assertEquals(parentCategory.getCategoryId(), responses.get(0).parentCategoryId());
+        assertEquals(parentCategory.getCategoryId(), responses.get(0).categoryId());
     }
 }

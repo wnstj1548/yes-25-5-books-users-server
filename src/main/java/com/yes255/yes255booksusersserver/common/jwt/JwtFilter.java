@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
 
-
+        //토큰 필요없는 거
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
                 "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
                 "/users/check-email".equals(path) || path.startsWith("/books/search") ||
@@ -47,6 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        //토큰이 있으면 받고 없으면 바로 리턴
         if (path.matches("/books/likes/\\d+/exist")) {
             try {
                 String token = getToken(request);

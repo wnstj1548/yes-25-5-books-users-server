@@ -1,4 +1,5 @@
 spring:
+  logHost: 133.186.153.195
   rabbitmq:
     host: 133.186.241.167
     port: 5672
