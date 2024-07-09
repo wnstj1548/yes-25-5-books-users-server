@@ -38,12 +38,12 @@ public class User {
     private String userName;
 
     @NotNull(message = "유저 전화번호는 필수입니다.")
-    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "유효한 전화번호 형식이 아닙니다. 010-1234-5678 형식을 따라야 합니다.")
+//    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "유효한 전화번호 형식이 아닙니다. 010-1234-5678 형식을 따라야 합니다.")
     @Column(nullable = false, length = 15)
     private String userPhone;
 
     @NotNull(message = "유저 이메일은 필수입니다.")
-    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "유효한 이메일 형식이 아닙니다. yes255@shop.net 형식을 따라야 합니다.")
+//    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "유효한 이메일 형식이 아닙니다. yes255@shop.net 형식을 따라야 합니다.")
     @Column(unique = true, nullable = false, length = 100)
     private String userEmail;
 
