@@ -43,9 +43,7 @@ public class LikesController {
             throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
         }
 
-        Long userId = jwtUserDetails.userId();
-
-        return ResponseEntity.ok(likesService.getLikeByUserId(userId));
+        return ResponseEntity.ok(likesService.getLikeByUserId(jwtUserDetails.userId()));
     }
 
     /**

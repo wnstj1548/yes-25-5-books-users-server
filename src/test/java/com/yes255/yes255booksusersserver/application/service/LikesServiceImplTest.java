@@ -80,7 +80,7 @@ public class LikesServiceImplTest {
     void findLikeByUserId_success() {
         // given
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(jpaLikesRepository.findByUser(any())).thenReturn(List.of(new Likes(null, true, testBook, testUser)));
+        when(jpaLikesRepository.findByUserAndLikesStatus(testUser, true)).thenReturn(List.of(new Likes(null, true, testBook, testUser)));
 
         // when
         List<LikesResponse> responses = likesService.getLikeByUserId(1L);
