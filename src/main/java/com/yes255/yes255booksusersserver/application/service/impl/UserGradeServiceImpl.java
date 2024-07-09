@@ -32,12 +32,12 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserGradeServiceImpl implements UserGradeService {
 
-    final JpaUserRepository userRepository;
-    final JpaUserGradeRepository userGradeRepository;
-    final JpaUserGradeLogRepository userGradeLogRepository;
-    final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
+    private final JpaUserRepository userRepository;
+    private final JpaUserGradeRepository userGradeRepository;
+    private final JpaUserGradeLogRepository userGradeLogRepository;
+    private final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
 
-    final OrderAdaptor orderAdaptor;
+    private final OrderAdaptor orderAdaptor;
 
     // 회원 등급 조회
     @Override
@@ -115,7 +115,7 @@ public class UserGradeServiceImpl implements UserGradeService {
 
         for (OrderLogResponse orderLogResponse : orderLogResponses) {
 
-            User user = userRepository.findById(orderLogResponse.userId())
+            User user = userRepository.findById(orderLogResponse.customerId())
                     .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
             updateUserGrade(user, orderLogResponse.purePrice(), currentDate);

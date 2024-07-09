@@ -159,7 +159,7 @@ class ReviewServiceImplTest {
         Book book = Book.builder().bookId(1L).build();
         User user = User.builder().build();
 
-        when(orderAdaptor.existOrderHistory()).thenReturn(true);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -176,7 +176,7 @@ class ReviewServiceImplTest {
     @DisplayName("주문한 적이 없으면 예외를 반환하는지 확인한다.")
     void createReviewWhenOrderNotFound() {
         // given
-        when(orderAdaptor.existOrderHistory()).thenReturn(false);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(false);
 
         // when && then
         assertThatThrownBy(() ->
@@ -188,7 +188,7 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰를 남긴적이 있으면 예외를 반환하는지 확인한다.")
     void createReviewWhenHasReview() {
         // given
-        when(orderAdaptor.existOrderHistory()).thenReturn(true);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(true);
 
         // when && then
@@ -201,7 +201,7 @@ class ReviewServiceImplTest {
     @DisplayName("유저가 존재하지 않으면 예외를 반환하는지 확인한다.")
     void createReviewWhenUserNotFound() {
         // given
-        when(orderAdaptor.existOrderHistory()).thenReturn(true);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(anyLong())).thenReturn(Optional.of(book));
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -219,7 +219,7 @@ class ReviewServiceImplTest {
         MultipartFile image = new MockMultipartFile("image", "image.jpg", "image/jpeg", "test image".getBytes());
         List<MultipartFile> images = List.of(image);
 
-        when(orderAdaptor.existOrderHistory()).thenReturn(true);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
         when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -248,7 +248,7 @@ class ReviewServiceImplTest {
     @DisplayName("책을 찾을 수 없을 때 예외를 발생시키는지 확인한다.")
     void createReviewWhenBookNotFound() {
         // given && when
-        when(orderAdaptor.existOrderHistory()).thenReturn(true);
+        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
         when(bookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then

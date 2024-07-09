@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
     private final JpaPointLogRepository pointLogRepository;
+    private final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
 
     private final InactiveStateService inactiveStateService;
 
@@ -156,7 +157,7 @@ public class UserServiceImpl implements UserService {
                 .build());
 
         // Local 제공자
-        Provider provider = providerRepository.findByProviderName("LOCAL");
+        Provider provider = providerRepository.findByProviderName(userRequest.providerName());  // 페이코 회원 가입을 고려해 providerName으로 변경
 
         if (Objects.isNull(provider)) {
             throw new ProviderException(ErrorStatus.toErrorStatus("제공자가 존재 하지 않습니다.", 400, LocalDateTime.now()));
@@ -198,6 +199,12 @@ public class UserServiceImpl implements UserService {
         userGradeLogRepository.save(UserGradeLog.builder()
                 .userGradeUpdatedAt(LocalDate.now())
                 .userGrade(userGrade)
+                .user(user)
+                .build());
+
+        // 최초 회원 순수 주문 금액 이력 작성
+        userTotalPureAmountRepository.save(UserTotalPureAmount.builder()
+                .userTotalPureAmount(BigDecimal.ZERO)
                 .user(user)
                 .build());
 
