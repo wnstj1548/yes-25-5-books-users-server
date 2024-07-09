@@ -13,6 +13,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRe
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateAddressBasedRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
@@ -167,5 +168,28 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Override
     public void deleteAddress(Long userId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
+    }
+
+    // 기본 배송지 지정
+    @Transactional
+    @Override
+    public void updateAddressBased(Long userId, Long userAddressId, UpdateAddressBasedRequest addressRequest) {
+
+        UserAddress userAddress = userAddressRepository.findById(userAddressId)
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+
+        List<UserAddress> userAddresses = userAddressRepository.findAll();
+
+        // 모든 주소의 기본 배송지 false로 변환
+        if (userAddresses.isEmpty()) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
+
+        for (UserAddress userAddressTemp : userAddresses) {
+            userAddressTemp.updateUserAddressBased(false);
+        }
+
+        // 기본 배송지 지정
+        userAddress.updateUserAddressBased(true);
     }
 }
