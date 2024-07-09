@@ -49,7 +49,12 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        if(!path.equals("/books/likes/users") && !request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes")) {
+        if(!path.equals("/books/likes/users") && !request.getMethod().equalsIgnoreCase("POST")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(!request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes/books")) {
             filterChain.doFilter(request, response);
             return;
         }

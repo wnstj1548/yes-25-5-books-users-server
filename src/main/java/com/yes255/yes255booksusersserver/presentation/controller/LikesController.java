@@ -87,6 +87,10 @@ public class LikesController {
     @GetMapping("/{bookId}")
     public ResponseEntity<LikesResponse> findByBookIdAndUserId(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
 
+        if(Objects.isNull(jwtUserDetails)) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
+        }
+
         if(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
             return ResponseEntity.ok(likesService.getLikeByBookIdAndUserId(bookId, jwtUserDetails.userId()));
         }
