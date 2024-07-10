@@ -28,6 +28,7 @@ import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.Review;
 import com.yes255.yes255booksusersserver.persistance.domain.ReviewImage;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.enumtype.ReviewType;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
@@ -138,6 +139,8 @@ class ReviewServiceImplTest {
             .book(book)
             .rating(5)
             .reviewImage(List.of(reviewImage))
+            .hasChangedToImageReview(false)
+            .reviewType(ReviewType.GENERAL.name())
             .build();
 
         point = Point.builder()
@@ -157,12 +160,12 @@ class ReviewServiceImplTest {
     void createReview() {
         // given
         Book book = Book.builder().bookId(1L).build();
-        User user = User.builder().build();
+        User user = User.builder().userId(1L).build();
 
-        when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
-        when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(orderAdaptor.existOrderHistory(anyLong())).thenReturn(true);
+        when(reviewRepository.existsByUser_UserIdAndBook_BookId(any(), any())).thenReturn(false);
+        when(bookRepository.findById(anyLong())).thenReturn(Optional.of(book));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(pointRepository.findByUser_UserId(anyLong())).thenReturn(point);
 
         // when
@@ -189,7 +192,7 @@ class ReviewServiceImplTest {
     void createReviewWhenHasReview() {
         // given
         when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
-        when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(true);
+        when(reviewRepository.existsByUser_UserIdAndBook_BookId(any(), any())).thenReturn(true);
 
         // when && then
         assertThatThrownBy(() ->
@@ -202,7 +205,6 @@ class ReviewServiceImplTest {
     void createReviewWhenUserNotFound() {
         // given
         when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
-        when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(anyLong())).thenReturn(Optional.of(book));
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -220,7 +222,6 @@ class ReviewServiceImplTest {
         List<MultipartFile> images = List.of(image);
 
         when(orderAdaptor.existOrderHistory(createReviewRequest.bookId())).thenReturn(true);
-        when(reviewRepository.existsByUser_UserIdAndBook_BookId(anyLong(), anyLong())).thenReturn(false);
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -329,7 +330,6 @@ class ReviewServiceImplTest {
     void updateReview() {
         // given
         when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-        when(reviewImageRepository.findAllByReview(review)).thenReturn(List.of());
 
         // when
         reviewService.updateReview(updateReviewRequest, null, 1L, 1L);
@@ -342,7 +342,6 @@ class ReviewServiceImplTest {
     @DisplayName("리뷰 업데이트 요청을 했을 때 리뷰를 찾을 수 없을 때 예외를 발생시키는지 확인한다.")
     void updateReviewWhenReviewNotFound() {
         // given && when
-
         when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
@@ -360,7 +359,7 @@ class ReviewServiceImplTest {
         List<MultipartFile> images = List.of(image);
 
         when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-        when(reviewImageRepository.findAllByReview(review)).thenReturn(List.of(reviewImage));
+        when(pointRepository.findByUser_UserId(any())).thenReturn(point);
 
         JsonNode fileNode = mock(JsonNode.class);
         when(fileNode.path("url")).thenReturn(fileNode);
@@ -386,7 +385,7 @@ class ReviewServiceImplTest {
         // given
         Review deleteReview = Review.builder()
             .reviewId(1L)
-            .isActive(true)
+            .hasChangedToImageReview(false)
             .reviewImage(List.of(reviewImage))
             .user(user)
             .build();
@@ -398,7 +397,7 @@ class ReviewServiceImplTest {
         reviewService.deleteReviewByReviewId(1L, 1L);
 
         // then
-        assertThat(deleteReview.getIsActive()).isFalse();
+        verify(reviewRepository, times(1)).delete(deleteReview);
     }
 
     @Test
