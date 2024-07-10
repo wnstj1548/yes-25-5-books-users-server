@@ -1,5 +1,7 @@
 spring:
-  logHost: localhost
+  config:
+    activate:
+      on-profile: dev
   rabbitmq:
     host: yes25_5_book_user
     port: 5672

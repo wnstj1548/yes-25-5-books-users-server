@@ -21,13 +21,15 @@ public class HttpAppender extends AppenderBase<ILoggingEvent> {
     private String logType;
     private String host;
     private String secretKey;
+    private String platform;
 
     @Override
     protected void append(ILoggingEvent eventObject) {
         try {
+            String logLevel = eventObject.getLevel().toString();
             LogEvent logEvent = new LogEvent(
                     projectName, projectVersion, logVersion, eventObject.getFormattedMessage(),
-                    logSource, logType, host, secretKey
+                    logSource, logType, host, secretKey, logLevel, platform
             );
             String json = objectMapper.writeValueAsString(logEvent);
             RequestBody body = RequestBody.create(json, JSON);
@@ -74,6 +76,10 @@ public class HttpAppender extends AppenderBase<ILoggingEvent> {
         this.secretKey = secretKey;
     }
 
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
+
     static class LogEvent {
         public String projectName;
         public String projectVersion;
@@ -83,9 +89,12 @@ public class HttpAppender extends AppenderBase<ILoggingEvent> {
         public String logType;
         public String host;
         public String secretKey;
+        public String logLevel;
+        public String platform;
 
         public LogEvent(String projectName, String projectVersion, String logVersion, String body,
-                        String logSource, String logType, String host, String secretKey) {
+                        String logSource, String logType, String host, String secretKey,
+                        String logLevel, String platform) {
             this.projectName = projectName;
             this.projectVersion = projectVersion;
             this.logVersion = logVersion;
@@ -94,6 +103,8 @@ public class HttpAppender extends AppenderBase<ILoggingEvent> {
             this.logType = logType;
             this.host = host;
             this.secretKey = secretKey;
+            this.logLevel = logLevel;
+            this.platform = platform;
         }
     }
 }
