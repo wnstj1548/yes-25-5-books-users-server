@@ -264,7 +264,7 @@ class ReviewServiceImplTest {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Review> reviews = new PageImpl<>(Collections.singletonList(review));
 
-        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
+        when(reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
             .thenReturn(reviews);
 
         // when
@@ -294,7 +294,7 @@ class ReviewServiceImplTest {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<Review> reviews = new PageImpl<>(Collections.singletonList(review));
 
-        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
+        when(reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(anyLong(), any(PageRequest.class)))
             .thenReturn(reviews);
 
         // when
@@ -314,7 +314,7 @@ class ReviewServiceImplTest {
     void getReviewRatings() {
         // given
         List<Review> reviews = List.of(review);
-        when(reviewRepository.findAllByBook_BookIdAndIsActiveTrue(anyLong())).thenReturn(reviews);
+        when(reviewRepository.findAllByBook_BookId(anyLong())).thenReturn(reviews);
 
         // when
         List<ReadReviewRatingResponse> responses = reviewService.getReviewRatingsByBookId(1L);

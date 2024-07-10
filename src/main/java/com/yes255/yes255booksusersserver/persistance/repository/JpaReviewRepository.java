@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaReviewRepository extends JpaRepository<Review, Long> {
 
-    Page<Review> findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(Long bookId, Pageable pageable);
+    Page<Review> findAllByBook_BookIdOrderByReviewTimeDesc(Long bookId, Pageable pageable);
 
-    List<Review> findAllByBook_BookIdAndIsActiveTrue(Long bookId);
+    List<Review> findAllByBook_BookId(Long bookId);
 
-    boolean existsByUser_UserIdAndBook_BookIdAndIsActiveTrue(Long userId, Long bookId);
+    boolean existsByUser_UserIdAndBook_BookId(Long userId, Long bookId);
 
     void deleteByReviewId(Long reviewId);
 
