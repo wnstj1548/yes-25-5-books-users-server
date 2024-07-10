@@ -22,5 +22,9 @@ public interface UserAddressService {
 
     void deleteAddress(Long userId, Long userAddressId);
 
-    public Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable);
+    Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable);
+
+//    Page<UserAddressResponse> findAllAddressesList(Long userId, Pageable pageable);
+
+
 }
