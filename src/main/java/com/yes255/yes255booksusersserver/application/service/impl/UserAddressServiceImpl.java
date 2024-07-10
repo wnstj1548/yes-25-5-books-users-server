@@ -189,4 +189,24 @@ public class UserAddressServiceImpl implements UserAddressService {
     public void deleteAddress(Long userId, Long userAddressId) {
         userAddressRepository.deleteById(userAddressId);
     }
+
+//    @Override
+//    public Page<UserAddressResponse> findAllAddressesList(Long userId, Pageable pageable) {
+//        Page<UserAddress> userAddressPage = userAddressRepository.findByUserUserId(userId, pageable);
+//
+//        if (userAddressPage.isEmpty()) {
+//            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+//        }
+//
+//        return userAddressPage.map(userAddress -> UserAddressResponse.builder()
+//                .userAddressId(userAddress.getUserAddressId())
+//                .addressId(userAddress.getAddress().getAddressId())
+//                .addressZip(userAddress.getAddress().getAddressZip())
+//                .addressRaw(userAddress.getAddress().getAddressRaw())
+//                .addressName(userAddress.getAddressName())
+//                .addressDetail(userAddress.getAddressDetail())
+//                .addressBased(userAddress.isAddressBased())
+//                .userId(userId)
+//                .build());
+//    }
 }
