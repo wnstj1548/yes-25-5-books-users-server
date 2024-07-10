@@ -62,7 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
                 );
 
-                response.setHeader("Authorization", token);
+                response.setHeader("Authorization", "Bearer " + token);
                 response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -75,12 +75,12 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        if(!request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes/books")) {
+        if (((!path.matches("/books/likes/book/\\d+/exist") && path.startsWith("/books")) || (path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization")))) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if ((!path.matches("/books/likes/book/\\d+/exist") && path.startsWith("/books") || path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization"))) {
+        if(!request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes/books")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -130,6 +130,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
         );
 
+        response.setHeader("Authorization", "Bearer " + token);
         response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
