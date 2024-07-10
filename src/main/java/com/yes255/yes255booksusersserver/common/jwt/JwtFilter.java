@@ -42,7 +42,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 "/users/check-email".equals(path) || path.startsWith("/books/search") ||
                  path.startsWith("/books/categories") || path.startsWith("/books/category")
                 || path.startsWith("/books/books/category") || "/users/coupons/claim".equals(path)
-                || "/users/dormant".equals(path) || "/users/find-email".equals(path)) {
+                || "/users/dormant".equals(path) || "/users/find-email".equals(path)
+                || path.matches("/books/likes/book/\\d")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -75,7 +76,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        if (((!path.matches("/books/likes/book/\\d+/exist") && path.startsWith("/books")) || (path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization")))) {
+        if (((!path.startsWith("/books/likes") && path.startsWith("/books")) || (path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization")))) {
             filterChain.doFilter(request, response);
             return;
         }
