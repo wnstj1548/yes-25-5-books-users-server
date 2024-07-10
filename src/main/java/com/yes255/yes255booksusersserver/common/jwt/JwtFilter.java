@@ -33,28 +33,60 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
 
-
+        //토큰 필요없는 거
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
-            "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-            "/users/check-email".equals(path) || path.startsWith("/books/search") ||
-                "/users/coupons/claim".equals(path) || path.startsWith("/books/categories") ||
-                path.startsWith("/books/category") || path.startsWith("/books/books/category") ||
-            path.matches("/books/swagger-ui.html") || "/users/check-email".equals(path) || "/users/coupons/claim".equals(path) ||
-            "/users/dormant".equals(path) || "/users/find-email".equals(path)) {
+                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
+                "/users/check-email".equals(path) || path.startsWith("/books/search") ||
+                 path.startsWith("/books/categories") || path.startsWith("/books/category")
+                || path.startsWith("/books/books/category") || "/users/coupons/claim".equals(path)
+                || "/users/dormant".equals(path) || "/users/find-email".equals(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if ((path.startsWith("/books") || path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization"))) {
+        //토큰이 있으면 받고 없으면 바로 리턴
+        if (path.matches("/books/likes/\\d+/exist")) {
+            try {
+                String token = getToken(request);
+                String uuid = jwtProvider.getUserNameFromToken(token);
+                JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
+
+                JwtUserDetails jwtUserDetails = JwtUserDetails.of(jwtAuthResponse.customerId(),
+                        jwtAuthResponse.role(), token);
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        jwtUserDetails, null,
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
+                );
+
+                response.setHeader("Authorization", token);
+                response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                filterChain.doFilter(request, response);
+                return;
+
+            } catch (Exception e) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
+        if(!request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes/books")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if ((!path.matches("/books/likes/book/\\d+/exist") && path.startsWith("/books") || path.startsWith("/reviews/books")) && StringUtils.isEmpty(request.getHeader("Authorization"))) {
             filterChain.doFilter(request, response);
             return;
         }
 
         if (request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/users/cart-books")
-            && StringUtils.isEmpty(request.getHeader("Authorization"))) {
+                && StringUtils.isEmpty(request.getHeader("Authorization"))) {
 
             /*
              * 1. 인증 서버에 회원가입 요청 (/auth/login/none)
@@ -64,18 +96,18 @@ public class JwtFilter extends OncePerRequestFilter {
              */
 
             CustomerResponse customerResponse = customerService.createCustomer(
-                new CustomerRequest("NONE_MEMBER"));
+                    new CustomerRequest("NONE_MEMBER"));
             NoneMemberLoginResponse noneMemberLoginResponse = authAdaptor.loginNoneMember(
-                customerResponse);
+                    customerResponse);
 
             JwtUserDetails jwtUserDetails = JwtUserDetails.of(noneMemberLoginResponse.customerId(),
-                noneMemberLoginResponse.role(), noneMemberLoginResponse.accessToken(),
-                noneMemberLoginResponse.refreshToken());
+                    noneMemberLoginResponse.role(), noneMemberLoginResponse.accessToken(),
+                    noneMemberLoginResponse.refreshToken());
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                jwtUserDetails, null,
-                Collections.singletonList(
-                    new SimpleGrantedAuthority("ROLE_" + noneMemberLoginResponse.role()))
+                    jwtUserDetails, null,
+                    Collections.singletonList(
+                            new SimpleGrantedAuthority("ROLE_" + noneMemberLoginResponse.role()))
             );
 
             response.setHeader("Authorization", "Bearer " + noneMemberLoginResponse.accessToken());
@@ -91,11 +123,11 @@ public class JwtFilter extends OncePerRequestFilter {
         JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
 
         JwtUserDetails jwtUserDetails = JwtUserDetails.of(jwtAuthResponse.customerId(),
-            jwtAuthResponse.role(), token);
+                jwtAuthResponse.role(), token);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-            jwtUserDetails, null,
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
+                jwtUserDetails, null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
         );
 
         response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
@@ -112,7 +144,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         throw new JwtException(
-            ErrorStatus.toErrorStatus("헤더에서 토큰을 찾을 수 없습니다.", 401, LocalDateTime.now())
+                ErrorStatus.toErrorStatus("헤더에서 토큰을 찾을 수 없습니다.", 401, LocalDateTime.now())
         );
     }
 }

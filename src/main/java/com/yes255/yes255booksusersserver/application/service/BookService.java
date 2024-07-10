@@ -1,6 +1,5 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
@@ -8,7 +7,6 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResp
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

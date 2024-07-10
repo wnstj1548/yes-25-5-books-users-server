@@ -29,7 +29,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
                     .requestMatchers("/users", "/users/sign-up", "/users/find/password", "/users/find/email", "/users/check-email", "/users/coupons/claim").permitAll()
-                    .requestMatchers("/books/**").permitAll()
+                    .requestMatchers("/books/**", "/books/likes/**").permitAll()
                         .requestMatchers("/books/swagger/**", "/books/v3/api-docs/**").permitAll()
                     .requestMatchers("/users/cart-books").permitAll()
                     .requestMatchers("/users/dormant").permitAll()

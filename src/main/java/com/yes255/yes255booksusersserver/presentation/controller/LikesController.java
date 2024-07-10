@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.LikesService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateLikesRequest;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,9 +39,11 @@ public class LikesController {
     @GetMapping("/users")
     public ResponseEntity<List<LikesResponse>> findByUserId(@CurrentUser JwtUserDetails jwtUserDetails) {
 
-        Long userId = jwtUserDetails.userId();
+        if(jwtUserDetails == null) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
+        }
 
-        return ResponseEntity.ok(likesService.getLikeByUserId(userId));
+        return ResponseEntity.ok(likesService.getLikeByUserId(jwtUserDetails.userId()));
     }
 
     /**
@@ -65,6 +70,10 @@ public class LikesController {
     @PostMapping("{bookId}")
     public ResponseEntity<LikesResponse> click(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
 
+        if(Objects.isNull(jwtUserDetails)) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
+        }
+
         if(!likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
             return ResponseEntity.ok(likesService.createLike(bookId, jwtUserDetails.userId()));
         }
@@ -75,6 +84,10 @@ public class LikesController {
     @Operation(summary = "좋아요 검색", description = "책의 아이디와 토큰에 들어있는 유저로 좋아요를 조회합니다.")
     @GetMapping("/{bookId}")
     public ResponseEntity<LikesResponse> findByBookIdAndUserId(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        if(Objects.isNull(jwtUserDetails)) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
+        }
 
         if(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
             return ResponseEntity.ok(likesService.getLikeByBookIdAndUserId(bookId, jwtUserDetails.userId()));
@@ -87,7 +100,7 @@ public class LikesController {
     @GetMapping("/{bookId}/exist")
     public ResponseEntity<Boolean> exist(@PathVariable Long bookId, @CurrentUser JwtUserDetails jwtUserDetails) {
 
-        if(jwtUserDetails.userId() == null) {
+        if(jwtUserDetails == null) {
             return ResponseEntity.ok(false);
         }
 
