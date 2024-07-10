@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         //토큰 필요없는 거
         if ("/users".equals(path) || "/users/sign-up".equals(path) ||
-                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
+                "/users/find/email".equals(path) || "/users/find/password".equals(path) ||
                 "/users/check-email".equals(path) || path.startsWith("/books/search") ||
                  path.startsWith("/books/categories") || path.startsWith("/books/category")
                 || path.startsWith("/books/books/category") || "/users/coupons/claim".equals(path)
