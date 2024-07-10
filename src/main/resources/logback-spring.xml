@@ -9,20 +9,20 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <!--  HTTP Appender 추가  -->
-<!--    <appender name="HTTP" class="com.yes255.yes255booksusersserver.logging.HttpAppender">-->
-<!--        <url>https://api-logncrash.cloud.toast.com/v2/log</url>-->
-<!--        <projectName>Xyx7DoyszcG66ULx</projectName>-->
-<!--        <projectVersion>1.0.0</projectVersion>-->
-<!--        <logVersion>v2</logVersion>-->
-<!--        <logSource>http</logSource>-->
-<!--        <logType>log</logType>-->
-<!--        <host>${PLATFORM}</host>-->
-<!--        <CharsetName>UTF-8</CharsetName>-->
-<!--        <category>${APP_NAME}</category>-->
-<!--        <logLevel>%level</logLevel>-->
-<!--        <Platform>${PLATFORM}</Platform>-->
-<!--        <secretKey>JsGDL5oTWPImKY8nag9igsUAdnUOvLMI</secretKey>-->
-<!--    </appender>-->
+    <appender name="HTTP" class="com.yes255.yes255booksusersserver.logging.HttpAppender">
+        <url>https://api-logncrash.cloud.toast.com/v2/log</url>
+        <projectName>Xyx7DoyszcG66ULx</projectName>
+        <projectVersion>1.0.0</projectVersion>
+        <logVersion>v2</logVersion>
+        <logSource>http</logSource>
+        <logType>log</logType>
+        <host>${PLATFORM}</host>
+        <CharsetName>UTF-8</CharsetName>
+        <category>${APP_NAME}</category>
+        <logLevel>%level</logLevel>
+        <Platform>${PLATFORM}</Platform>
+        <secretKey>JsGDL5oTWPImKY8nag9igsUAdnUOvLMI</secretKey>
+    </appender>
     <!--  기존의 파일 appender 설정 유지  -->
     <appender name="ALL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}-all.log</file>
@@ -96,7 +96,7 @@
         <appender-ref ref="INFO_FILE"/>
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-<!--        <appender-ref ref="HTTP"/>-->
+        <appender-ref ref="HTTP"/>
     </root>
     <!--  Profile-specific configuration inclusion  -->
     <springProfile name="dev">
