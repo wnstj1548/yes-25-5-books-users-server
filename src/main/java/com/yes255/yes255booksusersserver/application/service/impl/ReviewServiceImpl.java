@@ -24,6 +24,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewReposit
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadMyReviewResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -192,6 +194,17 @@ public class ReviewServiceImpl implements ReviewService {
         deductPoints(userId, reviewPoints);
 
         log.info("리뷰가 비활성화되었습니다. 리뷰 ID: {}", reviewId);
+    }
+
+    @Override
+    public Page<ReadMyReviewResponse> getReviewsByUserId(Long userId, Pageable pageable) {
+        Page<Review> reviews = reviewRepository.findAllByUser_UserIdOrderByReviewIdDesc(userId, pageable);
+
+        List<ReadMyReviewResponse> responses = reviews.stream()
+            .map(ReadMyReviewResponse::fromEntity)
+            .toList();
+
+        return new PageImpl<>(responses, pageable, reviews.getTotalElements());
     }
 
     private void deductPoints(Long userId, int points) {
