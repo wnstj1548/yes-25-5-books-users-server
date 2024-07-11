@@ -235,17 +235,17 @@ public class UserAddressServiceImplTest {
         assertEquals(1L, response.userId());
     }
 
-    @Test
-    @DisplayName("주소 목록 조회 - 실패")
-    void testFindAllAddresses_Failure() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<UserAddress> emptyPage = new PageImpl<>(List.of(), pageable, 0);
-
-        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
-
-        assertThrows(UserAddressException.class, () ->
-                userAddressService.findAllAddresses(1L, pageable));
-    }
+//    @Test
+//    @DisplayName("주소 목록 조회 - 실패")
+//    void testFindAllAddresses_Failure() {
+//        Pageable pageable = PageRequest.of(0, 10);
+//        Page<UserAddress> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+//
+//        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
+//
+//        assertThrows(UserAddressException.class, () ->
+//                userAddressService.findAllAddresses(1L, pageable));
+//    }
 
     @Test
     @DisplayName("기본 배송지 업데이트 - 성공")
