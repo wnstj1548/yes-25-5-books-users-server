@@ -62,4 +62,20 @@ public record UpdateBookRequest(
                 .bookIsPackable(bookIsPackable)
                 .build();
     }
+
+    public static UpdateBookRequest fromCreateBookRequest(CreateBookRequest request, Long bookId) {
+        return UpdateBookRequest.builder()
+                .bookId(bookId)
+                .bookIsbn(request.bookIsbn())
+                .bookName(request.bookName())
+                .bookDescription(request.bookDescription())
+                .bookPublisher(request.bookPublisher())
+                .bookPublishDate(request.bookPublishDate())
+                .bookPrice(request.bookPrice())
+                .bookSellingPrice(request.bookSellingPrice())
+                .imageURL(request.imageURL())
+                .quantity(request.quantity())
+                .bookIsPackable(request.bookIsPackable())
+                .build();
+    }
 }

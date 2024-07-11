@@ -18,9 +18,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -132,6 +134,14 @@ public class LikesController {
 
         if(jwtUserDetails == null) {
             return ResponseEntity.ok(false);
+        }
+
+        Collection<? extends GrantedAuthority> authorities = jwtUserDetails.getAuthorities();
+
+        for(GrantedAuthority authority : authorities) {
+            if(authority.getAuthority().equals("NONE_MEMBER")) {
+                return ResponseEntity.ok(false);
+            }
         }
 
         return ResponseEntity.ok(likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId()));

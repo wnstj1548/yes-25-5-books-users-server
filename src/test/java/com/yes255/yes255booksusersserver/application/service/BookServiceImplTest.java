@@ -43,6 +43,8 @@ public class BookServiceImplTest {
     private JpaCartBookRepository jpaCartBookRepository;
     @Mock
     private JpaBookAuthorRepository jpaBookAuthorRepository;
+    @Mock
+    private JpaLikesRepository jpaLikesRepository;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -205,11 +207,13 @@ public class BookServiceImplTest {
         List bookTagList = new ArrayList<>();
         List cartBookList = new ArrayList<>();
         List bookAuthorList = new ArrayList<>();
+        List likesList = new ArrayList<>();
         when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(jpaBookCategoryRepository.findByBook(book)).thenReturn(bookCategoryList);
         when(jpaBookTagRepository.findByBook(book)).thenReturn(bookTagList);
         when(jpaCartBookRepository.findByBook(book)).thenReturn(cartBookList);
         when(jpaBookAuthorRepository.findByBook(book)).thenReturn(bookAuthorList);
+        when(jpaLikesRepository.findByBook(book)).thenReturn(likesList);
 
         // when
         bookService.removeBook(bookId);
@@ -219,6 +223,7 @@ public class BookServiceImplTest {
         verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
         verify(jpaCartBookRepository, times(1)).deleteAll(cartBookList);
         verify(jpaBookAuthorRepository, times(1)).deleteAll(bookAuthorList);
+        verify(jpaLikesRepository, times(1)).deleteAll(likesList);
     }
 
     @DisplayName("책 삭제 - 실패 (존재하지 않는 책)")
@@ -371,5 +376,78 @@ public class BookServiceImplTest {
         // then
         verify(jpaBookRepository, times(1)).findById(bookId);
         assertEquals("해당하는 책이 없습니다.", exception.getErrorStatus().message());
+    }
+
+    @DisplayName("ISBN으로 책 조회 - 존재하는 경우")
+    @Test
+    void testGetBookByIsbnExists() {
+        // given
+        String isbn = "12345678901";
+        Book book = Book.builder()
+                .bookId(1L)
+                .bookIsbn(isbn)
+                .build();
+        when(jpaBookRepository.findByBookIsbn(isbn)).thenReturn(Optional.of(book));
+
+        // when
+        BookResponse response = bookService.getBookByIsbn(isbn);
+
+        // then
+        assertNotNull(response);
+        assertEquals(book.getBookId(), response.bookId());
+        assertEquals(book.getBookIsbn(), isbn);
+        verify(jpaBookRepository, times(2)).findByBookIsbn(isbn);
+    }
+
+    @DisplayName("ISBN으로 책 조회 - 존재하지 않는 경우")
+    @Test
+    void testGetBookByIsbnNotExists() {
+        // given
+        String isbn = "1234567890";
+        when(jpaBookRepository.findByBookIsbn(isbn)).thenReturn(Optional.empty());
+
+        // when
+        BookResponse response = bookService.getBookByIsbn(isbn);
+
+        // then
+        assertEquals(null, response);
+        verify(jpaBookRepository, times(1)).findByBookIsbn(isbn);
+    }
+
+    @DisplayName("삭제 상태 업데이트 - 성공")
+    @Test
+    void testUpdateBookIsDeleteFalseSuccess() {
+        // given
+        Long bookId = 1L;
+        Book book = Book.builder()
+                .bookId(bookId)
+                .bookIsDeleted(true)
+                .build();
+
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        // when
+        bookService.updateBookIsDeleteFalse(bookId);
+
+        // then
+        verify(jpaBookRepository, times(1)).findById(bookId);
+        assertFalse(book.isBookIsDeleted());
+    }
+
+    @DisplayName("삭제 상태 업데이트 - 책을 찾을 수 없음")
+    @Test
+    void testUpdateBookIsDeleteFalseBookNotFound() {
+        // given
+        Long bookId = 1L;
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        // when, then
+        BookNotFoundException exception = assertThrows(
+                BookNotFoundException.class,
+                () -> bookService.updateBookIsDeleteFalse(bookId)
+        );
+
+        assertEquals("삭제 상태를 업데이트 할 책을 찾지 못했습니다.", exception.getErrorStatus().message());
+        verify(jpaBookRepository, times(1)).findById(bookId);
     }
 }

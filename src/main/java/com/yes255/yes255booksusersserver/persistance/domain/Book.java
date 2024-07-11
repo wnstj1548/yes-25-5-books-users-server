@@ -160,4 +160,6 @@ public class Book {
     }
 
     public void updateBookHitsCount(Integer bookHitsCount) { this.hitsCount = bookHitsCount; }
+
+    public void updateBookIsDeleted(boolean bookIsDeleted) { this.bookIsDeleted = bookIsDeleted; }
 }
