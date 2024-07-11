@@ -234,7 +234,7 @@ public class UserServiceImpl implements UserService {
                             .build());
         }
 
-       // messageProducer.sendWelcomeCouponMessage(user.getUserId());
+        messageProducer.sendWelcomeCouponMessage(user.getUserId());
 
         return UserResponse.builder()
                 .userId(user.getUserId())
