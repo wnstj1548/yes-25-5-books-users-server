@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
                 .build());
 
         // 회원 장바구니 생성
-        Cart cart = cartRepository.save(Cart.builder()
+       cartRepository.save(Cart.builder()
                 .cartCreatedAt(LocalDate.now())
                 .customer(customer)
                 .build());
@@ -234,9 +234,7 @@ public class UserServiceImpl implements UserService {
                             .build());
         }
 
-        messageProducer.sendWelcomeCouponMessage(user.getUserId());
-
-        log.info("User : {}", user);
+       // messageProducer.sendWelcomeCouponMessage(user.getUserId());
 
         return UserResponse.builder()
                 .userId(user.getUserId())

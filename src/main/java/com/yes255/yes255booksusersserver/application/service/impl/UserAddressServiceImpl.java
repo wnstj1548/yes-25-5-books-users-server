@@ -148,10 +148,6 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         Page<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId, pageable);
 
-        if (userAddressList.isEmpty()) {
-            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
-        }
-
         return userAddressList.map(userAddress -> UserAddressResponse.builder()
                 .userAddressId(userAddress.getUserAddressId())
                 .addressId(userAddress.getAddress().getAddressId())

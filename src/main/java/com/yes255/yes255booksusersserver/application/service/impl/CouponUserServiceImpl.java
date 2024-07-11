@@ -123,6 +123,9 @@ public class CouponUserServiceImpl implements CouponUserService {
                 .collect(Collectors.toList());
 
         // todo : 쿠폰 개수 0일시 예외 처리
+        if (couponIds.isEmpty()) {
+            return null;
+        }
 
         List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
 
