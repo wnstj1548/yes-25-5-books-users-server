@@ -56,7 +56,7 @@ public class BookServiceImplTest {
     @BeforeEach
     void setUp() throws ParseException {
         MockitoAnnotations.initMocks(this);
-        testBook = new Book(1L, "1234567890", "Test Book", "Description", "Index", "Publisher",
+        testBook = new Book(1L, "1234567890", "Test Book", "Description",  "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg",
                 100, 0, 0, 0, true, false);
         testCategory = new Category(1L, "Test Category", null, null);
@@ -66,7 +66,7 @@ public class BookServiceImplTest {
     @Test
     void createBook_success() throws ParseException {
         // given
-        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "BookAuthor1, BookAuthor2", "Publisher",
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description",  "BookAuthor1, BookAuthor2", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100, "image.jpg", true);
 
         when(jpaBookRepository.save(any(Book.class))).thenReturn(testBook);
@@ -122,7 +122,7 @@ public class BookServiceImplTest {
     @Test
     void findAllBooks() throws ParseException {
         // given
-        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "Index", "Publisher",
+        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                 sdf.parse("2014-04-02"), new BigDecimal("25.00"), new BigDecimal("19.99"), "another.jpg",
                 150, 0, 0, 0, true, false);
 
@@ -160,10 +160,10 @@ public class BookServiceImplTest {
     @Test
     void updateBook_success() throws ParseException {
         // given
-        Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description", "Old Index", "Old Publisher",
+        Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description",  "Old Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0, true, false);
 
-        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description",  "new Author1, new Author2", "New Publisher",
                 sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), 150, "new_image.jpg", true);
 
         existingBook.updateAll(request.toEntity());
@@ -185,7 +185,7 @@ public class BookServiceImplTest {
     @Test
     void updateBook_failure_bookNotFound() throws ParseException {
         // given
-        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description", "index", "Updated Publisher", "author1", "publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description",  "Updated Publisher", "author1", "publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("25.00"), new BigDecimal("20.99"), 120, "updated.jpg", true);
 
         when(jpaBookRepository.existsById(1L)).thenReturn(false);
@@ -200,7 +200,7 @@ public class BookServiceImplTest {
     void removeBook_success() {
         // given
         Long bookId = 1L;
-        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "index", "Publisher",
+        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "Publisher",
                 null, null, null, null, 0, 0, 0, 0, true, false);
 
         List<BookCategory> bookCategoryList = new ArrayList<>();
@@ -289,7 +289,7 @@ public class BookServiceImplTest {
     void findBooksByOrder_success() {
         // given
         List<Long> bookIds = Arrays.asList(1L, 2L);
-        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "index", "Publisher",
+        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                 null, null, null, null, 0, 0, 0, 0, true, false);
 
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.of(testBook));
@@ -323,7 +323,7 @@ public class BookServiceImplTest {
         // given
         List<BookCategory> bookCategories = Arrays.asList(
                 new BookCategory(1L, testBook, testCategory),
-                new BookCategory(2L, new Book(2L, "0987654321", "Another Book", "Description", "index", "Publisher",
+                new BookCategory(2L, new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                         null, null, null, null, 0, 0, 0, 0, true, false), testCategory));
 
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));

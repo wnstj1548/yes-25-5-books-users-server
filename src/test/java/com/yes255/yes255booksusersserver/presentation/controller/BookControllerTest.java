@@ -109,7 +109,7 @@ public class BookControllerTest {
     @Test
     void create_success() throws ParseException {
         // given
-        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "bookAuthor1, bookAuthor2", "Publisher",
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description",  "bookAuthor1, bookAuthor2", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100,"image.jpg", true);
         List<Long> categoryIdList = List.of(1L, 2L);
 
@@ -141,7 +141,7 @@ public class BookControllerTest {
     @Test
     void update_success() throws ParseException {
         // given
-        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "index", "author1", "Updated Publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated ISBN", "Updated Name", "Updated Description", "author1", "Updated Publisher",
                 sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), 120,"updated.jpg", true);
         List<Long> categoryIdList = List.of(1L, 2L);
 

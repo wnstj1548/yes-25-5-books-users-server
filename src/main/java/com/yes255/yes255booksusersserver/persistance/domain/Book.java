@@ -34,9 +34,6 @@ public class Book {
     @Column(name = "book_description", nullable = false, columnDefinition = "TEXT")
     private String bookDescription;
 
-    @Column(name = "book_index")
-    private String bookIndex;
-
     @Column(name = "book_publisher")
     private String bookPublisher;
 
@@ -80,7 +77,7 @@ public class Book {
 
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
-                String bookIndex, String bookPublisher, Date bookPublishDate,
+                String bookPublisher, Date bookPublishDate,
                 BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage,
                 Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount,
                 boolean bookIsPackable, boolean bookIsDeleted) {
@@ -88,7 +85,6 @@ public class Book {
         this.bookIsbn = bookIsbn;
         this.bookName = bookName;
         this.bookDescription = bookDescription;
-        this.bookIndex = bookIndex;
         this.bookPublisher = bookPublisher;
         this.bookPublishDate = bookPublishDate;
         this.bookPrice = bookPrice;
