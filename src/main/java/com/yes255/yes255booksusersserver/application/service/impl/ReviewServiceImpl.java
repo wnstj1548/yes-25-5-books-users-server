@@ -16,6 +16,7 @@ import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
 import com.yes255.yes255booksusersserver.persistance.domain.Review;
 import com.yes255.yes255booksusersserver.persistance.domain.ReviewImage;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.enumtype.ReviewType;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
@@ -24,6 +25,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaReviewReposit
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadMyReviewResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -93,7 +96,9 @@ public class ReviewServiceImpl implements ReviewService {
             .orElseThrow(() -> new UserException(
                 ErrorStatus.toErrorStatus("유저를 찾을 수 없습니다. 유저 ID : " + userId, 404, LocalDateTime.now())));
 
-        Review review = createReviewRequest.toEntity(book, user);
+        ReviewType reviewType = CollectionUtils.isEmpty(images) ? ReviewType.GENERAL : ReviewType.IMAGE;
+
+        Review review = createReviewRequest.toEntity(book, user, reviewType);
         Review savedReview = reviewRepository.save(review);
 
         List<ReviewImage> reviewImages = new ArrayList<>();
@@ -113,17 +118,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private void accumulatePoints(List<MultipartFile> images, Long userId) {
-        int reviewPoints = CollectionUtils.isEmpty(images) ? 200 : 500;
-        String logType = reviewPoints == 200 ? "리뷰 적립 - 일반" : "리뷰 적립 - 사진 첨부";
+        ReviewType reviewType = CollectionUtils.isEmpty(images) ? ReviewType.GENERAL : ReviewType.IMAGE;
 
         Point point = pointRepository.findByUser_UserId(userId);
-        BigDecimal newPointValue = point.getPointCurrent().add(BigDecimal.valueOf(reviewPoints));
+        BigDecimal newPointValue = point.getPointCurrent().add(BigDecimal.valueOf(reviewType.getPoint()));
         point.updatePointCurrent(newPointValue);
 
         pointLogRepository.save(PointLog.builder()
             .pointLogUpdatedAt(LocalDateTime.now())
-            .pointLogUpdatedType(logType)
-            .pointLogAmount(BigDecimal.valueOf(reviewPoints))
+            .pointLogUpdatedType(reviewType.getLogName())
+            .pointLogAmount(BigDecimal.valueOf(reviewType.getPoint()))
             .point(point)
             .build());
     }
@@ -131,7 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public Page<ReadReviewResponse> getReviewsByPaging(Long bookId, Pageable pageable) {
-        Page<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrueOrderByReviewTimeDesc(bookId, pageable);
+        Page<Review> reviews = reviewRepository.findAllByBook_BookIdOrderByReviewTimeDesc(bookId, pageable);
 
         return reviews.map(ReadReviewResponse::fromEntity);
     }
@@ -139,7 +143,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     @Override
     public List<ReadReviewRatingResponse> getReviewRatingsByBookId(Long bookId) {
-        List<Review> reviews = reviewRepository.findAllByBook_BookIdAndIsActiveTrue(bookId);
+        List<Review> reviews = reviewRepository.findAllByBook_BookId(bookId);
 
         return reviews.stream()
             .map(ReadReviewRatingResponse::fromEntity)
@@ -156,18 +160,31 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
         }
 
-        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
-
+        ReviewType originalReviewType = ReviewType.valueOf(review.getReviewType());
         List<String> uploadUrls = new ArrayList<>();
         if (!CollectionUtils.isEmpty(images)) {
+            List<ReviewImage> reviewImages = review.getReviewImage();
+
             for (MultipartFile image : images) {
                 String imageUrl = getUploadUrl(image);
                 uploadUrls.add(imageUrl);
             }
 
-            for (int i = 0; i < reviewImages.size() && i < uploadUrls.size(); i++) {
-                reviewImages.get(i).updateImageUrl(uploadUrls.get(i));
+            for (int i = 0; i < uploadUrls.size(); i++) {
+                if (i < reviewImages.size()) {
+                    reviewImages.get(i).updateImageUrl(uploadUrls.get(i));
+                } else {
+                    reviewImages.add(ReviewImage.from(uploadUrls.get(i), review));
+                }
             }
+        }
+
+        boolean wasImageReview = originalReviewType == ReviewType.IMAGE;
+        boolean isImageReview = !CollectionUtils.isEmpty(images);
+
+        if (!wasImageReview && isImageReview && !review.getHasChangedToImageReview()) {
+            accumulatePoints(images, userId);
+            review.updateHasChangedToImageReviewAndReviewType(true, ReviewType.IMAGE.name());
         }
 
         review.updateReview(updateReviewRequest);
@@ -183,15 +200,36 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AccessDeniedException("리뷰를 작성한 유저와 다릅니다. 접근 유저 ID : " + userId);
         }
 
-        if (!review.getIsActive()) {
-            throw new AccessDeniedException("이미 삭제한 리뷰입니다.");
-        }
-
-        review.updateIsActive(false);
-        int reviewPoints = review.getReviewImage().isEmpty() ? 200 : 500;
+        int reviewPoints = calculateReviewPoints(review);
         deductPoints(userId, reviewPoints);
 
-        log.info("리뷰가 비활성화되었습니다. 리뷰 ID: {}", reviewId);
+        log.info("리뷰가 삭제되었습니다. 리뷰 ID: {}", reviewId);
+        reviewRepository.delete(review);
+    }
+
+    private int calculateReviewPoints(Review review) {
+        if (ReviewType.IMAGE.name().equals(review.getReviewType()) && Boolean.TRUE.equals(review.getHasChangedToImageReview())) {
+            // 일반 -> 사진 리뷰로 변경된 경우
+            return ReviewType.GENERAL.getPoint() + ReviewType.IMAGE.getPoint();
+        } else if (ReviewType.IMAGE.name().equals(review.getReviewType())) {
+            // 처음부터 사진 리뷰였던 경우
+            return ReviewType.IMAGE.getPoint();
+        } else {
+            // 처음부터 일반 리뷰였던 경우
+            return ReviewType.GENERAL.getPoint();
+        }
+    }
+
+
+    @Override
+    public Page<ReadMyReviewResponse> getReviewsByUserId(Long userId, Pageable pageable) {
+        Page<Review> reviews = reviewRepository.findAllByUser_UserIdOrderByReviewIdDesc(userId, pageable);
+
+        List<ReadMyReviewResponse> responses = reviews.stream()
+            .map(ReadMyReviewResponse::fromEntity)
+            .toList();
+
+        return new PageImpl<>(responses, pageable, reviews.getTotalElements());
     }
 
     private void deductPoints(Long userId, int points) {

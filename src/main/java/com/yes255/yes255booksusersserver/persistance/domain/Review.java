@@ -54,11 +54,15 @@ public class Review {
     private User user;
 
     @Column(nullable = false)
-    private Boolean isActive;
+    private String reviewType;
+
+    @Column(nullable = false)
+    private Boolean hasChangedToImageReview;
 
     @Builder
     public Review(Long reviewId, String content, String title, Integer rating, LocalDate reviewTime,
-        List<ReviewImage> reviewImage, Book book, User user, Boolean isActive) {
+        List<ReviewImage> reviewImage, Book book, User user, String reviewType,
+        Boolean hasChangedToImageReview) {
         this.reviewId = reviewId;
         this.content = content;
         this.title = title;
@@ -67,7 +71,8 @@ public class Review {
         this.reviewImage = reviewImage;
         this.book = book;
         this.user = user;
-        this.isActive = isActive;
+        this.reviewType = reviewType;
+        this.hasChangedToImageReview = hasChangedToImageReview;
     }
 
     public void updateReview(UpdateReviewRequest updateReviewRequest) {
@@ -88,7 +93,9 @@ public class Review {
         return this.user.getUserId().equals(userId);
     }
 
-    public void updateIsActive(boolean isActive) {
-        this.isActive = isActive;
+    public void updateHasChangedToImageReviewAndReviewType(boolean hasChangedToImageReview,
+        String reviewType) {
+        this.hasChangedToImageReview = hasChangedToImageReview;
+        this.reviewType = reviewType;
     }
 }
