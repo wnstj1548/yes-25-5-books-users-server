@@ -89,6 +89,7 @@ public class User {
         this.userEmail = userEmail;
         this.userBirth = userBirth;
         this.userRegisterDate = LocalDateTime.now();
+        this.userLastLoginDate = userLastLoginDate;
         this.provider = provider;
         this.userState = userState;
         this.userGrade = userGrade;

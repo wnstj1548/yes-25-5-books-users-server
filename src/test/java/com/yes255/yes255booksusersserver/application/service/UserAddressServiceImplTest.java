@@ -9,6 +9,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaPointReposito
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateAddressBasedRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UpdateUserAddressResponse;
@@ -20,6 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -206,24 +211,91 @@ public class UserAddressServiceImplTest {
         userAddressService.deleteAddress(1L, 1L);
     }
 
-//    @Test
-//    @DisplayName("주소 목록 조회 - 성공")
-//    void testFindAllAddresses_Success() {
-//        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of(testUserAddress));
-//
-//        List<UserAddressResponse> responses = userAddressService.findAllAddresses(1L);
-//
-//        assertNotNull(responses);
-//        assertEquals(1, responses.size());
-//
-//        UserAddressResponse response = responses.getFirst();
-//        assertEquals(1L, response.userAddressId());
-//        assertEquals(1L, response.addressId());
-//        assertEquals("12345", response.addressZip());
-//        assertEquals("Test Address", response.addressRaw());
-//        assertEquals("Home", response.addressName());
-//        assertEquals("Detail", response.addressDetail());
-//        assertTrue(response.addressBased());
-//        assertEquals(1L, response.userId());
-//    }
+    @Test
+    @DisplayName("주소 목록 조회 - 성공")
+    void testFindAllAddresses_Success() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<UserAddress> userAddressPage = new PageImpl<>(List.of(testUserAddress), pageable, 1);
+
+        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class))).thenReturn(userAddressPage);
+
+        Page<UserAddressResponse> responses = userAddressService.findAllAddresses(1L, pageable);
+
+        assertNotNull(responses);
+        assertEquals(1, responses.getTotalElements());
+
+        UserAddressResponse response = responses.getContent().get(0);
+        assertEquals(1L, response.userAddressId());
+        assertEquals(1L, response.addressId());
+        assertEquals("12345", response.addressZip());
+        assertEquals("Test Address", response.addressRaw());
+        assertEquals("Home", response.addressName());
+        assertEquals("Detail", response.addressDetail());
+        assertTrue(response.addressBased());
+        assertEquals(1L, response.userId());
+    }
+
+    @Test
+    @DisplayName("주소 목록 조회 - 실패")
+    void testFindAllAddresses_Failure() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<UserAddress> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
+
+        assertThrows(UserAddressException.class, () ->
+                userAddressService.findAllAddresses(1L, pageable));
+    }
+
+    @Test
+    @DisplayName("기본 배송지 업데이트 - 성공")
+    void testUpdateAddressBased_Success() {
+        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
+                .addressBased(true)
+                .build();
+
+        UserAddress anotherUserAddress = UserAddress.builder()
+                .userAddressId(2L)
+                .addressName("Office")
+                .addressDetail("Office Detail")
+                .addressBased(false)
+                .address(testAddress)
+                .user(testUser)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
+        when(userAddressRepository.findAll()).thenReturn(List.of(testUserAddress, anotherUserAddress));
+
+        userAddressService.updateAddressBased(1L, 1L, request);
+
+        assertTrue(testUserAddress.isAddressBased());
+        assertFalse(anotherUserAddress.isAddressBased());
+    }
+
+    @Test
+    @DisplayName("기본 배송지 업데이트 - 실패 (주소 없음)")
+    void testUpdateAddressBased_Failure_NoAddress() {
+        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
+                .addressBased(true)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(UserAddressException.class, () ->
+                userAddressService.updateAddressBased(1L, 1L, request));
+    }
+
+    @Test
+    @DisplayName("기본 배송지 업데이트 - 실패 (주소 리스트 없음)")
+    void testUpdateAddressBased_Failure_NoAddressList() {
+        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
+                .addressBased(true)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
+        when(userAddressRepository.findAll()).thenReturn(List.of());
+
+        assertThrows(UserAddressException.class, () ->
+                userAddressService.updateAddressBased(1L, 1L, request));
+    }
 }
