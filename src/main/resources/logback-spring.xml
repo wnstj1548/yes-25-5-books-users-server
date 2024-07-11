@@ -90,19 +90,15 @@
         </filter>
     </appender>
     <!--  root 로거 설정  -->
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ALL_FILE"/>
         <appender-ref ref="INFO_FILE"/>
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="HTTP"/>
+        <springProfile name="prod">
+            <property name="PLATFORM" value="Yes25_5_books_users"/>
+            <appender-ref ref="HTTP"/>
+        </springProfile>
     </root>
-    <!--  Profile-specific configuration inclusion  -->
-    <springProfile name="dev">
-        <property name="PLATFORM" value="Yes25_5_books_users_dev"/>
-    </springProfile>
-    <springProfile name="prod">
-        <property name="PLATFORM" value="Yes25_5_books_users"/>
-    </springProfile>
 </configuration>

@@ -31,4 +31,6 @@ public interface BookService {
     Page<BookResponse> getBookByCategoryId(Long categoryId, Pageable pageable, String sort);
 
     List<BookCouponResponse> getBookByName(String name);
+
+    void addHitsCount(Long bookId);
 }
