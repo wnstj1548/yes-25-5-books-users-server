@@ -125,6 +125,10 @@ public class UserStateServiceImpl implements UserStateService {
         List<User> users = userRepository.findAllByUserState(userState);
 
         for (User user : users) {
+            if (user.getUserLastLoginDate() == null) {
+                continue;
+            }
+
             Period period = Period.between(user.getUserLastLoginDate().toLocalDate(), LocalDate.now());
 
             // 3개월 이상 여부 확인

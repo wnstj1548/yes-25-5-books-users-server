@@ -2,12 +2,14 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.application.service.impl.UserStateServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.UserStateException;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserState;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.CreateUserStateRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.userstate.UpdateUserStateRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.userstate.UserStateResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +37,31 @@ public class UserStateServiceImplTest {
 
     @InjectMocks
     private UserStateServiceImpl userStateService;
+
+    private User testUser;
+    private UserState activeState;
+    private UserState inactiveState;
+
+    @BeforeEach
+    void setup() {
+        activeState = UserState.builder()
+                .userStateId(1L)
+                .userStateName("ACTIVE")
+                .build();
+
+        inactiveState = UserState.builder()
+                .userStateId(2L)
+                .userStateName("INACTIVE")
+                .build();
+
+        testUser = User.builder()
+                .userId(1L)
+                .userName("Test User")
+                .userState(activeState)
+                .userLastLoginDate(LocalDateTime.now().minusMonths(4))
+                .build();
+    }
+
 
     @DisplayName("회원 상태 생성 - 성공")
     @Test
@@ -211,6 +238,33 @@ public class UserStateServiceImplTest {
 
         assertThrows(UserStateException.class, () -> {
             userStateService.deleteUserState(userStateId);
+        });
+    }
+
+    @DisplayName("미접속자 휴면 전환 - 성공")
+    @Test
+    void testUpdateUserStateByUser_Success() {
+        List<User> activeUsers = new ArrayList<>();
+        activeUsers.add(testUser);
+
+        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(activeState);
+        when(userStateRepository.findByUserStateName("INACTIVE")).thenReturn(inactiveState);
+        when(userRepository.findAllByUserState(activeState)).thenReturn(activeUsers);
+
+        userStateService.updateUserStateByUser();
+
+        verify(userRepository, times(1)).findAllByUserState(activeState);
+        verify(userRepository, times(1)).save(testUser);
+        assertEquals(inactiveState, testUser.getUserState());
+    }
+
+    @DisplayName("미접속자 휴면 전환 - 실패 (회원 상태가 존재하지 않음)")
+    @Test
+    void testUpdateUserStateByUser_UserStateNotFound() {
+        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(null);
+
+        assertThrows(UserStateException.class, () -> {
+            userStateService.updateUserStateByUser();
         });
     }
 }

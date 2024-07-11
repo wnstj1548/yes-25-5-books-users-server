@@ -122,6 +122,11 @@ public class CouponUserServiceImpl implements CouponUserService {
                 .map(CouponUser::getCouponId)
                 .collect(Collectors.toList());
 
+        // todo : 쿠폰 개수 0일시 예외 처리
+        if (couponIds.isEmpty()) {
+            return null;
+        }
+
         List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
 
         // CouponInfoResponse를 매핑하기 위한 Map 생성

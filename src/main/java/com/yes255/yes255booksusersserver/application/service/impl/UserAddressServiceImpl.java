@@ -13,6 +13,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRe
 import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateAddressBasedRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
@@ -44,7 +45,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     public CreateUserAddressResponse createAddress(Long userId,
                                                    CreateUserAddressRequest addressRequest) {
 
-        List<UserAddress> userAddresses = userAddressRepository.findAll();
+        List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
 
         if (userAddresses.size() > 10) {
             throw new UserAddressException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
@@ -60,6 +61,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                             .addressZip(addressRequest.addressZip())
                             .addressRaw(addressRequest.addressRaw())
                             .build());
+        }
+
+        for (UserAddress userAddressTemp : userAddresses) {
+            userAddressTemp.updateUserAddressBased(false);
         }
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
@@ -141,38 +146,13 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .build();
     }
 
-//    @Transactional(readOnly = true)
-//    @Override
-//    public List<UserAddressResponse> findAllAddresses(Long userId) {
-//
-//        List<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId);
-//
-//        if (userAddressList.isEmpty()) {
-//            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
-//        }
-//
-//        return userAddressList.stream()
-//                .map(userAddress -> UserAddressResponse.builder()
-//                        .userAddressId(userAddress.getUserAddressId())
-//                        .addressId(userAddress.getAddress().getAddressId())
-//                        .addressZip(userAddress.getAddress().getAddressZip())
-//                        .addressRaw(userAddress.getAddress().getAddressRaw())
-//                        .addressName(userAddress.getAddressName())
-//                        .addressDetail(userAddress.getAddressDetail())
-//                        .addressBased(userAddress.isAddressBased())
-//                        .userId(userId)
-//                        .build())
-//                .collect(Collectors.toList());
-//    }
-
+    @Transactional(readOnly = true)
+    @Override
     public Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable) {
-        Page<UserAddress> userAddressPage = userAddressRepository.findByUserUserId(userId, pageable);
 
-        if (userAddressPage.isEmpty()) {
-            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
-        }
+        Page<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId, pageable);
 
-        return userAddressPage.map(userAddress -> UserAddressResponse.builder()
+        return userAddressList.map(userAddress -> UserAddressResponse.builder()
                 .userAddressId(userAddress.getUserAddressId())
                 .addressId(userAddress.getAddress().getAddressId())
                 .addressZip(userAddress.getAddress().getAddressZip())
@@ -190,23 +170,26 @@ public class UserAddressServiceImpl implements UserAddressService {
         userAddressRepository.deleteById(userAddressId);
     }
 
-//    @Override
-//    public Page<UserAddressResponse> findAllAddressesList(Long userId, Pageable pageable) {
-//        Page<UserAddress> userAddressPage = userAddressRepository.findByUserUserId(userId, pageable);
-//
-//        if (userAddressPage.isEmpty()) {
-//            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
-//        }
-//
-//        return userAddressPage.map(userAddress -> UserAddressResponse.builder()
-//                .userAddressId(userAddress.getUserAddressId())
-//                .addressId(userAddress.getAddress().getAddressId())
-//                .addressZip(userAddress.getAddress().getAddressZip())
-//                .addressRaw(userAddress.getAddress().getAddressRaw())
-//                .addressName(userAddress.getAddressName())
-//                .addressDetail(userAddress.getAddressDetail())
-//                .addressBased(userAddress.isAddressBased())
-//                .userId(userId)
-//                .build());
-//    }
+    // 기본 배송지 지정
+    @Transactional
+    @Override
+    public void updateAddressBased(Long userId, Long userAddressId, UpdateAddressBasedRequest addressRequest) {
+
+        UserAddress userAddress = userAddressRepository.findById(userAddressId)
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+
+        List<UserAddress> userAddresses = userAddressRepository.findAll();
+
+        // 모든 주소의 기본 배송지 false로 변환
+        if (userAddresses.isEmpty()) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
+
+        for (UserAddress userAddressTemp : userAddresses) {
+            userAddressTemp.updateUserAddressBased(false);
+        }
+
+        // 기본 배송지 지정
+        userAddress.updateUserAddressBased(true);
+    }
 }

@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateAddressBasedRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
@@ -18,13 +19,9 @@ public interface UserAddressService {
 
     UserAddressResponse findAddressById(Long userId, Long userAddressId);
 
-    //List<UserAddressResponse> findAllAddresses(Long userId);
+    Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable);
 
     void deleteAddress(Long userId, Long userAddressId);
 
-    Page<UserAddressResponse> findAllAddresses(Long userId, Pageable pageable);
-
-//    Page<UserAddressResponse> findAllAddressesList(Long userId, Pageable pageable);
-
-
+    void updateAddressBased(Long userId, Long userAddressId, UpdateAddressBasedRequest addressRequest);
 }
