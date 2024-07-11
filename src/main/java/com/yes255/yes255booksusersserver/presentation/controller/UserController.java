@@ -162,4 +162,14 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "비번 수정", description = "특정 회원 정보를 수정합니다.")
+    @PutMapping("/users/update-password/{email}")
+    public ResponseEntity<UpdateUserResponse> updatePassword(@RequestBody UpdateUserRequest userRequest,
+                                                             @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        return ResponseEntity.ok(userService.updateUser(userId, userRequest));
+    }
 }
