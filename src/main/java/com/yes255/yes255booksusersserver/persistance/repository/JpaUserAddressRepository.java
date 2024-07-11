@@ -14,7 +14,8 @@ public interface JpaUserAddressRepository extends JpaRepository <UserAddress, Lo
     UserAddress findByUserAddressIdAndUserUserId(Long userAddressId, Long userId);
 
     Page<UserAddress> findByUserUserId(Long userId, Pageable pageable);
+
     Page<UserAddress> findAll(Pageable pageable);
 
-
+    List<UserAddress> findByUserUserId(Long userId);
 }

@@ -45,7 +45,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     public CreateUserAddressResponse createAddress(Long userId,
                                                    CreateUserAddressRequest addressRequest) {
 
-        List<UserAddress> userAddresses = userAddressRepository.findAll();
+        List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
 
         if (userAddresses.size() > 10) {
             throw new UserAddressException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
@@ -61,6 +61,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                             .addressZip(addressRequest.addressZip())
                             .addressRaw(addressRequest.addressRaw())
                             .build());
+        }
+
+        for (UserAddress userAddressTemp : userAddresses) {
+            userAddressTemp.updateUserAddressBased(false);
         }
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
