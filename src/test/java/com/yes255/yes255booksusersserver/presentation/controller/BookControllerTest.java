@@ -64,9 +64,9 @@ public class BookControllerTest {
         // given
         List<BookResponse> mockBooks = List.of(
                 new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "author1","Index",  "Updated Publisher",
-                        sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0, true),
+                        sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0, true, 4.5),
                 new BookResponse(2L, "ISBN11111111", "Name", "Description", "author1" ,"Index2", "Publisher",
-                        sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120, 0, 0, 0, true)
+                        sdf.parse("2020-06-14"), new BigDecimal("30.00"), new BigDecimal("24.99"), "updated.jpg", 120, 0, 0, 0, true, 4.4)
         );
 
         Page<BookResponse> mockPage = new PageImpl<>(mockBooks, PageRequest.of(0, 10), mockBooks.size());
@@ -89,7 +89,7 @@ public class BookControllerTest {
         // given
         Long bookId = 1L;
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "author1", "Index", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0, true);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0, true, 4.4);
         when(bookService.getBook(bookId)).thenReturn(mockBook);
 
         // when
@@ -109,7 +109,7 @@ public class BookControllerTest {
         List<Long> categoryIdList = List.of(1L, 2L);
 
         BookResponse mockResponse = new BookResponse(1L, "1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "index", "Publisher",
-                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true);
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true, 4.4);
 
         when(bookService.createBook(any(CreateBookRequest.class))).thenReturn(mockResponse);
 
@@ -141,7 +141,7 @@ public class BookControllerTest {
         List<Long> categoryIdList = List.of(1L, 2L);
 
         BookResponse mockResponse = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description","author1" , "index", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0, true);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120, 0, 0, 0, true, 4.4);
 
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockResponse);
         when(bookCategoryService.getBookCategoryByBookId(anyLong())).thenReturn(List.of());
@@ -169,14 +169,14 @@ public class BookControllerTest {
         Long bookId = 1L;
         Integer quantity = 5;
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "bookAuthor1, bookAuthor2",  "Index","Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 150,0,0,0, true);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 150,0,0,0, true, 4.4);
         when(bookService.getBook(bookId)).thenReturn(mockBook);
 
         List<Long> bookIdList = List.of(1L);
         List<Integer> quantityList = List.of(30);
 
         BookResponse mockUpdatedBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description","bookAuthor1, bookAuthor2",  "Index", "Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0, true);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 120,0,0,0, true, 4.4);
         when(bookService.updateBook(any(UpdateBookRequest.class))).thenReturn(mockUpdatedBook);
 
         // when
@@ -208,7 +208,7 @@ public class BookControllerTest {
         List<Long> bookIdList = List.of(1L);
         List<Integer> quantityList = List.of(15);
         BookResponse mockBook = new BookResponse(1L, "Updated ISBN", "Updated Name", "Updated Description", "bookAuthor1, bookAuthor2", "Index","Updated Publisher",
-                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 10,0,0,0, true);
+                sdf.parse("2000-06-14"), new BigDecimal("25.00"), new BigDecimal("20.99"), "updated.jpg", 10,0,0,0, true, 4.4);
         when(bookService.getBook(1L)).thenReturn(mockBook);
 
         // then
