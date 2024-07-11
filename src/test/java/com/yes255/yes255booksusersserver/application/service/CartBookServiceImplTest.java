@@ -281,17 +281,17 @@ public class CartBookServiceImplTest {
     @DisplayName("장바구니 도서 수량 업데이트 - 성공")
     @Test
     void testUpdateCartBookOrderByUserId_Success() {
-        List<UpdateCartBookOrderRequest> requests = Arrays.asList(
-            UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build(),
-            UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+        List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
+                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(2).build()
         );
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(),
-            testBook.getBookId()))
-            .thenReturn(Optional.of(testCartBook));
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
+                .thenReturn(Optional.of(testCartBook));
 
         cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
+
+        assertEquals(1, testCartBook.getBookQuantity());  // assert that the final quantity is 1, as expected
     }
 
     @DisplayName("장바구니 도서 수량 업데이트 - 실패 (카트가 존재하지 않음)")
