@@ -7,6 +7,7 @@ import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadMyReviewResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.util.List;
@@ -80,6 +81,15 @@ public class ReviewController {
         return ResponseEntity.noContent()
             .headers(addAuthHeaders(jwtUserDetails))
             .build();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<Page<ReadMyReviewResponse>> getMyReviews(Pageable pageable,
+        @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        return ResponseEntity.ok()
+            .headers(addAuthHeaders(jwtUserDetails))
+            .body(reviewService.getReviewsByUserId(jwtUserDetails.userId(), pageable));
     }
 
     private HttpHeaders addAuthHeaders(JwtUserDetails jwtUserDetails) {

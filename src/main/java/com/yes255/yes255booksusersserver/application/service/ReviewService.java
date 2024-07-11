@@ -2,6 +2,7 @@ package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.CreateReviewRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.review.UpdateReviewRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadMyReviewResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.util.List;
@@ -22,4 +23,6 @@ public interface ReviewService {
         Long userId);
 
     void deleteReviewByReviewId(Long reviewId, Long userId);
+
+    Page<ReadMyReviewResponse> getReviewsByUserId(Long userId, Pageable pageable);
 }

@@ -3,7 +3,7 @@ spring:
     activate:
       on-profile: dev
   rabbitmq:
-    host: yes25_5_book_user
+    host: localhost
     port: 5672
     listener:
       simple:
