@@ -63,8 +63,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                             .build());
         }
 
-        for (UserAddress userAddressTemp : userAddresses) {
-            userAddressTemp.updateUserAddressBased(false);
+        if (addressRequest.addressBased()) {
+            for (UserAddress userAddressTemp : userAddresses) {
+                userAddressTemp.updateUserAddressBased(false);
+            }
         }
 
         UserAddress userAddress = userAddressRepository.save(UserAddress.builder()
