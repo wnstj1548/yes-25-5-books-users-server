@@ -1,7 +1,9 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.*;
+import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.presentation.dto.request.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.AuthorResponse;
@@ -23,12 +25,15 @@ import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.data.redis.connection.ReactiveStringCommands.BitOpCommand.perform;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class BookControllerTest {
 
@@ -214,5 +219,34 @@ public class BookControllerTest {
         // then
         assertThrows(QuantityInsufficientException.class, () -> bookController.updateQuantity(new UpdateBookQuantityRequest(bookIdList, quantityList, OperationType.DECREASE)));
 
+    }
+
+    @DisplayName("책 조회수 증가 - 성공")
+    @Test
+    void addHitsCount_success() {
+        // given
+        Long bookId = 1L;
+        doNothing().when(bookService).addHitsCount(anyLong());
+
+        // when
+        ResponseEntity<Void> responseEntity = bookController.addHitsCount(bookId);
+
+        // then
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        verify(bookService).addHitsCount(bookId);
+    }
+
+    @DisplayName("책 조회수 증가 - 실패 (책을 찾을 수 없음)")
+    @Test
+    void addHitsCount_failure_bookNotFound() {
+        // given
+        Long bookId = 1L;
+        doThrow(new BookNotFoundException(ErrorStatus.toErrorStatus("해당하는 책이 없습니다.", 404, LocalDateTime.now()))).when(bookService).addHitsCount(anyLong());
+
+        // when
+        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> bookController.addHitsCount(bookId));
+
+        // then
+        assertEquals("해당하는 책이 없습니다.", exception.getErrorStatus().message());
     }
 }

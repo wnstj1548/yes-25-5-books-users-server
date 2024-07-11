@@ -342,4 +342,34 @@ public class BookServiceImplTest {
         ApplicationException exception = assertThrows(ApplicationException.class, () -> bookService.getBookByCategoryId(1L, PageRequest.of(0, 10), "popularity"));
         assertEquals("일치하는 카테고리가 없습니다.", exception.getErrorStatus().message());
     }
+
+    @DisplayName("책 조회수 증가 - 성공")
+    @Test
+    void addHitsCount_success() {
+        // given
+        Long bookId = 1L;
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(testBook));
+
+        // when
+        bookService.addHitsCount(bookId);
+
+        // then
+        verify(jpaBookRepository, times(1)).findById(bookId);
+        assertEquals(1, testBook.getHitsCount());
+    }
+
+    @DisplayName("책 조회수 증가 - 실패 (책을 찾을 수 없음)")
+    @Test
+    void addHitsCount_failure_bookNotFound() {
+        // given
+        Long bookId = 1L;
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        // when
+        BookNotFoundException exception = assertThrows(BookNotFoundException.class, () -> bookService.addHitsCount(bookId));
+
+        // then
+        verify(jpaBookRepository, times(1)).findById(bookId);
+        assertEquals("해당하는 책이 없습니다.", exception.getErrorStatus().message());
+    }
 }
