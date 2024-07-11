@@ -9,7 +9,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCouponUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.ReadMaximumDiscountCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.*;
 import lombok.RequiredArgsConstructor;
@@ -313,7 +312,7 @@ public class CouponUserServiceImpl implements CouponUserService {
 
     // 회원의 가장 할인 금액이 높은 쿠폰 반환
     @Override
-    public ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, ReadMaximumDiscountCouponRequest couponRequest) {
+    public ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, Integer amount) {
 
         // 회원 쿠폰 리스트 가져오기
         List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(userId, CouponUser.UserCouponStatus.ACTIVE);
@@ -350,7 +349,7 @@ public class CouponUserServiceImpl implements CouponUserService {
                 .toList();
 
         // 주문 금액
-        BigDecimal totalAmount = BigDecimal.valueOf(couponRequest.totalAmount());
+        BigDecimal totalAmount = BigDecimal.valueOf(amount);
 
         // 최대 할인 쿠폰을 저장할 변수 초기화
         CouponBoxResponse maxDiscountCoupon = null;
@@ -397,7 +396,9 @@ public class CouponUserServiceImpl implements CouponUserService {
         }
         else {
             // 정율 할인
-            discountAmount = totalAmount.multiply(userCoupon.couponDiscountRate());
+            BigDecimal couponDiscountRate = userCoupon.couponDiscountRate();
+            BigDecimal discountRateDecimal = couponDiscountRate.divide(BigDecimal.valueOf(100));
+            discountAmount = totalAmount.multiply(discountRateDecimal);
         }
 
         // 최대 할인 금액 제한 적용

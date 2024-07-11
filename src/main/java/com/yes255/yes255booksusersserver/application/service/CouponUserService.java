@@ -1,7 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service;
 
 import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
-import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.ReadMaximumDiscountCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ReadMaximumDiscountCouponResponse;
@@ -31,5 +30,5 @@ public interface CouponUserService {
 
     List<ReadUserCouponResponse> getAllUserCouponsByUserId(Long userId);
 
-    ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, ReadMaximumDiscountCouponRequest couponRequest);
+    ReadMaximumDiscountCouponResponse getMaximumDiscountCouponByUserId(Long userId, Integer couponRequest);
 }
