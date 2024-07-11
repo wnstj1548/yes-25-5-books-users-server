@@ -307,7 +307,7 @@ public class BookController {
 
     @Operation(summary = "책 이름 검색", description = "책 이름을 받아 그 단어가 포함된 모든 도서를 검색합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "책 이름으로 검색", content = @Content(schema = @Schema(implementation = List.class))),
+            @ApiResponse(responseCode = "200", description = "책 이름으로 검색 성공", content = @Content(schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
@@ -318,12 +318,26 @@ public class BookController {
 
     @Operation(summary = "카테고리로 책 조회", description = "카테고리 아이디로 해당 카테고리인 책들을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "카테고리로 책 조회", content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "200", description = "카테고리로 책 조회 성공", content = @Content(schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/books/category/{categoryId}/page")
     public ResponseEntity<Page<BookResponse>> getBookByCategory(@PathVariable Long categoryId, Pageable pageable, @RequestParam(defaultValue = "popularity") String sortString) {
         return ResponseEntity.ok(bookService.getBookByCategoryId(categoryId, pageable, sortString));
+    }
+
+    @Operation(summary = "책 조회수 1회 추가", description = "책 조회수를 1회 추가합니다..")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "책 조회수 1회 추가 성공", content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @GetMapping("/books/{bookId}/addHitsCount")
+    public ResponseEntity<Void> addHitsCount(@PathVariable Long bookId) {
+
+        bookService.addHitsCount(bookId);
+
+        return ResponseEntity.noContent().build();
     }
 }

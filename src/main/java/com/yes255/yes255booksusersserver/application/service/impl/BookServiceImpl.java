@@ -177,10 +177,21 @@ public class BookServiceImpl implements BookService {
         return new PageImpl<>(paginatedList, pageable, bookList.size());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookCouponResponse> getBookByName(String name) {
         return jpaBookRepository.findByBookNameContainingIgnoreCaseAndBookIsDeletedFalse(name)
                 .stream().map(this::toBookCouponResponse).toList();
+    }
+
+    @Transactional
+    @Override
+    public void addHitsCount(Long bookId) {
+
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("해당하는 책이 없습니다.", 404, LocalDateTime.now())));
+
+        book.updateBookHitsCount(book.getHitsCount() + 1);
+
     }
 
     public BookResponse toResponse(Book book) {
@@ -203,10 +214,11 @@ public class BookServiceImpl implements BookService {
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
                 .bookQuantity(book.getQuantity())
-                .reviewCount(book.getReviewCount())
+                .reviewCount(book.getReviews().size())
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .grade(book.getReviews().stream().mapToDouble(Review::getRating).average().orElse(0))
                 .build();
     }
 
@@ -256,9 +268,9 @@ public class BookServiceImpl implements BookService {
             case "high-price":
                 comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
                 break;
-//            case "grade" :
-//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-//                break;
+            case "grade" :
+                comparator = Comparator.comparing(BookResponse::grade);
+                break;
             case "review":
                 comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
                 break;
