@@ -1,9 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service;
 
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateLikesRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateLikesRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

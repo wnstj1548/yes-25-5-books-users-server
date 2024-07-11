@@ -24,7 +24,7 @@ public class ReviewImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewImageId;
 
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
+    @Column(nullable = false)
     public String reviewImageUrl;
 
     @JoinColumn(nullable = false, name = "review_id")

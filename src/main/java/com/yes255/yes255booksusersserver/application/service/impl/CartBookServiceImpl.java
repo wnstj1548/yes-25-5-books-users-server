@@ -11,7 +11,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.CartBook;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
@@ -34,7 +33,6 @@ public class CartBookServiceImpl implements CartBookService {
     private final JpaCartRepository cartRepository;
     private final JpaCartBookRepository cartBookRepository;
     private final JpaBookRepository bookRepository;
-    private final JpaUserRepository userRepository;
 
     // 장바구니에 도서 추가
     @Override
@@ -50,6 +48,11 @@ public class CartBookServiceImpl implements CartBookService {
         if (Objects.isNull(cart)) {
             throw new CartException(
                 ErrorStatus.toErrorStatus("카트가 존재하지 않습니다.", 404, LocalDateTime.now()));
+        }
+
+        if (!isAvailableAddCart(book, request.quantity())) {
+            throw new CartException(
+                ErrorStatus.toErrorStatus("장바구네 추가가 불가능한 도서입니다.", 403, LocalDateTime.now()));
         }
 
         if (Boolean.TRUE.equals(cartBookRepository.existsByBookAndCart(book, cart))) {
@@ -128,7 +131,6 @@ public class CartBookServiceImpl implements CartBookService {
             .toList();
     }
 
-    @Transactional
     @Override
     public void updateCartBookOrderByUserId(Long userId, List<UpdateCartBookOrderRequest> request) {
 
@@ -160,5 +162,17 @@ public class CartBookServiceImpl implements CartBookService {
                 cartBookRepository.save(cartBook);
             }
         }
+    }
+
+    private boolean isAvailableAddCart(Book book, int quantity) {
+        if (quantity > book.getQuantity()) {
+            return false;
+        }
+
+        if (book.isBookIsDeleted()) {
+            return false;
+        }
+
+        return true;
     }
 }

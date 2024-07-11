@@ -161,29 +161,7 @@ public class BookServiceImpl implements BookService {
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
-        Comparator comparator;
-
-        switch(sortString) {
-            case "new-product":
-                comparator = Comparator.comparing(BookResponse::bookPublishDate).reversed();
-                break;
-            case "low-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-                break;
-            case "high-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
-                break;
-//            case "grade" :
-//                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-//                break;
-            case "review":
-                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
-                break;
-            case "popularity":
-            default:
-                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
-                break;
-        }
+        Comparator comparator = getComparator(sortString);
 
         List<BookResponse> bookList = bookCategoryList.stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
@@ -199,10 +177,21 @@ public class BookServiceImpl implements BookService {
         return new PageImpl<>(paginatedList, pageable, bookList.size());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookCouponResponse> getBookByName(String name) {
         return jpaBookRepository.findByBookNameContainingIgnoreCaseAndBookIsDeletedFalse(name)
                 .stream().map(this::toBookCouponResponse).toList();
+    }
+
+    @Transactional
+    @Override
+    public void addHitsCount(Long bookId) {
+
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(ErrorStatus.toErrorStatus("해당하는 책이 없습니다.", 404, LocalDateTime.now())));
+
+        book.updateBookHitsCount(book.getHitsCount() + 1);
+
     }
 
     public BookResponse toResponse(Book book) {
@@ -225,10 +214,11 @@ public class BookServiceImpl implements BookService {
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
                 .bookQuantity(book.getQuantity())
-                .reviewCount(book.getReviewCount())
+                .reviewCount(book.getReviews().size())
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
+                .grade(book.getReviews().stream().mapToDouble(Review::getRating).average().orElse(0))
                 .build();
     }
 
@@ -265,5 +255,31 @@ public class BookServiceImpl implements BookService {
                 .quantity(book.getQuantity())
                 .author(authorString)
                 .build();
+    }
+
+    private Comparator getComparator(String sortString) {
+
+        Comparator comparator;
+
+        switch(sortString) {
+            case "low-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
+                break;
+            case "high-price":
+                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
+                break;
+            case "grade" :
+                comparator = Comparator.comparing(BookResponse::grade);
+                break;
+            case "review":
+                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
+                break;
+            case "popularity":
+            default:
+                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
+                break;
+        }
+
+        return comparator;
     }
 }

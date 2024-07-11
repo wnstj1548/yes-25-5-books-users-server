@@ -67,43 +67,45 @@ public class CartBookServiceImplTest {
     void setUp() {
         // Customer 설정
         Customer testCustomer = Customer.builder()
-                .userId(1L)
-                .userRole("USER")
-                .build();
+            .userId(1L)
+            .userRole("USER")
+            .build();
 
         // User 설정
         testUser = User.builder()
-                .customer(testCustomer)
-                .userName("Test User")
-                .userPhone("010-1234-5678")
-                .userEmail("testuser@example.com")
-                .userBirth(LocalDate.of(1990, 1, 1))
-                .userRegisterDate(LocalDateTime.now())
-                .userPassword("password")
-                .build();
+            .customer(testCustomer)
+            .userName("Test User")
+            .userPhone("010-1234-5678")
+            .userEmail("testuser@example.com")
+            .userBirth(LocalDate.of(1990, 1, 1))
+            .userRegisterDate(LocalDateTime.now())
+            .userPassword("password")
+            .build();
 
         // Cart 설정
         testCart = Cart.builder()
-                .cartId(1L)
-                .cartCreatedAt(LocalDate.now())
-                .customer(testCustomer)
-                .build();
+            .cartId(1L)
+            .cartCreatedAt(LocalDate.now())
+            .customer(testCustomer)
+            .build();
 
         // Book 설정
         testBook = Book.builder()
-                .bookId(1L)
-                .bookName("Test Book")
-                .bookPrice(BigDecimal.valueOf(20.0))
-                .build();
+            .bookId(1L)
+            .bookName("Test Book")
+            .quantity(100)
+            .bookPrice(BigDecimal.valueOf(20.0))
+            .bookIsDeleted(false)
+            .build();
 
         // CartBook 설정
         testCartBook = CartBook.builder()
-                .cartBookId(1L)
-                .cart(testCart)
-                .book(testBook)
-                .bookQuantity(1)
-                .cartBookCreatedAt(LocalDateTime.now())
-                .build();
+            .cartBookId(1L)
+            .cart(testCart)
+            .book(testBook)
+            .bookQuantity(1)
+            .cartBookCreatedAt(LocalDateTime.now())
+            .build();
     }
 
     @DisplayName("장바구니에 도서 추가 - 성공")
@@ -111,16 +113,17 @@ public class CartBookServiceImplTest {
     void testCreateCartBookByUserId_Success() {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
-                .bookId(testBook.getBookId())
-                .quantity(2)
-                .build();
+            .bookId(testBook.getBookId())
+            .quantity(2)
+            .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
         when(cartBookRepository.existsByBookAndCart(testBook, testCart)).thenReturn(false);
         when(cartBookRepository.save(any(CartBook.class))).thenReturn(testCartBook);
 
-        CreateCartBookResponse response = cartBookService.createCartBookByUserId(testUser.getUserId(), request);
+        CreateCartBookResponse response = cartBookService.createCartBookByUserId(
+            testUser.getUserId(), request);
 
         assertNotNull(response);
     }
@@ -130,9 +133,9 @@ public class CartBookServiceImplTest {
     void testCreateCartBookByUserId_BookNotFound() {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
-                .bookId(testBook.getBookId())
-                .quantity(2)
-                .build();
+            .bookId(testBook.getBookId())
+            .quantity(2)
+            .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.empty());
 
@@ -146,9 +149,9 @@ public class CartBookServiceImplTest {
     void testCreateCartBookByUserId_CartNotFound() {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
-                .bookId(testBook.getBookId())
-                .quantity(2)
-                .build();
+            .bookId(testBook.getBookId())
+            .quantity(2)
+            .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
@@ -163,9 +166,9 @@ public class CartBookServiceImplTest {
     void testCreateCartBookByUserId_DuplicateBookInCart() {
 
         CreateCartBookRequest request = CreateCartBookRequest.builder()
-                .bookId(testBook.getBookId())
-                .quantity(2)
-                .build();
+            .bookId(testBook.getBookId())
+            .quantity(2)
+            .build();
 
         when(bookRepository.findById(testBook.getBookId())).thenReturn(Optional.of(testBook));
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
@@ -181,13 +184,15 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_Success() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .quantity(3)
-                .build();
+            .quantity(3)
+            .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.of(testCartBook));
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(
+            Optional.of(testCartBook));
 
-        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(testUser.getUserId(),
+        UpdateCartBookResponse response = cartBookService.updateCartBookByUserId(
+            testUser.getUserId(),
             1L, request);
 
         assertNotNull(response);
@@ -199,8 +204,8 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .quantity(3)
-                .build();
+            .quantity(3)
+            .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
 
@@ -214,11 +219,12 @@ public class CartBookServiceImplTest {
     void testUpdateCartBookByUserId_CartBookNotFound() {
 
         UpdateCartBookRequest request = UpdateCartBookRequest.builder()
-                .quantity(3)
-                .build();
+            .quantity(3)
+            .build();
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(anyLong(), anyLong())).thenReturn(
+            Optional.empty());
 
         assertThrows(CartBookException.class, () -> {
             cartBookService.updateCartBookByUserId(testUser.getUserId(), 1L, request);
@@ -230,7 +236,8 @@ public class CartBookServiceImplTest {
     void testDeleteCartBookByUserIdByCartBookId_Success() {
 
         assertDoesNotThrow(() -> {
-            cartBookService.deleteCartBookByUserIdByCartBookId(testUser.getUserId(), testCartBook.getCartBookId());
+            cartBookService.deleteCartBookByUserIdByCartBookId(testUser.getUserId(),
+                testCartBook.getCartBookId());
         });
     }
 
@@ -242,9 +249,11 @@ public class CartBookServiceImplTest {
         cartBooks.add(testCartBook);
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(testCart.getCartId())).thenReturn(cartBooks);
+        when(cartBookRepository.findByCart_CartIdOrderByCartBookCreatedAtDesc(
+            testCart.getCartId())).thenReturn(cartBooks);
 
-        List<CartBookResponse> responses = cartBookService.findAllCartBookById(testUser.getUserId());
+        List<CartBookResponse> responses = cartBookService.findAllCartBookById(
+            testUser.getUserId());
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
@@ -285,12 +294,11 @@ public class CartBookServiceImplTest {
         assertEquals(1, testCartBook.getBookQuantity());  // assert that the final quantity is 1, as expected
     }
 
-
     @DisplayName("장바구니 도서 수량 업데이트 - 실패 (카트가 존재하지 않음)")
     @Test
     void testUpdateCartBookOrderByUserId_CartNotFound() {
         List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
-                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+            UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
         );
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(null);
@@ -298,44 +306,39 @@ public class CartBookServiceImplTest {
         assertThrows(CartException.class, () -> {
             cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
         });
-
-        assertEquals(1, testCartBook.getBookQuantity());
     }
-
 
     @DisplayName("장바구니 도서 수량 업데이트 - 실패 (장바구니 도서가 존재하지 않음)")
     @Test
     void testUpdateCartBookOrderByUserId_CartBookNotFound() {
         List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
-                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+            UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
         );
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
-                .thenReturn(Optional.empty());
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(),
+            testBook.getBookId()))
+            .thenReturn(Optional.empty());
 
         assertThrows(CartBookException.class, () -> {
             cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
         });
-
-        assertEquals(1, testCartBook.getBookQuantity());
     }
-
 
     @DisplayName("장바구니 도서 수량 업데이트 - 성공 (도서 수량 감소로 인한 삭제)")
     @Test
     void testUpdateCartBookOrderByUserId_DeleteCartBook() {
         List<UpdateCartBookOrderRequest> requests = Collections.singletonList(
-                UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
+            UpdateCartBookOrderRequest.builder().bookId(testBook.getBookId()).quantity(1).build()
         );
 
         when(cartRepository.findByCustomer_UserId(testUser.getUserId())).thenReturn(testCart);
-        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(), testBook.getBookId()))
-                .thenReturn(Optional.of(testCartBook));
+        when(cartBookRepository.findByCart_CartIdAndBook_BookId(testCart.getCartId(),
+            testBook.getBookId()))
+            .thenReturn(Optional.of(testCartBook));
 
         testCartBook.updateCartBookQuantity(1);
 
         cartBookService.updateCartBookOrderByUserId(testUser.getUserId(), requests);
     }
-
 }

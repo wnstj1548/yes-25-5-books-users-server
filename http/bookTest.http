@@ -49,3 +49,7 @@ Content-Type: application/json
 ###
 GET localhost:8061/books/category/1/page?sortString=high-price
 Content-Type: application/json
+
+###
+GET localhost:8061/books/5/addHitsCount
+Content-Type: application/json
