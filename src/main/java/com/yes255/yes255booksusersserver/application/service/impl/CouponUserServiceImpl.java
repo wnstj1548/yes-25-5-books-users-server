@@ -347,8 +347,11 @@ public class CouponUserServiceImpl implements CouponUserService {
             userId, CouponUser.UserCouponStatus.ACTIVE);
 
         if (couponUsers.isEmpty()) {
-            throw new CouponUserException(
-                ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now()));
+            return ReadMaximumDiscountCouponResponse.builder()
+                .couponName("")
+                .discountAmount(BigDecimal.ZERO)
+                .couponId(null)
+                .build();
         }
 
         List<Long> couponIds = couponUsers.stream()
