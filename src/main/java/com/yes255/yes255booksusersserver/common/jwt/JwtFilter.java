@@ -41,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
                 "/users/check-email".equals(path) || path.startsWith("/books/search") ||
                  path.startsWith("/books/categories") || path.startsWith("/books/category")
-                || path.startsWith("/books/books/category") || "/users/coupons/claim".equals(path)
+                || path.startsWith("/books/books/category")
                 || "/users/dormant".equals(path) || "/users/find-email".equals(path)
                 || path.matches("/books/likes/book/\\d")) {
             filterChain.doFilter(request, response);
@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         //토큰이 있으면 받고 없으면 바로 리턴
-        if (path.matches("/books/likes/\\d+/exist")) {
+        if (path.matches("/books/likes/\\d+/exist") || path.matches("/users/coupons/claim")) {
             try {
                 String token = getToken(request);
                 String uuid = jwtProvider.getUserNameFromToken(token);

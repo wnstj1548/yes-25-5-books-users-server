@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -47,12 +46,12 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
 
-        if (userAddresses.size() > 10) {
-            throw new UserAddressException(ErrorStatus.toErrorStatus("주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
+        if (userAddresses.size() >= 10) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("유저가 존재하지 않습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
         Address address = addressRepository.findAddressByAddressRawAndAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
 
@@ -66,6 +65,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         if (addressRequest.addressBased()) {
             for (UserAddress userAddressTemp : userAddresses) {
                 userAddressTemp.updateUserAddressBased(false);
+                userAddressRepository.save(userAddressTemp);
             }
         }
 
@@ -93,18 +93,21 @@ public class UserAddressServiceImpl implements UserAddressService {
                                                    UpdateUserAddressRequest addressRequest) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        Address address = addressRepository.findById(userAddress.getAddress().getAddressId())
+        addressRepository.findById(userAddress.getAddress().getAddressId())
                 .orElseThrow(() -> new AddressException(ErrorStatus.toErrorStatus("주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        address.updateAddressZip(addressRequest.addressZip());
-        address.updateAddressRaw(addressRequest.addressRaw());
 
         Address checkAddress = addressRepository.findAddressByAddressRawAndAddressZip(addressRequest.addressRaw(), addressRequest.addressZip());
+
         if (checkAddress == null) {
-            addressRepository.save(address);
-            userAddress.updateUserAddress(address);
+
+            checkAddress = addressRepository.save(Address.builder()
+                            .addressRaw(addressRequest.addressRaw())
+                            .addressZip(addressRequest.addressZip())
+                            .build());
+            userAddress.updateUserAddress(checkAddress);
         }
         else {
             userAddress.updateUserAddress(checkAddress);
@@ -112,13 +115,30 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         userAddress.updateUserAddressName(addressRequest.addressName());
         userAddress.updateUserAddressDetail(addressRequest.addressDetail());
+
+
+        List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
+
+        // 회원의 모든 주소의 기본 배송지 false로 변환
+        if (userAddresses.isEmpty()) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
+
+        if (addressRequest.addressBased()) {
+            for (UserAddress userAddressTemp : userAddresses) {
+                userAddressTemp.updateUserAddressBased(false);
+                userAddressRepository.save(userAddressTemp);
+            }
+        }
+
         userAddress.updateUserAddressBased(addressRequest.addressBased());
+
 
         userAddressRepository.save(userAddress);
 
         return UpdateUserAddressResponse.builder()
-                .addressZip(address.getAddressZip())
-                .addressRaw(address.getAddressRaw())
+                .addressZip(checkAddress.getAddressZip())
+                .addressRaw(checkAddress.getAddressRaw())
                 .addressName(userAddress.getAddressName())
                 .addressDetail(userAddress.getAddressDetail())
                 .addressBased(userAddress.isAddressBased())
@@ -133,7 +153,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         UserAddress userAddress = userAddressRepository.findByUserAddressIdAndUserUserId(userAddressId, userId);
 
         if (Objects.isNull(userAddress)) {
-            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+            throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         return UserAddressResponse.builder()
@@ -178,20 +198,22 @@ public class UserAddressServiceImpl implements UserAddressService {
     public void updateAddressBased(Long userId, Long userAddressId, UpdateAddressBasedRequest addressRequest) {
 
         UserAddress userAddress = userAddressRepository.findById(userAddressId)
-                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
+                .orElseThrow(() -> new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        List<UserAddress> userAddresses = userAddressRepository.findAll();
+        List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
 
-        // 모든 주소의 기본 배송지 false로 변환
+        // 회원의 모든 주소의 기본 배송지 false로 변환
         if (userAddresses.isEmpty()) {
-            throw new UserAddressException(ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+            throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
         for (UserAddress userAddressTemp : userAddresses) {
             userAddressTemp.updateUserAddressBased(false);
+            userAddressRepository.save(userAddressTemp);
         }
 
         // 기본 배송지 지정
         userAddress.updateUserAddressBased(true);
+        userAddressRepository.save(userAddress);
     }
 }

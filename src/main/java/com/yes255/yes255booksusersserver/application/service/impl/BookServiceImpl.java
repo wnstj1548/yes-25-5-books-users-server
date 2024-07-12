@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +32,7 @@ public class BookServiceImpl implements BookService {
     private final JpaBookTagRepository jpaBookTagRepository;
     private final JpaCartBookRepository jpaCartBookRepository;
     private final JpaBookAuthorRepository jpaBookAuthorRepository;
+    private final JpaLikesRepository jpaLikesRepository;
 
     @Transactional
     @Override
@@ -65,6 +63,7 @@ public class BookServiceImpl implements BookService {
         return toResponse(book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookOrderResponse> getBooksByOrder(List<Long> bookIdList) {
 
@@ -88,6 +87,7 @@ public class BookServiceImpl implements BookService {
         return new PageImpl<>(responses, pageable, bookPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookResponse> getAllBooks() {
         return jpaBookRepository.findByBookIsDeletedFalse().stream().map(this::toResponse).toList();
@@ -120,11 +120,13 @@ public class BookServiceImpl implements BookService {
         List<BookTag> bookTagList = jpaBookTagRepository.findByBook(book);
         List<CartBook> cartBookList = jpaCartBookRepository.findByBook(book);
         List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
+        List<Likes> likesList = jpaLikesRepository.findByBook(book);
 
         jpaBookCategoryRepository.deleteAll(bookCategoryList);
         jpaBookTagRepository.deleteAll(bookTagList);
         jpaCartBookRepository.deleteAll(cartBookList);
         jpaBookAuthorRepository.deleteAll(bookAuthorList);
+        jpaLikesRepository.deleteAll(likesList);
         book.delete();
 
     }
@@ -194,6 +196,34 @@ public class BookServiceImpl implements BookService {
 
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public BookResponse getBookByIsbn(String isbn) {
+
+        if(jpaBookRepository.findByBookIsbn(isbn).isPresent()) {
+
+            return toResponse(jpaBookRepository.findByBookIsbn(isbn).get());
+
+        } else {
+
+            return null;
+
+        }
+    }
+
+    @Transactional
+    @Override
+    public void updateBookIsDeleteFalse(Long bookId) {
+
+        Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(
+                ErrorStatus.toErrorStatus("삭제 상태를 업데이트 할 책을 찾지 못했습니다.", 404, LocalDateTime.now())
+        ));
+
+        book.updateBookIsDeleted(false);
+
+    }
+
+
     public BookResponse toResponse(Book book) {
 
         List<BookAuthor> bookAuthorList = jpaBookAuthorRepository.findByBook(book);
@@ -219,6 +249,7 @@ public class BookServiceImpl implements BookService {
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
                 .grade(book.getReviews().stream().mapToDouble(Review::getRating).average().orElse(0))
+                .bookIsDeleted(book.isBookIsDeleted())
                 .build();
     }
 

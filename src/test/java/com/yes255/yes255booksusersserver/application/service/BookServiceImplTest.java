@@ -43,6 +43,8 @@ public class BookServiceImplTest {
     private JpaCartBookRepository jpaCartBookRepository;
     @Mock
     private JpaBookAuthorRepository jpaBookAuthorRepository;
+    @Mock
+    private JpaLikesRepository jpaLikesRepository;
 
     @InjectMocks
     private BookServiceImpl bookService;
@@ -54,7 +56,7 @@ public class BookServiceImplTest {
     @BeforeEach
     void setUp() throws ParseException {
         MockitoAnnotations.initMocks(this);
-        testBook = new Book(1L, "1234567890", "Test Book", "Description", "Index", "Publisher",
+        testBook = new Book(1L, "1234567890", "Test Book", "Description",  "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg",
                 100, 0, 0, 0, true, false);
         testCategory = new Category(1L, "Test Category", null, null);
@@ -64,7 +66,7 @@ public class BookServiceImplTest {
     @Test
     void createBook_success() throws ParseException {
         // given
-        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "index", "BookAuthor1, BookAuthor2", "Publisher",
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description",  "BookAuthor1, BookAuthor2", "Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100, "image.jpg", true);
 
         when(jpaBookRepository.save(any(Book.class))).thenReturn(testBook);
@@ -120,7 +122,7 @@ public class BookServiceImplTest {
     @Test
     void findAllBooks() throws ParseException {
         // given
-        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "Index", "Publisher",
+        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                 sdf.parse("2014-04-02"), new BigDecimal("25.00"), new BigDecimal("19.99"), "another.jpg",
                 150, 0, 0, 0, true, false);
 
@@ -158,10 +160,10 @@ public class BookServiceImplTest {
     @Test
     void updateBook_success() throws ParseException {
         // given
-        Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description", "Old Index", "Old Publisher",
+        Book existingBook = new Book(1L, "1234567890", "Old Book Name", "Old Description",  "Old Publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "old_image.jpg", 100, 0, 0, 0, true, false);
 
-        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description", "New Index", "new Author1, new Author2", "New Publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "0987654321", "New Book Name", "New Description",  "new Author1, new Author2", "New Publisher",
                 sdf.parse("2022-01-01"), new BigDecimal("25.00"), new BigDecimal("19.99"), 150, "new_image.jpg", true);
 
         existingBook.updateAll(request.toEntity());
@@ -183,7 +185,7 @@ public class BookServiceImplTest {
     @Test
     void updateBook_failure_bookNotFound() throws ParseException {
         // given
-        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description", "index", "Updated Publisher", "author1", "publisher",
+        UpdateBookRequest request = new UpdateBookRequest(1L, "Updated Book", "Updated Description",  "Updated Publisher", "author1", "publisher",
                 sdf.parse("2020-01-01"), new BigDecimal("25.00"), new BigDecimal("20.99"), 120, "updated.jpg", true);
 
         when(jpaBookRepository.existsById(1L)).thenReturn(false);
@@ -198,18 +200,20 @@ public class BookServiceImplTest {
     void removeBook_success() {
         // given
         Long bookId = 1L;
-        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "index", "Publisher",
+        Book book = new Book(bookId, "1234567890", "Test Book", "Description", "Publisher",
                 null, null, null, null, 0, 0, 0, 0, true, false);
 
         List<BookCategory> bookCategoryList = new ArrayList<>();
         List bookTagList = new ArrayList<>();
         List cartBookList = new ArrayList<>();
         List bookAuthorList = new ArrayList<>();
+        List likesList = new ArrayList<>();
         when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(jpaBookCategoryRepository.findByBook(book)).thenReturn(bookCategoryList);
         when(jpaBookTagRepository.findByBook(book)).thenReturn(bookTagList);
         when(jpaCartBookRepository.findByBook(book)).thenReturn(cartBookList);
         when(jpaBookAuthorRepository.findByBook(book)).thenReturn(bookAuthorList);
+        when(jpaLikesRepository.findByBook(book)).thenReturn(likesList);
 
         // when
         bookService.removeBook(bookId);
@@ -219,6 +223,7 @@ public class BookServiceImplTest {
         verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
         verify(jpaCartBookRepository, times(1)).deleteAll(cartBookList);
         verify(jpaBookAuthorRepository, times(1)).deleteAll(bookAuthorList);
+        verify(jpaLikesRepository, times(1)).deleteAll(likesList);
     }
 
     @DisplayName("책 삭제 - 실패 (존재하지 않는 책)")
@@ -284,7 +289,7 @@ public class BookServiceImplTest {
     void findBooksByOrder_success() {
         // given
         List<Long> bookIds = Arrays.asList(1L, 2L);
-        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description", "index", "Publisher",
+        Book anotherBook = new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                 null, null, null, null, 0, 0, 0, 0, true, false);
 
         when(jpaBookRepository.findById(1L)).thenReturn(Optional.of(testBook));
@@ -318,7 +323,7 @@ public class BookServiceImplTest {
         // given
         List<BookCategory> bookCategories = Arrays.asList(
                 new BookCategory(1L, testBook, testCategory),
-                new BookCategory(2L, new Book(2L, "0987654321", "Another Book", "Description", "index", "Publisher",
+                new BookCategory(2L, new Book(2L, "0987654321", "Another Book", "Description",  "Publisher",
                         null, null, null, null, 0, 0, 0, 0, true, false), testCategory));
 
         when(jpaCategoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
@@ -371,5 +376,78 @@ public class BookServiceImplTest {
         // then
         verify(jpaBookRepository, times(1)).findById(bookId);
         assertEquals("해당하는 책이 없습니다.", exception.getErrorStatus().message());
+    }
+
+    @DisplayName("ISBN으로 책 조회 - 존재하는 경우")
+    @Test
+    void testGetBookByIsbnExists() {
+        // given
+        String isbn = "12345678901";
+        Book book = Book.builder()
+                .bookId(1L)
+                .bookIsbn(isbn)
+                .build();
+        when(jpaBookRepository.findByBookIsbn(isbn)).thenReturn(Optional.of(book));
+
+        // when
+        BookResponse response = bookService.getBookByIsbn(isbn);
+
+        // then
+        assertNotNull(response);
+        assertEquals(book.getBookId(), response.bookId());
+        assertEquals(book.getBookIsbn(), isbn);
+        verify(jpaBookRepository, times(2)).findByBookIsbn(isbn);
+    }
+
+    @DisplayName("ISBN으로 책 조회 - 존재하지 않는 경우")
+    @Test
+    void testGetBookByIsbnNotExists() {
+        // given
+        String isbn = "1234567890";
+        when(jpaBookRepository.findByBookIsbn(isbn)).thenReturn(Optional.empty());
+
+        // when
+        BookResponse response = bookService.getBookByIsbn(isbn);
+
+        // then
+        assertEquals(null, response);
+        verify(jpaBookRepository, times(1)).findByBookIsbn(isbn);
+    }
+
+    @DisplayName("삭제 상태 업데이트 - 성공")
+    @Test
+    void testUpdateBookIsDeleteFalseSuccess() {
+        // given
+        Long bookId = 1L;
+        Book book = Book.builder()
+                .bookId(bookId)
+                .bookIsDeleted(true)
+                .build();
+
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        // when
+        bookService.updateBookIsDeleteFalse(bookId);
+
+        // then
+        verify(jpaBookRepository, times(1)).findById(bookId);
+        assertFalse(book.isBookIsDeleted());
+    }
+
+    @DisplayName("삭제 상태 업데이트 - 책을 찾을 수 없음")
+    @Test
+    void testUpdateBookIsDeleteFalseBookNotFound() {
+        // given
+        Long bookId = 1L;
+        when(jpaBookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        // when, then
+        BookNotFoundException exception = assertThrows(
+                BookNotFoundException.class,
+                () -> bookService.updateBookIsDeleteFalse(bookId)
+        );
+
+        assertEquals("삭제 상태를 업데이트 할 책을 찾지 못했습니다.", exception.getErrorStatus().message());
+        verify(jpaBookRepository, times(1)).findById(bookId);
     }
 }
