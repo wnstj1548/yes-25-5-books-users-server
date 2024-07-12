@@ -4,6 +4,7 @@ import com.yes255.yes255booksusersserver.application.service.UserAddressService;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.CreateUserAddressRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateAddressBasedRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.useraddress.UpdateUserAddressRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.UserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.useraddress.CreateUserAddressResponse;
@@ -89,19 +90,13 @@ public class UserAddressController {
      * @param jwtUserDetails 유저 토큰 정보
      * @return 회원 주소 목록 응답 데이터와 상태 코드 200(OK)
      */
-//    @Operation(summary = "회원 주소 목록 조회", description = "회원의 모든 주소 목록을 조회합니다.")
-//    @GetMapping
-//    public ResponseEntity<List<UserAddressResponse>> findAllUserAddresses(@CurrentUser JwtUserDetails jwtUserDetails) {
-//
-//        Long userId = jwtUserDetails.userId();
-//
-//        return ResponseEntity.ok(userAddressService.findAllAddresses(userId));
-//    }
-
     @Operation(summary = "회원 주소 목록 조회", description = "회원의 모든 주소 목록을 조회합니다.")
     @GetMapping
-    public ResponseEntity<Page<UserAddressResponse>> findAllUserAddresses(@CurrentUser JwtUserDetails jwtUserDetails, Pageable pageable) {
+    public ResponseEntity<Page<UserAddressResponse>> findAllUserAddresses(Pageable pageable,
+                                                                          @CurrentUser JwtUserDetails jwtUserDetails) {
+
         Long userId = jwtUserDetails.userId();
+
         return ResponseEntity.ok(userAddressService.findAllAddresses(userId, pageable));
     }
 
@@ -122,5 +117,18 @@ public class UserAddressController {
         userAddressService.deleteAddress(userId, userAddressId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원 주소 기본 배송지 지정", description = "특정 회원의 주소를 기본 배송지로 지정합니다.")
+    @PutMapping("/{userAddressId}/based")
+    public ResponseEntity<Void> updateAddressBased(@PathVariable Long userAddressId,
+                                                   @RequestBody UpdateAddressBasedRequest request,
+                                                   @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        userAddressService.updateAddressBased(userId, userAddressId, request);
+
+        return ResponseEntity.ok().build();
     }
 }

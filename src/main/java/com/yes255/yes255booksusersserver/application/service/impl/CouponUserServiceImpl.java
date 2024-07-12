@@ -134,6 +134,10 @@ public class CouponUserServiceImpl implements CouponUserService {
             .map(CouponUser::getCouponId)
             .collect(Collectors.toList());
 
+        if (couponIds.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+
         List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
 
         // CouponInfoResponse를 매핑하기 위한 Map 생성
