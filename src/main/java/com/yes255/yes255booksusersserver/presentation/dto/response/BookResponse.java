@@ -23,7 +23,8 @@ public record BookResponse(
         Integer hitsCount,
         Integer searchCount,
         Boolean bookIsPackable,
-        Double grade
+        Double grade,
+        Boolean bookIsDeleted
 ) {
 
 }

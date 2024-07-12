@@ -25,8 +25,6 @@ public record UpdateBookRequest(
 
         String bookDescription,
 
-        String index,
-
         String bookAuthor,
 
         String bookPublisher,
@@ -52,7 +50,6 @@ public record UpdateBookRequest(
                 .bookIsbn(bookIsbn)
                 .bookName(bookName)
                 .bookDescription(bookDescription)
-                .bookIndex(index)
                 .bookPublisher(bookPublisher)
                 .bookPublishDate(bookPublishDate)
                 .bookPrice(bookPrice)
@@ -60,6 +57,22 @@ public record UpdateBookRequest(
                 .bookImage(imageURL)
                 .quantity(quantity)
                 .bookIsPackable(bookIsPackable)
+                .build();
+    }
+
+    public static UpdateBookRequest fromCreateBookRequest(CreateBookRequest request, Long bookId) {
+        return UpdateBookRequest.builder()
+                .bookId(bookId)
+                .bookIsbn(request.bookIsbn())
+                .bookName(request.bookName())
+                .bookDescription(request.bookDescription())
+                .bookPublisher(request.bookPublisher())
+                .bookPublishDate(request.bookPublishDate())
+                .bookPrice(request.bookPrice())
+                .bookSellingPrice(request.bookSellingPrice())
+                .imageURL(request.imageURL())
+                .quantity(request.quantity())
+                .bookIsPackable(request.bookIsPackable())
                 .build();
     }
 }
