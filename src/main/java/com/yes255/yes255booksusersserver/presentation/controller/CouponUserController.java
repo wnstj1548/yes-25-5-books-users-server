@@ -75,11 +75,11 @@ public class CouponUserController {
 
     @Operation(summary = "할인 금액이 높은 쿠폰 조회", description = "특정 회원의 할인 금액이 가장 높은 쿠폰을 조회합니다.")
     @GetMapping("/user-coupons/max")
-    public ResponseEntity<ReadMaximumDiscountCouponResponse> getMaxDiscountCouponByTotalAmount(@RequestBody ReadMaximumDiscountCouponRequest couponRequest,
+    public ResponseEntity<ReadMaximumDiscountCouponResponse> getMaxDiscountCouponByTotalAmount(@RequestParam Integer totalAmount,
                                                                         @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
 
-        return ResponseEntity.ok(couponUserService.getMaximumDiscountCouponByUserId(userId, couponRequest));
+        return ResponseEntity.ok(couponUserService.getMaximumDiscountCouponByUserId(userId, totalAmount));
     }
 }
