@@ -46,7 +46,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
 
-        if (userAddresses.size() > 10) {
+        if (userAddresses.size() >= 10) {
             throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소는 최대 10개까지 등록할 수 있습니다.", 400, LocalDateTime.now()));
         }
 
@@ -115,7 +115,24 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         userAddress.updateUserAddressName(addressRequest.addressName());
         userAddress.updateUserAddressDetail(addressRequest.addressDetail());
+
+
+        List<UserAddress> userAddresses = userAddressRepository.findByUserUserId(userId);
+
+        // 회원의 모든 주소의 기본 배송지 false로 변환
+        if (userAddresses.isEmpty()) {
+            throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
+        }
+
+        if (addressRequest.addressBased()) {
+            for (UserAddress userAddressTemp : userAddresses) {
+                userAddressTemp.updateUserAddressBased(false);
+                userAddressRepository.save(userAddressTemp);
+            }
+        }
+
         userAddress.updateUserAddressBased(addressRequest.addressBased());
+
 
         userAddressRepository.save(userAddress);
 
