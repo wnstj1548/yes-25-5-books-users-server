@@ -47,7 +47,7 @@ class BookAuthorServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        testBook = new Book(1L, "Test Book", "description", "index", "author", "publisher", null, null, null, "image", 10, 0, 0, 0, true, false);
+        testBook = new Book(1L, "Test Book", "description",  "author", "publisher", null, null, null, "image", 10, 0, 0, 0, true, false);
         testAuthor = new Author(1L, "Test Author");
         testBookAuthor = new BookAuthor(1L, testBook, testAuthor);
 

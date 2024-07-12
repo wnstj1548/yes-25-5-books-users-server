@@ -1,6 +1,7 @@
 package com.yes255.yes255booksusersserver.persistance.domain.index;
 
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.Review;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
@@ -60,6 +61,9 @@ public class BookIndex {
     @Field(name = "book_is_deleted", type = FieldType.Boolean)
     private boolean bookIsDeleted;
 
+    @Field(name = "grade", type = FieldType.Double)
+    private Double grade;
+
     @Field(name = "authors", type = FieldType.Text, analyzer = "korean")
     private List<String> authors;
 
@@ -85,6 +89,7 @@ public class BookIndex {
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
                 .bookIsDeleted(book.isBookIsDeleted())
+                .grade(book.getGrade())
                 .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
                 .tags(tags.stream().map(TagIndex::getTagName).toList())
                 .categories(categories.stream().map(CategoryIndex::getCategoryName).toList())
@@ -102,11 +107,12 @@ public class BookIndex {
                 .bookSellingPrice(book.getBookSellingPrice())
                 .bookImage(book.getBookImage())
                 .quantity(book.getQuantity())
-                .reviewCount(book.getReviewCount())
+                .reviewCount(book.getReviews().size())
                 .hitsCount(book.getHitsCount())
                 .searchCount(book.getSearchCount())
                 .bookIsPackable(book.isBookIsPackable())
                 .bookIsDeleted(book.isBookIsDeleted())
+                .grade(book.getReviews().stream().mapToDouble(Review::getRating).average().orElse(0))
                 .build();
     }
 }
