@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +48,7 @@ public class CouponUserServiceImpl implements CouponUserService {
     private final JpaUserRepository userRepository;
     private final JpaCouponUserRepository couponUserRepository;
     private final CouponAdaptor couponAdaptor;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void createCouponUser(Long couponId, Long userId) {
@@ -267,6 +270,9 @@ public class CouponUserServiceImpl implements CouponUserService {
             .build());
 
         log.info("Birthday coupon created for user: {}", userId);
+
+        String redisKey = "birthday_coupon_issued_" + userId;
+        redisTemplate.opsForValue().set(redisKey, "true", 31, TimeUnit.DAYS);
     }
 
     @Override
