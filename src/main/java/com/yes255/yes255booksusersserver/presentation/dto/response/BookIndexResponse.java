@@ -21,6 +21,7 @@ public record BookIndexResponse(
         Integer hitsCount,
         Integer searchCount,
         boolean bookIsPackable,
+        Double grade,
         List<String> authors,
         List<String> tags
 )
@@ -41,6 +42,7 @@ public record BookIndexResponse(
                 .hitsCount(bookIndex.getHitsCount())
                 .searchCount(bookIndex.getSearchCount())
                 .bookIsPackable(bookIndex.isBookIsPackable())
+                .grade(bookIndex.getGrade())
                 .authors(bookIndex.getAuthors())
                 .tags(bookIndex.getTags())
                 .build();
