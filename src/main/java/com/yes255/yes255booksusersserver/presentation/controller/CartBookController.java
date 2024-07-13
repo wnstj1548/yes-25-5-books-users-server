@@ -1,8 +1,6 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.CartBookService;
-import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
-import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
@@ -14,7 +12,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,83 +39,65 @@ public class CartBookController {
      * 장바구니에 도서를 추가합니다.
      *
      * @param createCartBookRequest 장바구니에 추가할 도서 정보 요청 객체
-     * @param jwtUserDetails 유저 토큰 정보
+     * @param cartId 프론트 서버에서 생성한 랜덤 장바구니 ID
      * @return 생성된 장바구니 도서 정보 응답 객체
      */
     @Operation(summary = "장바구니 도서 추가", description = "장바구니에 도서를 추가합니다.")
-    @PostMapping("/cart-books")
+    @PostMapping("/cart-books/{cartId}")
     public ResponseEntity<CreateCartBookResponse> createCartBook(@RequestBody CreateCartBookRequest createCartBookRequest,
-                                                                 @CurrentUser JwtUserDetails jwtUserDetails) {
-
-        Long userId = jwtUserDetails.userId();
-        String accessToken = jwtUserDetails.accessToken();
-        String refreshToken = jwtUserDetails.refreshToken();
-
+                                                                 @PathVariable String cartId) {
         return ResponseEntity.ok()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .header("Refresh-Token", refreshToken)
-            .body(cartBookService.createCartBookByUserId(userId, createCartBookRequest));
+            .body(cartBookService.createCartBookByUserId(cartId, createCartBookRequest));
     }
 
     /**
      * 장바구니의 특정 도서 수량을 수정합니다.
      *
      * @param updateCartBookRequest 장바구니 도서 수량 수정 요청 객체
-     * @param jwtUserDetails 유저 토큰 정보
      * @return 수정된 장바구니 도서 정보 응답 객체
      */
     @Operation(summary = "장바구니 도서 수정", description = "장바구니의 특정 도서 수량을 수정합니다.")
-    @PutMapping("/cart-books/books/{bookId}")
+    @PutMapping("/cart-books/{cartId}/books/{bookId}")
     public ResponseEntity<UpdateCartBookResponse> updateCartBook(@PathVariable Long bookId,
-        @RequestBody UpdateCartBookRequest updateCartBookRequest,
-        @CurrentUser JwtUserDetails jwtUserDetails) {
+        @PathVariable String cartId,
+        @RequestBody UpdateCartBookRequest updateCartBookRequest) {
 
-        Long userId = jwtUserDetails.userId();
-
-        return new ResponseEntity<>(cartBookService.updateCartBookByUserId(userId, bookId, updateCartBookRequest), HttpStatus.OK);
+        return new ResponseEntity<>(cartBookService.updateCartBookByUserId(cartId, bookId, updateCartBookRequest), HttpStatus.OK);
     }
 
     /**
      * 장바구니에서 특정 도서를 삭제합니다.
      *
      * @param bookId 삭제할 장바구니 내 도서의 ID
-     * @param jwtUserDetails 유저 토큰 정보
      * @return No Content 상태의 응답
      */
     @Operation(summary = "장바구니 도서 삭제", description = "장바구니에서 특정 도서를 삭제합니다.")
-    @DeleteMapping("/cart-books/books/{bookId}")
-    public ResponseEntity<DeleteCartBookResponse> deleteCartBook(@PathVariable Long bookId,
-                                               @CurrentUser JwtUserDetails jwtUserDetails) {
+    @DeleteMapping("/cart-books/{cartId}/books/{bookId}")
+    public ResponseEntity<DeleteCartBookResponse> deleteCartBook(@PathVariable String cartId,
+        @PathVariable Long bookId) {
 
-        Long userId = jwtUserDetails.userId();
-
-        return ResponseEntity.ok(cartBookService.deleteCartBookByUserIdByCartBookId(userId, bookId));
+        return ResponseEntity.ok(cartBookService.deleteCartBookByUserIdByCartBookId(cartId, bookId));
     }
 
     /**
      * 장바구니에 있는 모든 도서를 조회합니다.
      *
-     * @param jwtUserDetails 유저 토큰 정보
+     * @param cartId 장바구니 ID
      * @return 장바구니 도서 목록 응답 객체 리스트
      */
     @Operation(summary = "장바구니 도서 목록 조회", description = "장바구니에 있는 모든 도서를 조회합니다.")
-    @GetMapping("/cart-books")
-    public ResponseEntity<List<CartBookResponse>> getCartBooks(@CurrentUser JwtUserDetails jwtUserDetails) {
+    @GetMapping("/cart-books/{cartId}")
+    public ResponseEntity<List<CartBookResponse>> getCartBooks(@PathVariable String cartId) {
 
-        Long userId = jwtUserDetails.userId();
-
-        return new ResponseEntity<>(cartBookService.findAllCartBookById(userId), HttpStatus.OK);
+        return new ResponseEntity<>(cartBookService.findAllCartBookById(cartId), HttpStatus.OK);
     }
 
 
     @Operation(summary = "구매 도서 장바구니 갱신", description = "장바구니에서 도서를 구해하면 장바구니 도서를 갱신합니다.")
     @PutMapping("/cart-books/orders")
-    public ResponseEntity<Void> updateCartBookOrder(@RequestBody List<UpdateCartBookOrderRequest> cartBookRequest,
-                                                                            @CurrentUser JwtUserDetails jwtUserDetails) {
+    public ResponseEntity<Void> updateCartBookOrder(@RequestBody List<UpdateCartBookOrderRequest> cartBookRequest) {
 
-        Long userId = jwtUserDetails.userId();
-
-        cartBookService.updateCartBookOrderByUserId(userId, cartBookRequest);
+        cartBookService.updateCartBookOrderByUserId(cartBookRequest);
 
         return ResponseEntity.noContent().build();
     }

@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface CartBookService {
 
-    CreateCartBookResponse createCartBookByUserId(Long userId, CreateCartBookRequest request);
+    CreateCartBookResponse createCartBookByUserId(String cartId, CreateCartBookRequest request);
 
-    UpdateCartBookResponse updateCartBookByUserId(Long userId, Long bookId, UpdateCartBookRequest request);
+    UpdateCartBookResponse updateCartBookByUserId(String cartId, Long bookId, UpdateCartBookRequest request);
 
-    DeleteCartBookResponse deleteCartBookByUserIdByCartBookId(Long userId, Long bookId);
+    DeleteCartBookResponse deleteCartBookByUserIdByCartBookId(String cartId, Long bookId);
 
-    List<CartBookResponse> findAllCartBookById(Long userId);
+    List<CartBookResponse> findAllCartBookById(String cartId);
 
-    void updateCartBookOrderByUserId(Long userId, List<UpdateCartBookOrderRequest> request);
+    void updateCartBookOrderByUserId(List<UpdateCartBookOrderRequest> request);
 }
