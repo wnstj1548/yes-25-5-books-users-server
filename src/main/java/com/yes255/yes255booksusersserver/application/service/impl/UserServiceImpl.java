@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.CouponUserService;
 import com.yes255.yes255booksusersserver.application.service.InactiveStateService;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
@@ -45,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final JpaUserGradeLogRepository userGradeLogRepository;
     private final JpaPointLogRepository pointLogRepository;
     private final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
+    private final CouponUserService couponUserService;
 
     private final InactiveStateService inactiveStateService;
 
@@ -235,6 +237,22 @@ public class UserServiceImpl implements UserService {
         }
 
         messageProducer.sendWelcomeCouponMessage(user.getUserId());
+
+        // 생일이 오늘이면 생일 쿠폰 발급 메시지 전송
+        LocalDate today = LocalDate.now();
+        LocalDate userBirth = user.getUserBirth();
+
+        log.info("User's birth date: {}", userBirth);
+        log.info("Today's date: {}", today);
+        log.info("User birth month and day: {}-{}", userBirth.getMonthValue(), userBirth.getDayOfMonth());
+        log.info("Today's month and day: {}-{}", today.getMonthValue(), today.getDayOfMonth());
+
+        if (userBirth.getMonthValue() == today.getMonthValue() && userBirth.getDayOfMonth() == today.getDayOfMonth()) {
+            log.info("User's birthday is today. Sending birthday coupon message.");
+            messageProducer.sendBirthdayCouponMessage(user.getUserId());
+        } else {
+            log.info("User's birthday is not today.");
+        }
 
         return UserResponse.builder()
                 .userId(user.getUserId())
