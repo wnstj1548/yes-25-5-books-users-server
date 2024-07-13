@@ -19,7 +19,6 @@ import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
 import com.yes255.yes255booksusersserver.persistance.domain.UserGradeLog;
 import com.yes255.yes255booksusersserver.persistance.domain.UserState;
 import com.yes255.yes255booksusersserver.persistance.domain.UserTotalPureAmount;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
@@ -66,7 +65,6 @@ public class UserServiceImpl implements UserService {
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
     private final JpaUserStateRepository userStateRepository;
-    private final JpaCartRepository cartRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;

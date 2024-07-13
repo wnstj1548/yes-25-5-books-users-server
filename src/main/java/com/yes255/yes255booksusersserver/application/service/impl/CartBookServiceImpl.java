@@ -1,14 +1,12 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.CartBookService;
+import com.yes255.yes255booksusersserver.application.service.CartService;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.CartBookException;
 import com.yes255.yes255booksusersserver.common.exception.CartException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaCartBookRepository;
-import com.yes255.yes255booksusersserver.persistance.repository.JpaCartRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
@@ -34,10 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class CartBookServiceImpl implements CartBookService {
+public class CartBookServiceImpl implements CartService {
 
-    private final JpaCartRepository cartRepository;
-    private final JpaCartBookRepository cartBookRepository;
     private final JpaBookRepository bookRepository;
 
     private final RedisTemplate<String, Object> redisTemplate;

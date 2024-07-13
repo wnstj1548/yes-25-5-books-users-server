@@ -1,6 +1,6 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
-import com.yes255.yes255booksusersserver.application.service.CartBookService;
+import com.yes255.yes255booksusersserver.application.service.CartService;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class CartBookController {
 
-    private final CartBookService cartBookService;
+    private final CartService cartService;
 
     /**
      * 장바구니에 도서를 추가합니다.
@@ -47,7 +47,7 @@ public class CartBookController {
     public ResponseEntity<CreateCartBookResponse> createCartBook(@RequestBody CreateCartBookRequest createCartBookRequest,
                                                                  @PathVariable String cartId) {
         return ResponseEntity.ok()
-            .body(cartBookService.createCartBookByUserId(cartId, createCartBookRequest));
+            .body(cartService.createCartBookByUserId(cartId, createCartBookRequest));
     }
 
     /**
@@ -62,7 +62,8 @@ public class CartBookController {
         @PathVariable String cartId,
         @RequestBody UpdateCartBookRequest updateCartBookRequest) {
 
-        return new ResponseEntity<>(cartBookService.updateCartBookByUserId(cartId, bookId, updateCartBookRequest), HttpStatus.OK);
+        return new ResponseEntity<>(
+            cartService.updateCartBookByUserId(cartId, bookId, updateCartBookRequest), HttpStatus.OK);
     }
 
     /**
@@ -76,7 +77,7 @@ public class CartBookController {
     public ResponseEntity<DeleteCartBookResponse> deleteCartBook(@PathVariable String cartId,
         @PathVariable Long bookId) {
 
-        return ResponseEntity.ok(cartBookService.deleteCartBookByUserIdByCartBookId(cartId, bookId));
+        return ResponseEntity.ok(cartService.deleteCartBookByUserIdByCartBookId(cartId, bookId));
     }
 
     /**
@@ -89,7 +90,7 @@ public class CartBookController {
     @GetMapping("/cart-books/{cartId}")
     public ResponseEntity<List<CartBookResponse>> getCartBooks(@PathVariable String cartId) {
 
-        return new ResponseEntity<>(cartBookService.findAllCartBookById(cartId), HttpStatus.OK);
+        return new ResponseEntity<>(cartService.findAllCartBookById(cartId), HttpStatus.OK);
     }
 
 
@@ -97,7 +98,7 @@ public class CartBookController {
     @PutMapping("/cart-books/orders")
     public ResponseEntity<Void> updateCartBookOrder(@RequestBody List<UpdateCartBookOrderRequest> cartBookRequest) {
 
-        cartBookService.updateCartBookOrderByUserId(cartBookRequest);
+        cartService.updateCartBookOrderByUserId(cartBookRequest);
 
         return ResponseEntity.noContent().build();
     }
