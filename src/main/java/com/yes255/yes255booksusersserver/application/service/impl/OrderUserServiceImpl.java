@@ -3,7 +3,6 @@ package com.yes255.yes255booksusersserver.application.service.impl;
 import com.yes255.yes255booksusersserver.application.service.OrderUserService;
 import com.yes255.yes255booksusersserver.common.exception.CustomerException;
 import com.yes255.yes255booksusersserver.common.exception.PointException;
-import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
@@ -75,11 +74,6 @@ public class OrderUserServiceImpl implements OrderUserService {
 
         Page<UserAddress> userAddressPage = userAddressRepository.findByUserUserId(userId,
             pageable);
-
-        if (userAddressPage.isEmpty()) {
-            throw new UserAddressException(
-                ErrorStatus.toErrorStatus("유저 주소를 찾을 수 없습니다.", 404, LocalDateTime.now()));
-        }
 
         return userAddressPage.map(userAddress ->
             ReadOrderUserAddressResponse.builder()
