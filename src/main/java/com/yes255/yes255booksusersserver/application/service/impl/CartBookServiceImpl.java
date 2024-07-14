@@ -40,7 +40,7 @@ public class CartBookServiceImpl implements CartService {
 
     // 장바구니에 도서 추가
     @Override
-    public CreateCartBookResponse createCartBookByUserId(String cartId,
+    public CreateCartBookResponse createCartBookByCartId(String cartId,
         CreateCartBookRequest request) {
 
         Book book = bookRepository.findById(request.bookId())
@@ -63,24 +63,6 @@ public class CartBookServiceImpl implements CartService {
         updateCartInRedis(cartId, cart);
 
         return CreateCartBookResponse.from(cartId);
-    }
-
-    private void updateCartInRedis(String cartId, Map<Long, Integer> cart) {
-        redisTemplate.opsForHash().put("cart", cartId, cart);
-    }
-
-    private Map<Long, Integer> getOrCrateCart(String cartId) {
-        Object cartObject = redisTemplate.opsForHash().get("cart", cartId);
-        Map<Long, Integer> cart;
-
-        if (Objects.isNull(cartObject)) {
-            cart = new HashMap<>();
-            redisTemplate.opsForHash().put("cart", cartId, cart);
-        } else {
-            cart = (Map<Long, Integer>) cartObject;
-        }
-
-        return cart;
     }
 
     // 장바구니에 도서 수정 (수량 조절)
@@ -115,7 +97,7 @@ public class CartBookServiceImpl implements CartService {
         Object cartObject = redisTemplate.opsForHash().get("cart", cartId);
         if (Objects.isNull(cartObject)) {
             throw new CartException(
-                ErrorStatus.toErrorStatus("카트를 찾을 수 없습니다.", 404, LocalDateTime.now()));
+                ErrorStatus.toErrorStatus("장바구니를 찾을 수 없습니다.", 404, LocalDateTime.now()));
         }
 
         Map<Long, Integer> cart = convertToLongKeyMap((Map<String, Integer>) cartObject);
@@ -157,20 +139,17 @@ public class CartBookServiceImpl implements CartService {
         return cartBookResponses;
     }
 
-    private Map<Long, Integer> convertToLongKeyMap(Map<String, Integer> map) {
-        Map<Long, Integer> result = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : map.entrySet()) {
-            result.put(Long.parseLong(entry.getKey()), entry.getValue());
-        }
-        return result;
-    }
-
     @Override
     public void updateCartBookOrderByUserId(List<UpdateCartBookOrderRequest> request) {
         for (UpdateCartBookOrderRequest updateCartBookOrderRequest : request) {
             String cartId = updateCartBookOrderRequest.cartId();
             Long bookId = updateCartBookOrderRequest.bookId();
             int quantityToDecrease = updateCartBookOrderRequest.quantity();
+
+            if (!bookRepository.existsById(bookId)) {
+                throw new BookNotFoundException(
+                    ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now()));
+            }
 
             Object cartObject = redisTemplate.opsForHash().get("cart", cartId);
             if (Objects.isNull(cartObject)) {
@@ -187,9 +166,6 @@ public class CartBookServiceImpl implements CartService {
                     if (cart.get(bookId) == 0) {
                         cart.remove(bookId);
                     }
-                } else {
-                    throw new CartBookException(
-                        ErrorStatus.toErrorStatus("장바구니에 충분한 수량이 없습니다.", 400, LocalDateTime.now()));
                 }
             } else {
                 throw new CartBookException(
@@ -211,5 +187,31 @@ public class CartBookServiceImpl implements CartService {
         }
 
         return true;
+    }
+
+    private void updateCartInRedis(String cartId, Map<Long, Integer> cart) {
+        redisTemplate.opsForHash().put("cart", cartId, cart);
+    }
+
+    private Map<Long, Integer> getOrCrateCart(String cartId) {
+        Object cartObject = redisTemplate.opsForHash().get("cart", cartId);
+        Map<Long, Integer> cart;
+
+        if (Objects.isNull(cartObject)) {
+            cart = new HashMap<>();
+            redisTemplate.opsForHash().put("cart", cartId, cart);
+        } else {
+            cart = (Map<Long, Integer>) cartObject;
+        }
+
+        return cart;
+    }
+
+    private Map<Long, Integer> convertToLongKeyMap(Map<String, Integer> map) {
+        Map<Long, Integer> result = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            result.put(Long.parseLong(entry.getKey()), entry.getValue());
+        }
+        return result;
     }
 }

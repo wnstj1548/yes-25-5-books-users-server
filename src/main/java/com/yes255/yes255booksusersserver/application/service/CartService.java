@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CartService {
 
-    CreateCartBookResponse createCartBookByUserId(String cartId, CreateCartBookRequest createCartBookRequest);
+    CreateCartBookResponse createCartBookByCartId(String cartId, CreateCartBookRequest createCartBookRequest);
 
     UpdateCartBookResponse updateCartBookByUserId(String cartId, Long bookId, UpdateCartBookRequest updateCartBookRequest);
 

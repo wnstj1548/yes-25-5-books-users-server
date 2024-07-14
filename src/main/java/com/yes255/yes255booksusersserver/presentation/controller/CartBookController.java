@@ -47,7 +47,7 @@ public class CartBookController {
     public ResponseEntity<CreateCartBookResponse> createCartBook(@RequestBody CreateCartBookRequest createCartBookRequest,
                                                                  @PathVariable String cartId) {
         return ResponseEntity.ok()
-            .body(cartService.createCartBookByUserId(cartId, createCartBookRequest));
+            .body(cartService.createCartBookByCartId(cartId, createCartBookRequest));
     }
 
     /**
