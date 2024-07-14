@@ -4,9 +4,6 @@ import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.common.exception.JwtException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.AuthAdaptor;
-import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NoneMemberLoginResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.JwtAuthResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
                  path.startsWith("/books/categories") || path.startsWith("/books/category")
                 || path.startsWith("/books/books/category")
                 || "/users/dormant".equals(path) || "/users/find-email".equals(path)
-                || path.matches("/books/likes/book/\\d")) {
+                || path.matches("/books/likes/book/\\d") || path.startsWith("/users/cart-books")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -82,39 +79,6 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if(!request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/books/likes/books")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (request.getMethod().equalsIgnoreCase("POST") && path.startsWith("/users/cart-books")
-                && StringUtils.isEmpty(request.getHeader("Authorization"))) {
-
-            /*
-             * 1. 인증 서버에 회원가입 요청 (/auth/login/none)
-             * 2. 엑세스 토큰 받음
-             * 3. 인증 서버로 토큰 해석 요청 (정보 받음)
-             * 4. JwtUserDetails 등록
-             */
-
-            CustomerResponse customerResponse = customerService.createCustomer(
-                    new CustomerRequest("NONE_MEMBER"));
-            NoneMemberLoginResponse noneMemberLoginResponse = authAdaptor.loginNoneMember(
-                    customerResponse);
-
-            JwtUserDetails jwtUserDetails = JwtUserDetails.of(noneMemberLoginResponse.customerId(),
-                    noneMemberLoginResponse.role(), noneMemberLoginResponse.accessToken(),
-                    noneMemberLoginResponse.refreshToken());
-
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    jwtUserDetails, null,
-                    Collections.singletonList(
-                            new SimpleGrantedAuthority("ROLE_" + noneMemberLoginResponse.role()))
-            );
-
-            response.setHeader("Authorization", "Bearer " + noneMemberLoginResponse.accessToken());
-            response.setHeader("Refresh-Token", noneMemberLoginResponse.refreshToken());
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
             return;
         }

@@ -1,17 +1,21 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
-import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NonMemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 고객 관련 API를 제공하는 CustomerController
@@ -84,27 +88,5 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * 바로 구매 이용을 위한 비회원 고객을 생성합니다.
-     *
-     * @return 비회원 고객 정보와 상태 코드 200(OK)
-     */
-    @Operation(summary = "비회원 생성", description = "비회원 고객을 생성합니다. 바로 구매 이용 전용입니다.")
-    @GetMapping("/non-member")
-    public ResponseEntity<CustomerResponse> createNonMember() {
-        return ResponseEntity.ok(customerService.createNonMember());
-    }
-
-    /**
-     * 장바구니 이용을 위한 비회원 고객을 생성합니다.
-     *
-     * @return 비회원 고객 정보 및 카트 정보와 상태 코드 200(OK)
-     */
-    @Operation(summary = "비회원 생성", description = "비회원 고객을 생성합니다. 장바구니 이용 전용입니다.")
-    @GetMapping("/non-member/cart")
-    public ResponseEntity<NonMemberResponse> createNonMemberWithCart() {
-        return ResponseEntity.ok(customerService.createNonMemberWithCart());
     }
 }

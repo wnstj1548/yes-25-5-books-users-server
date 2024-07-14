@@ -31,7 +31,7 @@ spring:
     redis:
       host: 133.186.241.167
       port: 6379
-      database: 36
+      database: 17
       password: ${YES25_5_REDIS_PASSWORD}
 
   application:

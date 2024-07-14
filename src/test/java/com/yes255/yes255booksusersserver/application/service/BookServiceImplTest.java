@@ -1,33 +1,50 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.yes255.yes255booksusersserver.application.service.impl.BookServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
-import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.persistance.repository.*;
+import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.domain.Category;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookAuthorRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaLikesRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.*;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public class BookServiceImplTest {
 
@@ -39,8 +56,6 @@ public class BookServiceImplTest {
     private JpaBookCategoryRepository jpaBookCategoryRepository;
     @Mock
     private JpaBookTagRepository jpaBookTagRepository;
-    @Mock
-    private JpaCartBookRepository jpaCartBookRepository;
     @Mock
     private JpaBookAuthorRepository jpaBookAuthorRepository;
     @Mock
@@ -211,7 +226,6 @@ public class BookServiceImplTest {
         when(jpaBookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(jpaBookCategoryRepository.findByBook(book)).thenReturn(bookCategoryList);
         when(jpaBookTagRepository.findByBook(book)).thenReturn(bookTagList);
-        when(jpaCartBookRepository.findByBook(book)).thenReturn(cartBookList);
         when(jpaBookAuthorRepository.findByBook(book)).thenReturn(bookAuthorList);
         when(jpaLikesRepository.findByBook(book)).thenReturn(likesList);
 
@@ -221,7 +235,6 @@ public class BookServiceImplTest {
         // then
         verify(jpaBookCategoryRepository, times(1)).deleteAll(bookCategoryList);
         verify(jpaBookTagRepository, times(1)).deleteAll(bookTagList);
-        verify(jpaCartBookRepository, times(1)).deleteAll(cartBookList);
         verify(jpaBookAuthorRepository, times(1)).deleteAll(bookAuthorList);
         verify(jpaLikesRepository, times(1)).deleteAll(likesList);
     }
