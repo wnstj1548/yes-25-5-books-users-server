@@ -150,31 +150,57 @@ public class UserAddressServiceImplTest {
         assertTrue(response.addressBased());
     }
 
-//    @Test
-//    @DisplayName("주소 업데이트 - 성공")
-//    void testUpdateAddress_Success() {
-//        UpdateUserAddressRequest request = UpdateUserAddressRequest.builder()
-//                .addressZip("54321")
-//                .addressRaw("New Address")
-//                .addressName("Work")
-//                .addressDetail("New Detail")
-//                .addressBased(false)
-//                .build();
-//
-//        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
-//        when(addressRepository.findById(anyLong())).thenReturn(Optional.of(testAddress));
-//        when(addressRepository.findAddressByAddressRawAndAddressZip(anyString(), anyString())).thenReturn(null);
-//        when(userAddressRepository.save(any(UserAddress.class))).thenReturn(testUserAddress);
-//
-//        UpdateUserAddressResponse response = userAddressService.updateAddress(1L, 1L, request);
-//
-//        assertNotNull(response);
-//        assertEquals("54321", response.addressZip());
-//        assertEquals("New Address", response.addressRaw());
-//        assertEquals("Work", response.addressName());
-//        assertEquals("New Detail", response.addressDetail());
-//        assertFalse(response.addressBased());
-//    }
+    @Test
+    @DisplayName("주소 업데이트 - 성공")
+    void testUpdateAddress_Success() {
+        UpdateUserAddressRequest request = UpdateUserAddressRequest.builder()
+                .addressZip("54321")
+                .addressRaw("New Address")
+                .addressName("Work")
+                .addressDetail("New Detail")
+                .addressBased(false)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
+        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of(testUserAddress));
+        when(addressRepository.findById(anyLong())).thenReturn(Optional.of(testAddress));
+        when(addressRepository.findAddressByAddressRawAndAddressZip(anyString(), anyString())).thenReturn(Address.builder().addressRaw(request.addressRaw()).addressZip(request.addressZip()).build());
+        when(userAddressRepository.save(any(UserAddress.class))).thenReturn(testUserAddress);
+
+        UpdateUserAddressResponse response = userAddressService.updateAddress(1L, 1L, request);
+
+        assertNotNull(response);
+        assertEquals("54321", response.addressZip());
+        assertEquals("New Address", response.addressRaw());
+        assertEquals("Work", response.addressName());
+        assertEquals("New Detail", response.addressDetail());
+        assertFalse(response.addressBased());
+    }
+
+    @Test
+    @DisplayName("주소 업데이트 - 실패 (유저 주소를 찾을 수 없음)")
+    void testUpdateAddress_UserAddressNotFound() {
+        UpdateUserAddressRequest request = UpdateUserAddressRequest.builder()
+                .addressZip("54321")
+                .addressRaw("New Address")
+                .addressName("Work")
+                .addressDetail("New Detail")
+                .addressBased(false)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        UserAddressException exception = assertThrows(UserAddressException.class, () -> {
+            userAddressService.updateAddress(1L, 1L, request);
+        });
+
+        assertEquals("회원 주소를 찾을 수 없습니다.", exception.getErrorStatus().message());
+
+        verify(userAddressRepository, times(1)).findById(1L);
+        verify(addressRepository, never()).findById(anyLong());
+        verify(addressRepository, never()).findAddressByAddressRawAndAddressZip(anyString(), anyString());
+        verify(userAddressRepository, never()).save(any(UserAddress.class));
+    }
 
     @Test
     @DisplayName("주소 조회 - 성공")
@@ -224,7 +250,7 @@ public class UserAddressServiceImplTest {
         assertNotNull(responses);
         assertEquals(1, responses.getTotalElements());
 
-        UserAddressResponse response = responses.getContent().get(0);
+        UserAddressResponse response = responses.getContent().getFirst();
         assertEquals(1L, response.userAddressId());
         assertEquals(1L, response.addressId());
         assertEquals("12345", response.addressZip());
@@ -235,42 +261,35 @@ public class UserAddressServiceImplTest {
         assertEquals(1L, response.userId());
     }
 
-//    @Test
-//    @DisplayName("주소 목록 조회 - 실패")
-//    void testFindAllAddresses_Failure() {
-//        Pageable pageable = PageRequest.of(0, 10);
-//        Page<UserAddress> emptyPage = new PageImpl<>(List.of(), pageable, 0);
-//
-//        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
-//
-//        assertThrows(UserAddressException.class, () ->
-//                userAddressService.findAllAddresses(1L, pageable));
-//    }
+    @Test
+    @DisplayName("기본 배송지 업데이트 - 성공")
+    void testUpdateAddressBased_Success() {
+        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
+                .addressBased(true)
+                .build();
 
-//    @Test
-//    @DisplayName("기본 배송지 업데이트 - 성공")
-//    void testUpdateAddressBased_Success() {
-//        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
-//                .addressBased(true)
-//                .build();
-//
-//        UserAddress anotherUserAddress = UserAddress.builder()
-//                .userAddressId(2L)
-//                .addressName("Office")
-//                .addressDetail("Office Detail")
-//                .addressBased(false)
-//                .address(testAddress)
-//                .user(testUser)
-//                .build();
-//
-//        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
-//        when(userAddressRepository.findAll()).thenReturn(List.of(testUserAddress, anotherUserAddress));
-//
-//        userAddressService.updateAddressBased(1L, 1L, request);
-//
-//        assertTrue(testUserAddress.isAddressBased());
-//        assertFalse(anotherUserAddress.isAddressBased());
-//    }
+        UserAddress anotherUserAddress = UserAddress.builder()
+                .userAddressId(2L)
+                .addressName("Office")
+                .addressDetail("Office Detail")
+                .addressBased(false)
+                .address(testAddress)
+                .user(testUser)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
+        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of(testUserAddress, anotherUserAddress));
+
+        userAddressService.updateAddressBased(1L, 1L, request);
+
+        assertTrue(testUserAddress.isAddressBased());
+        assertFalse(anotherUserAddress.isAddressBased());
+
+        verify(userAddressRepository, times(1)).findById(1L);
+        verify(userAddressRepository, times(1)).findByUserUserId(1L);
+        verify(userAddressRepository, times(1)).save(any(UserAddress.class));
+        verify(userAddressRepository, times(1)).saveAll((anyList()));
+    }
 
     @Test
     @DisplayName("기본 배송지 업데이트 - 실패 (주소 없음)")
@@ -285,17 +304,19 @@ public class UserAddressServiceImplTest {
                 userAddressService.updateAddressBased(1L, 1L, request));
     }
 
-//    @Test
-//    @DisplayName("기본 배송지 업데이트 - 실패 (주소 리스트 없음)")
-//    void testUpdateAddressBased_Failure_NoAddressList() {
-//        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
-//                .addressBased(true)
-//                .build();
-//
-//        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
-//        when(userAddressRepository.findAll()).thenReturn(List.of());
-//
-//        assertThrows(UserAddressException.class, () ->
-//                userAddressService.updateAddressBased(1L, 1L, request));
-//    }
+    @Test
+    @DisplayName("기본 배송지 업데이트 - 실패 (주소 리스트 없음)")
+    void testUpdateAddressBased_Failure_NoAddressList() {
+        UpdateAddressBasedRequest request = UpdateAddressBasedRequest.builder()
+                .addressBased(true)
+                .build();
+
+        when(userAddressRepository.findById(anyLong())).thenReturn(Optional.of(testUserAddress));
+        when(userAddressRepository.findByUserUserId(anyLong())).thenReturn(List.of());
+
+        UserAddressException exception = assertThrows(UserAddressException.class, () ->
+                userAddressService.updateAddressBased(1L, 1L, request));
+
+        assertEquals("회원 주소를 찾을 수 없습니다.", exception.getErrorStatus().message());
+    }
 }

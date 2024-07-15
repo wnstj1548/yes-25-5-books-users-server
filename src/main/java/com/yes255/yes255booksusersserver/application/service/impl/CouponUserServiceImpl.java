@@ -290,7 +290,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .build());
     }
 
-    private Date calculateExpiryDate(int validDays) {
+    public Date calculateExpiryDate(int validDays) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, validDays);
         return calendar.getTime();
@@ -423,7 +423,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .build();
     }
 
-    private BigDecimal calculateDiscountAmount(CouponBoxResponse userCoupon,
+    public BigDecimal calculateDiscountAmount(CouponBoxResponse userCoupon,
         BigDecimal totalAmount) {
         BigDecimal discountAmount;
 

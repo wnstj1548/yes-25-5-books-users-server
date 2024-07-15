@@ -55,18 +55,6 @@ public class UserController {
     }
 
     /**
-     * 회원 로그인을 처리합니다.
-     *
-     * @param userRequest 로그인 요청 데이터
-     * @return ResponseEntity<Boolean> 로그인 성공 여부와 상태 코드 200(OK)
-     */
-    @Operation(summary = "회원 로그인", description = "회원의 로그인을 처리합니다.")
-    @PostMapping("/users/login")
-    public ResponseEntity<Boolean> login(@RequestBody LoginUserRequest userRequest) {
-        return new ResponseEntity<>(userService.loginUserByEmailByPassword(userRequest), HttpStatus.OK);
-    }
-
-    /**
      * 이메일을 찾습니다.
      *
      * @param emailRequest 이메일 찾기 요청 데이터
