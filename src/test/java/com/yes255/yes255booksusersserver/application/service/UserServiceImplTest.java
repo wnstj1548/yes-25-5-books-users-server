@@ -1,13 +1,51 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
+
 import com.yes255.yes255booksusersserver.application.service.impl.UserServiceImpl;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.*;
+import com.yes255.yes255booksusersserver.persistance.domain.Customer;
+import com.yes255.yes255booksusersserver.persistance.domain.Provider;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
+import com.yes255.yes255booksusersserver.persistance.domain.UserState;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaProviderRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPureAmountRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.CreateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.DeleteUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindEmailRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindPasswordRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.LoginUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdatePasswordRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,15 +55,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -47,12 +76,6 @@ public class UserServiceImplTest {
 
     @Mock
     private JpaUserGradeLogRepository userGradeLogRepository;
-
-    @Mock
-    private JpaCartRepository cartRepository;
-
-    @Mock
-    private JpaCartBookRepository cartBookRepository;
 
     @Mock
     private JpaUserAddressRepository userAddressRepository;

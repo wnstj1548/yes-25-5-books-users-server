@@ -1,31 +1,59 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
+import com.yes255.yes255booksusersserver.application.service.CouponUserService;
 import com.yes255.yes255booksusersserver.application.service.InactiveStateService;
 import com.yes255.yes255booksusersserver.application.service.UserService;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
-import com.yes255.yes255booksusersserver.common.exception.*;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.ProviderException;
+import com.yes255.yes255booksusersserver.common.exception.UserException;
+import com.yes255.yes255booksusersserver.common.exception.UserGradeException;
+import com.yes255.yes255booksusersserver.common.exception.UserStateException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
-import com.yes255.yes255booksusersserver.persistance.repository.*;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
+import com.yes255.yes255booksusersserver.persistance.domain.Customer;
+import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.PointLog;
+import com.yes255.yes255booksusersserver.persistance.domain.PointPolicy;
+import com.yes255.yes255booksusersserver.persistance.domain.Provider;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
+import com.yes255.yes255booksusersserver.persistance.domain.UserGradeLog;
+import com.yes255.yes255booksusersserver.persistance.domain.UserState;
+import com.yes255.yes255booksusersserver.persistance.domain.UserTotalPureAmount;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaProviderRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeLogRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepository;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPureAmountRepository;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.CreateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.DeleteUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindEmailRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindPasswordRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.LoginUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdatePasswordRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdateUserRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UnlockDormantRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -38,12 +66,12 @@ public class UserServiceImpl implements UserService {
     private final JpaProviderRepository providerRepository;
     private final JpaUserGradeRepository userGradeRepository;
     private final JpaUserStateRepository userStateRepository;
-    private final JpaCartRepository cartRepository;
     private final JpaPointPolicyRepository pointPolicyRepository;
     private final JpaPointRepository pointRepository;
     private final JpaUserGradeLogRepository userGradeLogRepository;
     private final JpaPointLogRepository pointLogRepository;
     private final JpaUserTotalPureAmountRepository userTotalPureAmountRepository;
+    private final CouponUserService couponUserService;
 
     private final InactiveStateService inactiveStateService;
 
@@ -207,12 +235,6 @@ public class UserServiceImpl implements UserService {
                 .user(user)
                 .build());
 
-        // 회원 장바구니 생성
-       cartRepository.save(Cart.builder()
-                .cartCreatedAt(LocalDate.now())
-                .customer(customer)
-                .build());
-
         // 회원 포인트 생성
         Point point = pointRepository.save(Point.builder()
                 .pointCurrent(BigDecimal.valueOf(0))
@@ -234,6 +256,22 @@ public class UserServiceImpl implements UserService {
         }
 
         messageProducer.sendWelcomeCouponMessage(user.getUserId());
+
+        // 생일이 오늘이면 생일 쿠폰 발급 메시지 전송
+        LocalDate today = LocalDate.now();
+        LocalDate userBirth = user.getUserBirth();
+
+        log.info("User's birth date: {}", userBirth);
+        log.info("Today's date: {}", today);
+        log.info("User birth month and day: {}-{}", userBirth.getMonthValue(), userBirth.getDayOfMonth());
+        log.info("Today's month and day: {}-{}", today.getMonthValue(), today.getDayOfMonth());
+
+        if (userBirth.getMonthValue() == today.getMonthValue() && userBirth.getDayOfMonth() == today.getDayOfMonth()) {
+            log.info("User's birthday is today. Sending birthday coupon message.");
+            messageProducer.sendBirthdayCouponMessage(user.getUserId());
+        } else {
+            log.info("User's birthday is not today.");
+        }
 
         return UserResponse.builder()
                 .userId(user.getUserId())
@@ -391,4 +429,5 @@ public class UserServiceImpl implements UserService {
         user.updateLastLoginDate();
         user.updateUserState(userState);
     }
+
 }
