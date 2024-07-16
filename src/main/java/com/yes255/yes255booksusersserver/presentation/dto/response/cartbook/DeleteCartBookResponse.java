@@ -1,4 +1,4 @@
-package com.yes255.yes255booksusersserver.presentation.dto.request.cartbook;
+package com.yes255.yes255booksusersserver.presentation.dto.response.cartbook;
 
 import lombok.Builder;
 

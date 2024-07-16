@@ -18,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +45,12 @@ class CouponUserServiceImplTest {
 
     @Mock
     private CouponAdaptor couponAdaptor;
+
+    @Mock
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    private ValueOperations<String, String> valueOperations;
 
     @InjectMocks
     private CouponUserServiceImpl couponUserService;
@@ -421,11 +430,14 @@ class CouponUserServiceImplTest {
     @DisplayName("생일 쿠폰 생성")
     void testCreateCouponUserForBirthday() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         couponUserService.createCouponUserForBirthday(1L);
 
         verify(userRepository, times(1)).findById(1L);
-        verify(couponUserRepository, times(1)).save(any(CouponUser.class));
+        verify(couponUserRepository, times(1)).save(any());
+        verify(redisTemplate, times(1)).opsForValue();
+        verify(valueOperations, times(1)).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
     }
 
     @Test
@@ -487,10 +499,14 @@ class CouponUserServiceImplTest {
         Date expectedExpiryDate = Date.from(lastDayOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         couponUserService.createCouponUserForBirthday(1L);
 
+        verify(userRepository, times(1)).findById(1L);
         verify(couponUserRepository, times(1)).save(argThat(couponUser ->
                 couponUser.getCouponExpiredAt().equals(expectedExpiryDate)));
+        verify(redisTemplate, times(1)).opsForValue();
+        verify(valueOperations, times(1)).set(anyString(), anyString(), eq(31L), eq(TimeUnit.DAYS));
     }
 }

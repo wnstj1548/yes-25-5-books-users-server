@@ -31,7 +31,6 @@ class CustomerControllerTest {
 
     private CustomerRequest customerRequest;
     private CustomerResponse customerResponse;
-    private NonMemberResponse nonMemberResponse;
 
     @BeforeEach
     void setUp() {
@@ -42,12 +41,6 @@ class CustomerControllerTest {
         customerResponse = CustomerResponse.builder()
                 .customerId(1L)
                 .role("USER")
-                .build();
-
-        nonMemberResponse = NonMemberResponse.builder()
-                .userId(1L)
-                .userRole("NON_MEMBER")
-                .cartId(1L)
                 .build();
     }
 
@@ -111,29 +104,5 @@ class CustomerControllerTest {
 
         assertEquals(HttpStatusCode.valueOf(204), response.getStatusCode());
         verify(customerService).deleteCustomer(customerId);
-    }
-
-    @Test
-    @DisplayName("비회원 고객 생성 (바로 구매용) - 성공")
-    void testCreateNonMember() {
-        when(customerService.createNonMember()).thenReturn(customerResponse);
-
-        ResponseEntity<CustomerResponse> response = customerController.createNonMember();
-
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
-        assertEquals(customerResponse, response.getBody());
-        verify(customerService).createNonMember();
-    }
-
-    @Test
-    @DisplayName("비회원 고객 생성 (장바구니용) - 성공")
-    void testCreateNonMemberWithCart() {
-        when(customerService.createNonMemberWithCart()).thenReturn(nonMemberResponse);
-
-        ResponseEntity<NonMemberResponse> response = customerController.createNonMemberWithCart();
-
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
-        assertEquals(nonMemberResponse, response.getBody());
-        verify(customerService).createNonMemberWithCart();
     }
 }

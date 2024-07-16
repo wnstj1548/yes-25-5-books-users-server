@@ -11,6 +11,9 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadMy
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewRatingResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.review.ReadReviewResponse;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "리뷰 API", description = "리뷰 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
@@ -34,6 +38,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ObjectMapper objectMapper;
 
+    @Operation(summary = "리뷰 생성", description = "리뷰를 생성합니다.")
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<Void> createReview(@RequestPart("createReviewRequest") String createReviewRequestJson,
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
@@ -48,6 +53,7 @@ public class ReviewController {
             .build();
     }
 
+//    @Operation(summary = "")
     @GetMapping("/books/{bookId}")
     public ResponseEntity<Page<ReadReviewResponse>> getReviews(@PathVariable Long bookId,
         Pageable pageable) {

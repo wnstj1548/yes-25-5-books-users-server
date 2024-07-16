@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.yes255.yes255booksusersserver.application.service.impl.UserServiceImpl;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
@@ -37,10 +35,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindPassw
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.LoginUserRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdatePasswordRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
