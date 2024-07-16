@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class TagControllerTest {
+class TagControllerTest {
 
     private MockMvc mockMvc;
 
