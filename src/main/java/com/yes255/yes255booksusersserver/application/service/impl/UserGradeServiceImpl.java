@@ -59,7 +59,6 @@ public class UserGradeServiceImpl implements UserGradeService {
     // 회원 등급 갱신
     public void updateUserGrade(User user, BigDecimal purePrice, LocalDate currentDate) {
 
-        // todo : 밑의 줄 삭제
         UserGradeLog lastUserGradeLog = userGradeLogRepository.findFirstByUserUserIdOrderByUserGradeUpdatedAtDesc(user.getUserId())
                 .orElseThrow(() -> new UserGradeLogException(ErrorStatus.toErrorStatus("회원 등급 변경 이력이 존재하지 않습니다.", 400, LocalDateTime.now())));
 
