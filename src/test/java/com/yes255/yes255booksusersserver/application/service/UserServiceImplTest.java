@@ -6,16 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.yes255.yes255booksusersserver.application.service.impl.UserServiceImpl;
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
-import com.yes255.yes255booksusersserver.common.exception.ProviderException;
-import com.yes255.yes255booksusersserver.common.exception.UserException;
-import com.yes255.yes255booksusersserver.common.exception.UserGradeException;
-import com.yes255.yes255booksusersserver.common.exception.UserStateException;
+import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
 import com.yes255.yes255booksusersserver.persistance.domain.Customer;
 import com.yes255.yes255booksusersserver.persistance.domain.Provider;
@@ -40,10 +35,8 @@ import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindPassw
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.LoginUserRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdatePasswordRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.FindUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.LoginUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.UpdateUserResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.UserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.user.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -103,6 +96,9 @@ public class UserServiceImplTest {
 
     @Mock
     private MessageProducer messageProducer;
+
+    @Mock
+    private InactiveStateService inactiveStateService;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -191,6 +187,83 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("이메일과 비밀번호로 로그인 - 실패 (탈퇴한 회원)")
+    void testFindLoginUserByEmailByPassword_WithdrawnUser() {
+
+        String userEmail = "withdrawn@example.com";
+        String password = "encodedPassword";
+        LoginUserRequest request = LoginUserRequest.builder()
+                .email(userEmail)
+                .password(password)
+                .build();
+
+        // 탈퇴한 회원을 설정
+        User withdrawnUser = User.builder()
+                .userState(UserState.builder().userStateName("WITHDRAWAL").build())
+                .build();
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(withdrawnUser);
+
+        UserException exception = assertThrows(UserException.class,
+                () -> userService.findLoginUserByEmailByPassword(request));
+
+        assertEquals("탈퇴한 회원입니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("이메일과 비밀번호로 로그인 - 실패 (휴면 회원)")
+    void testFindLoginUserByEmailByPassword_InactiveUser() {
+
+        String userEmail = "inactive@example.com";
+        String password = "encodedPassword";
+        LoginUserRequest request = LoginUserRequest.builder()
+                .email(userEmail)
+                .password(password)
+                .build();
+
+        // 휴면 상태의 회원 설정
+        User inactiveUser = User.builder()
+                .userState(UserState.builder().userStateName("INACTIVE").build())
+                .build();
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(inactiveUser);
+
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> userService.findLoginUserByEmailByPassword(request));
+
+        assertEquals("회원이 휴면처리되었습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
+    @DisplayName("이메일과 비밀번호로 로그인 - 실패 (3개월 이상 로그인하지 않은 회원)")
+    void testFindLoginUserByEmailByPassword_InactiveAfterThreeMonths() {
+
+        String userEmail = "inactiveAfterThreeMonths@example.com";
+        String password = "encodedPassword";
+        LoginUserRequest request = LoginUserRequest.builder()
+                .email(userEmail)
+                .password(password)
+                .build();
+
+        // 최근 로그인 날짜가 3개월 이상인 회원 설정
+        User inactiveUser = User.builder()
+                .userId(1L)
+                .userLastLoginDate(LocalDateTime.now().minusMonths(4))
+                .userPassword("encodedPassword")
+                .userState(UserState.builder().userStateName("ACTIVE").build())
+                .build();
+
+        when(userRepository.findByUserEmail(userEmail)).thenReturn(inactiveUser);
+
+        doNothing().when(inactiveStateService).updateInActiveState(inactiveUser.getUserId());
+
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> userService.findLoginUserByEmailByPassword(request));
+
+        assertEquals("회원이 휴면처리되었습니다.", exception.getErrorStatus().message());
+    }
+
+    @Test
     @DisplayName("특정 회원 조회 - 성공")
     void testFindUserByUserId() {
 
@@ -268,70 +341,70 @@ public class UserServiceImplTest {
     }
 
 
-//    @Test
-//    @DisplayName("회원 가입 - 성공")
-//    void testCreateUser() {
-//        // Given
-//        CreateUserRequest request = CreateUserRequest.builder()
-//                .userName("Test User")
-//                .userBirth(LocalDate.of(2000, 1, 1))
-//                .userEmail("test@example.com")
-//                .userPhone("010-1234-5678")
-//                .userPassword("password123")
-//                .userConfirmPassword("password123")
-//                .build();
-//
-//        Customer customer = Customer.builder()
-//                .userRole("MEMBER")
-//                .build();
-//
-//        Provider provider = Provider.builder()
-//                .providerId(1L)
-//                .providerName("LOCAL")
-//                .build();
-//
-//        UserState userState = UserState.builder()
-//                .userStateId(1L)
-//                .userStateName("ACTIVE")
-//                .build();
-//
-//        UserGrade userGrade = UserGrade.builder()
-//                .userGradeId(1L)
-//                .userGradeName("NORMAL")
-//                .build();
-//
-//        User testUser = User.builder()
-//                .userName(request.userName())
-//                .userBirth(request.userBirth())
-//                .userEmail(request.userEmail())
-//                .userPhone(request.userPhone())
-//                .provider(provider)
-//                .userState(userState)
-//                .userGrade(userGrade)
-//                .userPassword("encodedPassword")
-//                .build();
-//
-//        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
-//        when(providerRepository.findByProviderName("LOCAL")).thenReturn(provider);
-//        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(userState);
-//        when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(userGrade);
-//        when(passwordEncoder.encode(request.userPassword())).thenReturn("encodedPassword");
-//        when(userRepository.save(any(User.class))).thenReturn(testUser);
-//
-//        // Stubbing behavior for messageProducer
-//        doNothing().when(messageProducer).sendWelcomeCouponMessage(any(Long.class));
-//
-//        // When
-//        UserResponse response = userService.createUser(request);
-//
-//        // Then
-//        assertNotNull(response);
-//        assertEquals("Test User", response.userName());
-//        assertEquals("test@example.com", response.userEmail());
-//        assertEquals("010-1234-5678", response.userPhone());
-//        assertNotNull(response.userRegisterDate());
-//        assertNotNull(response.userPassword()); // Assuming you need to assert this
-//    }
+    @Test
+    @DisplayName("회원 가입 - 성공")
+    void testCreateUser() {
+        // Given
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("Test User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("test@example.com")
+                .userPhone("010-1234-5678")
+                .userPassword("password123")
+                .userConfirmPassword("password123")
+                .build();
+
+        Customer customer = Customer.builder()
+                .userRole("MEMBER")
+                .build();
+
+        Provider provider = Provider.builder()
+                .providerId(1L)
+                .providerName("LOCAL")
+                .build();
+
+        UserState userState = UserState.builder()
+                .userStateId(1L)
+                .userStateName("ACTIVE")
+                .build();
+
+        UserGrade userGrade = UserGrade.builder()
+                .userGradeId(1L)
+                .userGradeName("NORMAL")
+                .build();
+
+        User testUser = User.builder()
+                .userName(request.userName())
+                .userBirth(request.userBirth())
+                .userEmail(request.userEmail())
+                .userPhone(request.userPhone())
+                .provider(provider)
+                .userState(userState)
+                .userGrade(userGrade)
+                .userPassword("encodedPassword")
+                .build();
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+        when(providerRepository.findByProviderName("LOCAL")).thenReturn(provider);
+        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(userState);
+        when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(userGrade);
+        when(passwordEncoder.encode(request.userPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        // Stubbing behavior for messageProducer
+        doNothing().when(messageProducer).sendWelcomeCouponMessage(testUser.getUserId());
+
+        // When
+        UserResponse response = userService.createUser(request);
+
+        // Then
+        assertNotNull(response);
+        assertEquals("Test User", response.userName());
+        assertEquals("test@example.com", response.userEmail());
+        assertEquals("010-1234-5678", response.userPhone());
+        assertNotNull(response.userRegisterDate());
+        assertNotNull(response.userPassword()); // Assuming you need to assert this
+    }
 
     @Test
     @DisplayName("회원 가입 - 실패 (비밀번호 불일치)")
@@ -633,5 +706,71 @@ public class UserServiceImplTest {
         boolean result = userService.setUserPasswordByUserId(userId, request);
 
         assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("이메일 중복 확인 - 성공")
+    void testIsEmailDuplicate_Exists() {
+        String email = "test@example.com";
+        when(userRepository.existsByUserEmail(email)).thenReturn(true);
+
+        boolean result = userService.isEmailDuplicate(email);
+
+        assertTrue(result);
+        verify(userRepository).existsByUserEmail(email);
+    }
+
+    @Test
+    @DisplayName("이메일 중복 확인 - 실패 (존재하지 않는 이메일)")
+    void testIsEmailDuplicate_NotExists() {
+        String email = "test@example.com";
+        when(userRepository.existsByUserEmail(email)).thenReturn(false);
+
+        boolean result = userService.isEmailDuplicate(email);
+
+        assertFalse(result);
+        verify(userRepository).existsByUserEmail(email);
+    }
+
+    @Test
+    @DisplayName("현재 월에 생일인 사용자 조회 - 성공")
+    void testFindUserIdsWithBirthdaysInCurrentMonth() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        when(userRepository.findUsersByBirthMonth(currentMonth)).thenReturn(Collections.singletonList(testUser));
+
+        List<Long> result = userService.findUserIdsWithBirthdaysInCurrentMonth();
+
+        assertEquals(1, result.size());
+        assertEquals(testUser.getUserId(), result.getFirst());
+        verify(userRepository).findUsersByBirthMonth(currentMonth);
+    }
+
+    @Test
+    @DisplayName("현재 월에 생일인 사용자 조회 - 실패 (해당 사용자가 없음)")
+    void testFindUserIdsWithBirthdaysInCurrentMonth_NoUsers() {
+        int currentMonth = LocalDate.now().getMonthValue();
+        when(userRepository.findUsersByBirthMonth(currentMonth)).thenReturn(Collections.emptyList());
+
+        List<Long> result = userService.findUserIdsWithBirthdaysInCurrentMonth();
+
+        assertTrue(result.isEmpty());
+        verify(userRepository).findUsersByBirthMonth(currentMonth);
+    }
+
+    @Test
+    @DisplayName("휴면 상태 해제 - 성공")
+    void testUnLockDormantStateByEmail_UserExists() {
+        UnlockDormantRequest request = new UnlockDormantRequest("test@example.com");
+        UserState activeState = UserState.builder().userStateName("ACTIVE").build();
+
+        when(userRepository.findByUserEmail(request.email())).thenReturn(testUser);
+        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(activeState);
+
+        userService.unLockDormantStateByEmail(request);
+
+        verify(userRepository).findByUserEmail(request.email());
+        verify(userStateRepository).findByUserStateName("ACTIVE");
+        assertNotNull(testUser.getUserLastLoginDate());
+        assertEquals(activeState, testUser.getUserState());
     }
 }

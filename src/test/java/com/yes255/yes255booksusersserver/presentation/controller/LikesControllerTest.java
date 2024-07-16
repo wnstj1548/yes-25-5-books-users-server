@@ -2,6 +2,9 @@ package com.yes255.yes255booksusersserver.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yes255.yes255booksusersserver.application.service.LikesService;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
+import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
-
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -22,7 +25,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -42,6 +47,7 @@ public class LikesControllerTest {
 
     private Book testBook;
     private User testUser;
+    private JwtUserDetails jwtUserDetails;
 
     @BeforeEach
     void setUp() throws ParseException {
@@ -54,8 +60,7 @@ public class LikesControllerTest {
 
         testUser = User.builder()
                 .userEmail("test@gmail.com")
-//                .userGrade(new UserGrade(null, "grade",null))
-
+                .userGrade(new UserGrade(null, "grade",null))
                 .userState(new UserState(null, "statename"))
                 .userPhone("010-2341-2342")
                 .userName("test")
@@ -65,16 +70,18 @@ public class LikesControllerTest {
                 .provider(new Provider(null, "providerName"))
                 .customer(new Customer(null, "Role"))
                 .build();
+
+        jwtUserDetails = new JwtUserDetails(testUser.getUserId(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")), "password", "refreshtoken");
     }
 
     @DisplayName("특정 사용자의 좋아요 조회 - 성공")
     @Test
     void findByUserId_success() throws Exception {
-        Long userId = 1L;
         List<LikesResponse> mockResponse = Collections.emptyList();
-        doReturn(mockResponse).when(likesService).getLikeByUserId(userId);
+        doReturn(mockResponse).when(likesService).getLikeByUserId(testUser.getUserId());
 
-        mockMvc.perform(get("/books/likes/users", userId))
+        mockMvc.perform(get("/books/likes/users")
+                        .principal(() -> testUser.getUserEmail()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
@@ -91,5 +98,50 @@ public class LikesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @DisplayName("좋아요 생성 및 업데이트 - 성공")
+    @Test
+    void click_success_create() throws Exception {
+        LikesResponse mockResponse = new LikesResponse(1L, testBook.getBookId(), testUser.getUserId(), false);
+        doReturn(mockResponse).when(likesService).createLike(testBook.getBookId(), testUser.getUserId());
+        when(likesService.isExistByBookIdAndUserId(testBook.getBookId(), testUser.getUserId())).thenReturn(false);
+
+        mockMvc.perform(post("/books/likes/{bookId}", testBook.getBookId())
+                        .principal(() -> testUser.getUserEmail()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.bookId").value(testBook.getBookId()))
+                .andExpect(jsonPath("$.userId").value(testUser.getUserId()));
+    }
+
+    @DisplayName("좋아요 생성 및 업데이트 - 성공(업데이트)")
+    @Test
+    void click_success_update() throws Exception {
+        LikesResponse mockResponse = new LikesResponse(1L, testBook.getBookId(), testUser.getUserId(), false);
+        doReturn(mockResponse).when(likesService).updateLikeStatus(testBook.getBookId(), testUser.getUserId());
+        when(likesService.isExistByBookIdAndUserId(testBook.getBookId(), testUser.getUserId())).thenReturn(true);
+
+        mockMvc.perform(post("/books/likes/{bookId}", testBook.getBookId())
+                        .principal(() -> testUser.getUserEmail()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.bookId").value(testBook.getBookId()))
+                .andExpect(jsonPath("$.userId").value(testUser.getUserId()));
+    }
+
+    @DisplayName("책과 유저의 좋아요 조회 - 성공")
+    @Test
+    void findByBookIdAndUserId_success() throws Exception {
+        LikesResponse mockResponse = new LikesResponse(1L, testBook.getBookId(), testUser.getUserId(), true);
+        doReturn(mockResponse).when(likesService).getLikeByBookIdAndUserId(testBook.getBookId(), testUser.getUserId());
+        when(likesService.isExistByBookIdAndUserId(testBook.getBookId(), testUser.getUserId())).thenReturn(true);
+
+        mockMvc.perform(get("/books/likes/{bookId}", testBook.getBookId())
+                        .principal(() -> testUser.getUserEmail()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.bookId").value(testBook.getBookId()))
+                .andExpect(jsonPath("$.userId").value(testUser.getUserId()));
     }
 }

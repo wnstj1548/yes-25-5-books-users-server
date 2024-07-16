@@ -209,8 +209,9 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         for (UserAddress userAddressTemp : userAddresses) {
             userAddressTemp.updateUserAddressBased(false);
-            userAddressRepository.save(userAddressTemp);
         }
+
+        userAddressRepository.saveAll(userAddresses);
 
         // 기본 배송지 지정
         userAddress.updateUserAddressBased(true);
