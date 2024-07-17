@@ -15,7 +15,8 @@ import java.util.List;
 @Builder
 @ToString
 @Document(indexName = "yes255_book", createIndex = true)
-@Setting(settingPath = "/elasticsearch/settings/nori_setting.json")
+@Setting(settingPath = "/" +
+        "elasticsearch/settings/nori_setting.json")
 public class BookIndex {
 
     @Id

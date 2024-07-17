@@ -46,7 +46,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-public class BookServiceImplTest {
+class BookServiceImplTest {
 
     @Mock
     private JpaBookRepository jpaBookRepository;
@@ -400,6 +400,7 @@ public class BookServiceImplTest {
                 .bookId(1L)
                 .bookIsbn(isbn)
                 .build();
+
         when(jpaBookRepository.findByBookIsbn(isbn)).thenReturn(Optional.of(book));
 
         // when
@@ -409,7 +410,7 @@ public class BookServiceImplTest {
         assertNotNull(response);
         assertEquals(book.getBookId(), response.bookId());
         assertEquals(book.getBookIsbn(), isbn);
-        verify(jpaBookRepository, times(2)).findByBookIsbn(isbn);
+        verify(jpaBookRepository, times(1)).findByBookIsbn(isbn);
     }
 
     @DisplayName("ISBN으로 책 조회 - 존재하지 않는 경우")
