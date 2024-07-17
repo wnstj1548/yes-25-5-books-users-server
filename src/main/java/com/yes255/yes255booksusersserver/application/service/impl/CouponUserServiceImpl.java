@@ -131,8 +131,8 @@ public class CouponUserServiceImpl implements CouponUserService {
         CouponUser.UserCouponStatus userCouponStatus, Pageable pageable) {
 
         // 회원의 사용된 쿠폰 리스트 가져오기
-        List<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(
-            userId, userCouponStatus);
+        Page<CouponUser> couponUsers = couponUserRepository.findByUserUserIdAndUserCouponStatus(
+            userId, userCouponStatus, pageable);
 
         List<Long> couponIds = couponUsers.stream()
             .map(CouponUser::getCouponId)
@@ -172,7 +172,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             })
             .collect(Collectors.toList());
 
-        return new PageImpl<>(couponBoxResponses, pageable, couponBoxResponses.size());
+        return new PageImpl<>(couponBoxResponses, pageable, couponUsers.getTotalElements());
     }
 
     // 주문 서버로부터 쿠폰 사용 처리
