@@ -6,14 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
-import java.util.List;
-
 public interface BookElasticSearchRepository extends ElasticsearchRepository<BookIndex, String> {
 
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_name\": \"*?0*\"}}]}}")
     Page<BookIndex> findByBookNameContainsIgnoreCase(String keyword, Pageable pageable);
-
-//    List<BookIndex> findByBookNameContainsIgnoreCase(String keyword);
 
     @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_description\": \"*?0*\"}}]}}")
     Page<BookIndex> findByBookDescriptionContainsIgnoreCase(String bookDescription, Pageable pageable);
