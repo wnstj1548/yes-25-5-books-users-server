@@ -53,19 +53,21 @@ public class ReviewController {
             .build();
     }
 
-//    @Operation(summary = "")
+    @Operation(summary = "도서 리뷰 조회", description = "특정 도서의 리뷰를 조회합니다.")
     @GetMapping("/books/{bookId}")
     public ResponseEntity<Page<ReadReviewResponse>> getReviews(@PathVariable Long bookId,
         Pageable pageable) {
         return ResponseEntity.ok(reviewService.getReviewsByPaging(bookId, pageable));
     }
 
+    @Operation(summary = "도서 리뷰 평점 조회", description = "특정 도서의 리뷰 평점을 조회합니다.")
     @GetMapping("/books/{bookId}/ratings")
     public ResponseEntity<List<ReadReviewRatingResponse>> getReviewRatings(
         @PathVariable Long bookId) {
         return ResponseEntity.ok(reviewService.getReviewRatingsByBookId(bookId));
     }
 
+    @Operation(summary = "리뷰 수정", description = "특정 회원의 리뷰를 수정합니다.")
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> updateReview(@PathVariable Long reviewId,
         @RequestPart String requestJson,
@@ -79,6 +81,7 @@ public class ReviewController {
             .build();
     }
 
+    @Operation(summary = "리뷰 삭제", description = "특정 회원의 리뷰를 삭제합니다.")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
         @CurrentUser JwtUserDetails jwtUserDetails) {
@@ -89,6 +92,7 @@ public class ReviewController {
             .build();
     }
 
+    @Operation(summary = "나의 리뷰 목록 조회", description = "내가 작성한 리뷰를 전부 조회합니다.")
     @GetMapping("/users")
     public ResponseEntity<Page<ReadMyReviewResponse>> getMyReviews(Pageable pageable,
         @CurrentUser JwtUserDetails jwtUserDetails) {
