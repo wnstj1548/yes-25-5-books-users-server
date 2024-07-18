@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.presentation.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yes255.yes255booksusersserver.application.service.*;
+import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
 import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
@@ -8,6 +10,7 @@ import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.presentation.dto.request.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.AuthorResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +23,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.validation.BindingResult;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -147,6 +157,24 @@ class BookControllerTest {
         // when
         ValidationFailedException exception = assertThrows(ValidationFailedException.class, () ->
                 bookController.create(invalidRequest, categoryIdList, null, bindingResult));
+
+        // then
+        assertNotNull(exception);
+    }
+
+    @DisplayName("책 생성 - 실패 (이미 존재하는 책)")
+    @Test
+    void create_failure_bookAlreadyExists() throws ParseException {
+        // given
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "Publisher",
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100, "image.jpg", true);
+        List<Long> categoryIdList = List.of(1L, 2L);
+
+        when(bookService.createBook(any(CreateBookRequest.class))).thenThrow(new ApplicationException(ErrorStatus.toErrorStatus("이미 존재하는 책입니다.", 400, LocalDateTime.now())));
+
+        // when
+        ApplicationException exception = assertThrows(ApplicationException.class, () ->
+                bookController.create(request, categoryIdList, null, mock(BindingResult.class)));
 
         // then
         assertNotNull(exception);
@@ -294,5 +322,86 @@ class BookControllerTest {
 
         // then
         assertEquals("해당하는 책이 없습니다.", exception.getErrorStatus().message());
+    }
+
+    @DisplayName("이름으로 책 검색 - 성공")
+    @Test
+    void searchByName_success() {
+        // given
+        String query = "Java";
+        List<BookCouponResponse> mockResponse = List.of(
+                BookCouponResponse.builder().build()
+                // Add more mock responses as needed
+        );
+
+        when(bookService.getBookByName(query)).thenReturn(mockResponse);
+
+        // when
+        ResponseEntity<List<BookCouponResponse>> responseEntity = bookController.searchByName(query);
+
+        // then
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(mockResponse, responseEntity.getBody());
+    }
+
+    @DisplayName("카테고리로 책 조회 - 성공")
+    @Test
+    void getBookByCategory_success() {
+        // given
+        Long categoryId = 1L;
+        Pageable pageable = Pageable.unpaged(); // Mock Pageable
+        String sortString = "popularity";
+        List<BookResponse> mockResponse = List.of(
+                new BookResponse(1L, "1234567890", "Java Programming", "Description", "Java Author", "index", "Publisher", null, null, null, "image.jpg", 100, 0, 0, 0, true, 4.4, false)
+                // Add more mock responses as needed
+        );
+        Page<BookResponse> mockPage = new PageImpl<>(mockResponse);
+
+        when(bookService.getBookByCategoryId(categoryId, pageable, sortString)).thenReturn(mockPage);
+
+        // when
+        ResponseEntity<Page<BookResponse>> responseEntity = bookController.getBookByCategory(categoryId, pageable, sortString);
+
+        // then
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(mockPage, responseEntity.getBody());
+    }
+
+    @DisplayName("책 생성 API - 성공 (삭제된 책 복원)")
+    @Test
+    void testCreateBook_success_restoreDeletedBook() throws Exception {
+        // Mock 데이터 설정
+        CreateBookRequest request = new CreateBookRequest(
+                "1234567890", "Test Book", "Description", "Author1, Author2",
+                "Publisher", new Date(), new BigDecimal("20.00"),
+                new BigDecimal("15.99"), 100, "image.jpg", true
+        );
+        List<Long> categoryIdList = Arrays.asList(1L, 2L);
+
+        BookResponse deletedBookResponse = new BookResponse(
+                1L, "1234567890", "Test Book", "Description", "Author1, Author2",
+                "index","Publisher", new Date(), new BigDecimal("20.00"),
+                new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true, 4.4, true // Deleted status true
+        );
+
+        BookResponse restoredBookResponse = new BookResponse(
+                1L, "1234567890", "Test Book", "Description", "Author1, Author2", "index",
+                "Publisher", new Date(), new BigDecimal("20.00"),
+                new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true, 4.4, false // Updated to false
+        );
+
+        // Mock 서비스 메서드 응답 설정
+        when(bookService.getBookByIsbn("1234567890")).thenReturn(deletedBookResponse);
+
+        bookService.updateBookIsDeleteFalse(1L);
+
+        // HTTP POST 요청 준비
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("categoryIdList", "1", "2")
+                .content(new ObjectMapper().writeValueAsString(request));
+
+        // 서비스 메서드가 적절하게 호출되었는지 검증
+        verify(bookService).updateBookIsDeleteFalse(1L);
     }
 }
