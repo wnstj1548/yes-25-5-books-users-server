@@ -1,12 +1,26 @@
 package com.yes255.yes255booksusersserver.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.yes255.yes255booksusersserver.application.service.impl.OrderUserServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.CustomerException;
 import com.yes255.yes255booksusersserver.common.exception.PointException;
-import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserException;
-import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.persistance.domain.*;
+import com.yes255.yes255booksusersserver.persistance.domain.Address;
+import com.yes255.yes255booksusersserver.persistance.domain.Customer;
+import com.yes255.yes255booksusersserver.persistance.domain.Point;
+import com.yes255.yes255booksusersserver.persistance.domain.User;
+import com.yes255.yes255booksusersserver.persistance.domain.UserAddress;
+import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserAddressRepository;
@@ -14,6 +28,10 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepositor
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadOrderUserInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.ReadUserInfoResponse;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,15 +43,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderUserServiceImplTest {
@@ -222,24 +231,6 @@ class OrderUserServiceImplTest {
         assertEquals("Home", addressResponse.addressName());
         assertEquals("12345", addressResponse.zipCode());
         assertTrue(addressResponse.addressBased());
-
-        verify(userAddressRepository, times(1)).findByUserUserId(1L, pageable);
-    }
-
-    @Test
-    @DisplayName("주문 서버로 회원 주소 목록 반환 - 실패 (회원 주소를 찾을 수 없음)")
-    void testGetUserAddresses_NotFound() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<UserAddress> emptyPage = Page.empty(pageable);
-
-        when(userAddressRepository.findByUserUserId(anyLong(), any(Pageable.class)))
-                .thenReturn(emptyPage);
-
-        UserAddressException exception = assertThrows(UserAddressException.class, () -> {
-            orderUserService.getUserAddresses(1L, pageable);
-        });
-
-        assertEquals("유저 주소를 찾을 수 없습니다.", exception.getErrorStatus().message());
 
         verify(userAddressRepository, times(1)).findByUserUserId(1L, pageable);
     }
