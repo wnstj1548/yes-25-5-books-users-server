@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -116,7 +117,7 @@ class CouponUserServiceImplTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
         when(couponUserRepository.existsByCouponIdAndUser(anyLong(), any())).thenReturn(true);
 
-        CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.createCouponUser(1L, 1L));
+        assertThrows(CouponUserException.class, () -> couponUserService.createCouponUser(1L, 1L));
     }
 
     @Test
@@ -136,7 +137,7 @@ class CouponUserServiceImplTest {
     void testGetUserCoupons_UserNotFound() {
         when(couponUserRepository.findByUserUserId(anyLong())).thenReturn(Collections.emptyList());
 
-        CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.getUserCoupons(1L, PageRequest.of(0, 10)));
+        assertThrows(CouponUserException.class, () -> couponUserService.getUserCoupons(1L, PageRequest.of(0, 10)));
     }
 
     @Test
@@ -167,7 +168,7 @@ class CouponUserServiceImplTest {
     void testUpdateCouponState_UserCouponNotFound() {
         when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use")));
+        assertThrows(CouponUserException.class, () -> couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use")));
     }
 
     @Test
@@ -198,7 +199,7 @@ class CouponUserServiceImplTest {
     void testCheckExpiredCoupon_NoCouponsFound() {
         when(couponUserRepository.findByUserCouponStatus(any())).thenReturn(Collections.emptyList());
 
-        CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.checkExpiredCoupon());
+        assertThrows(CouponUserException.class, () -> couponUserService.checkExpiredCoupon());
     }
 
     @Test
@@ -226,8 +227,11 @@ class CouponUserServiceImplTest {
     @Test
     @DisplayName("쿠폰 상태에 따른 회원 쿠폰 목록 조회 - 성공")
     void testGetStateUserCoupons_Success() {
-        when(couponUserRepository.findByUserUserIdAndUserCouponStatus(anyLong(), any())).thenReturn(Collections.singletonList(testCouponUser));
-        when(couponAdaptor.getCouponsInfo(anyList())).thenReturn(Collections.singletonList(testCouponInfoResponse));
+        Page<CouponUser> couponUserPage = new PageImpl<>(Collections.singletonList(testCouponUser), PageRequest.of(0, 10), 1);
+        List<CouponInfoResponse> couponInfoResponseList = Collections.singletonList(testCouponInfoResponse);
+
+        when(couponUserRepository.findByUserUserIdAndUserCouponStatus(anyLong(), any(), any())).thenReturn(couponUserPage);
+        when(couponAdaptor.getCouponsInfo(anyList())).thenReturn(couponInfoResponseList);
 
         Page<CouponBoxResponse> response = couponUserService.getStateUserCoupons(1L, CouponUser.UserCouponStatus.ACTIVE, PageRequest.of(0, 10));
 
@@ -238,7 +242,9 @@ class CouponUserServiceImplTest {
     @Test
     @DisplayName("쿠폰 상태에 따른 회원 쿠폰 목록 조회 - 실패 (쿠폰이 없음)")
     void testGetStateUserCoupons_NoCoupons() {
-        when(couponUserRepository.findByUserUserIdAndUserCouponStatus(anyLong(), any())).thenReturn(Collections.emptyList());
+        Page<CouponUser> emptyCouponUserPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
+
+        when(couponUserRepository.findByUserUserIdAndUserCouponStatus(anyLong(), any(), any())).thenReturn(emptyCouponUserPage);
 
         Page<CouponBoxResponse> response = couponUserService.getStateUserCoupons(1L, CouponUser.UserCouponStatus.ACTIVE, PageRequest.of(0, 10));
 
