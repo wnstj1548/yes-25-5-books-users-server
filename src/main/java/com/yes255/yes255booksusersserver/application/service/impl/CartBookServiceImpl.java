@@ -182,11 +182,7 @@ public class CartBookServiceImpl implements CartService {
             return false;
         }
 
-        if (book.isBookIsDeleted()) {
-            return false;
-        }
-
-        return true;
+        return !book.isBookIsDeleted();
     }
 
     private void updateCartInRedis(String cartId, Map<Long, Integer> cart) {
