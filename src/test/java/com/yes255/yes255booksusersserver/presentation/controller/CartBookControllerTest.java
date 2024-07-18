@@ -54,7 +54,7 @@ class CartBookControllerTest {
 
         deleteCartBookResponse = DeleteCartBookResponse.from(1L);
 
-        cartBookResponse = new CartBookResponse(1L, "Test Book", BigDecimal.valueOf(10.99), 2, true, "test-image.png");
+        cartBookResponse = new CartBookResponse(1L, List.of(), "Test Book", BigDecimal.valueOf(10.99), 2, true, "test-image.png");
     }
 
     @Test

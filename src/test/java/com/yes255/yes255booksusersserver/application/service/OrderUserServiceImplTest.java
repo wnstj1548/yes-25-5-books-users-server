@@ -227,7 +227,7 @@ class OrderUserServiceImplTest {
     }
 
     @Test
-    @DisplayName("주문 서버로 회원 주소 목록 반환 - 실패 (회언 주소를 찾을 수 없음)")
+    @DisplayName("주문 서버로 회원 주소 목록 반환 - 실패 (회원 주소를 찾을 수 없음)")
     void testGetUserAddresses_NotFound() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<UserAddress> emptyPage = Page.empty(pageable);

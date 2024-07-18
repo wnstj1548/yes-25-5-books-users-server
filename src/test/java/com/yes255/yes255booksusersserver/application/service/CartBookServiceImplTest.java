@@ -17,6 +17,9 @@ import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
 import com.yes255.yes255booksusersserver.common.exception.CartBookException;
 import com.yes255.yes255booksusersserver.common.exception.CartException;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.domain.Category;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
@@ -47,6 +50,9 @@ public class CartBookServiceImplTest {
     private JpaBookRepository bookRepository;
 
     @Mock
+    private JpaBookCategoryRepository bookCategoryRepository;
+
+    @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
@@ -55,6 +61,7 @@ public class CartBookServiceImplTest {
     @InjectMocks
     private CartBookServiceImpl cartBookService;
     private Book testBook;
+    private BookCategory bookCategory;
 
     @BeforeEach
     void setUp() {
@@ -65,6 +72,15 @@ public class CartBookServiceImplTest {
             .quantity(100)
             .bookPrice(BigDecimal.valueOf(20.0))
             .bookIsDeleted(false)
+            .build();
+
+        Category category = Category.builder()
+            .categoryId(1L)
+            .build();
+
+        bookCategory = BookCategory.builder()
+            .book(testBook)
+            .category(category)
             .build();
     }
 
@@ -282,6 +298,7 @@ public class CartBookServiceImplTest {
         when(redisTemplate.opsForHash()).thenReturn(hashOperations);
         when(hashOperations.get(anyString(), anyString())).thenReturn(cart);
         when(bookRepository.findById(anyLong())).thenReturn(Optional.of(testBook));
+        when(bookCategoryRepository.findByBook(any(Book.class))).thenReturn(List.of(bookCategory));
 
         // when
         List<CartBookResponse> responses = cartBookService.findAllCartBookById("cartId");

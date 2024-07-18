@@ -1,5 +1,6 @@
 package com.yes255.yes255booksusersserver.presentation.dto.response.couponuser;
 
+import java.util.List;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -14,5 +15,8 @@ public record CouponInfoResponse(Long couponId,
                                  BigDecimal couponDiscountRate,    // 할인률
                                  Date couponCreatedAt,          // 생성일자
                                  String couponCode,             // 쿠폰 코드
-                                 Boolean couponDiscountType) {  // 할인 유형
+                                 Boolean couponDiscountType,
+                                 Long bookId,
+                                 List<Long> categoryIds,
+                                 Boolean applyCouponToAllBooks) {
 }

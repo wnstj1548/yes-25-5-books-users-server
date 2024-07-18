@@ -167,7 +167,8 @@ class CouponUserServiceImplTest {
     void testUpdateCouponState_UserCouponNotFound() {
         when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        CouponUserException exception = assertThrows(CouponUserException.class, () -> couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use")));
+        assertThrows(CouponUserException.class, () -> couponUserService.updateCouponState(1L,
+            List.of(new UpdateCouponRequest(1L, "use"))));
     }
 
     @Test
@@ -175,10 +176,9 @@ class CouponUserServiceImplTest {
     void testUpdateCouponState_Success() {
         when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.of(testCouponUser));
 
-        couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "use"));
+        couponUserService.updateCouponState(1L, List.of(new UpdateCouponRequest(1L, "use")));
 
         assertThat(testCouponUser.getUserCouponStatus()).isEqualTo(CouponUser.UserCouponStatus.USED);
-        verify(couponUserRepository, times(1)).save(testCouponUser);
     }
 
     @Test
@@ -186,11 +186,10 @@ class CouponUserServiceImplTest {
     void testUpdateCouponState_Success_Rollback() {
         when(couponUserRepository.findByUserCouponIdAndUserUserId(anyLong(), anyLong())).thenReturn(Optional.of(testCouponUser));
 
-        couponUserService.updateCouponState(1L, new UpdateCouponRequest(1L, "rollback"));
+        couponUserService.updateCouponState(1L, List.of(new UpdateCouponRequest(1L, "rollback")));
 
         assertThat(testCouponUser.getUserCouponStatus()).isEqualTo(CouponUser.UserCouponStatus.ACTIVE);
         assertThat(testCouponUser.getUserCouponUsedAt()).isNull();
-        verify(couponUserRepository, times(1)).save(testCouponUser);
     }
 
     @Test
