@@ -136,6 +136,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Long> getCategoryIdByBookId(long bookId) {
 

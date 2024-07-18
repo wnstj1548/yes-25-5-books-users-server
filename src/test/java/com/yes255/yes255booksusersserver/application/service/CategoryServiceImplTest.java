@@ -3,6 +3,7 @@ package com.yes255.yes255booksusersserver.application.service;
 import com.yes255.yes255booksusersserver.application.service.impl.CategoryServiceImpl;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.CategoryNotFoundException;
+import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
@@ -47,12 +48,26 @@ class CategoryServiceImplTest {
 
     private Category testCategory;
     private Category parentCategory;
+    private Category childCategory1;
+    private Category childCategory2;
+    private Book book;
+    private BookCategory bookCategory2;
+    private BookCategory bookCategory1;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         parentCategory = new Category(1L, "Parent Category", null, null);
         testCategory = new Category(2L, "Test Category", parentCategory, null);
+        parentCategory = new Category(1L, "Parent Category", null, null);
+        childCategory1 = new Category(2L, "Child Category 1", parentCategory, null);
+        childCategory2 = new Category(3L, "Child Category 2", parentCategory, null);
+        book = Book.builder()
+                .bookId(1L)
+                .bookName("Sample Book")
+                .build();
+        bookCategory1 = new BookCategory(1L, book, new Category(1L, "Category 1", null, null));
+        bookCategory2 = new BookCategory(2L, book, new Category(2L, "Category 2", null, null));
     }
 
     @DisplayName("카테고리 생성 - 성공")
@@ -231,5 +246,50 @@ class CategoryServiceImplTest {
         assertNotNull(responses);
         assertEquals(1, responses.size());
         assertEquals(parentCategory.getCategoryId(), responses.get(0).categoryId());
+    }
+
+    @DisplayName("카테고리 조회 (부모 카테고리 ID로)")
+    @Test
+    void getCategoryByParentCategoryId_success() {
+        // given
+        List<Category> allCategories = List.of(parentCategory, childCategory1, childCategory2);
+        when(jpaCategoryRepository.findAll()).thenReturn(allCategories);
+
+        // when
+        List<CategoryResponse> responses = categoryService.getCategoryByParentCategoryId(parentCategory.getCategoryId());
+
+        // then
+        assertEquals(2, responses.size());
+        assertEquals(childCategory1.getCategoryId(), responses.get(0).categoryId());
+        assertEquals(childCategory1.getCategoryName(), responses.get(0).categoryName());
+        assertEquals(childCategory2.getCategoryId(), responses.get(1).categoryId());
+        assertEquals(childCategory2.getCategoryName(), responses.get(1).categoryName());
+    }
+
+    @DisplayName("책 ID로 카테고리 ID 조회 - 성공")
+    @Test
+    void getCategoryIdByBookId_success() {
+        // given
+        List<BookCategory> bookCategories = List.of(bookCategory1, bookCategory2);
+        when(jpaBookRepository.findById(anyLong())).thenReturn(Optional.of(book));
+        when(jpaBookCategoryRepository.findByBook(book)).thenReturn(bookCategories);
+
+        // when
+        List<Long> categoryIdList = categoryService.getCategoryIdByBookId(book.getBookId());
+
+        // then
+        assertEquals(2, categoryIdList.size());
+        assertEquals(bookCategory1.getCategory().getCategoryId(), categoryIdList.get(0));
+        assertEquals(bookCategory2.getCategory().getCategoryId(), categoryIdList.get(1));
+    }
+
+    @DisplayName("책 ID로 카테고리 ID 조회 - 실패 (알맞은 책이 없는 경우)")
+    @Test
+    void getCategoryIdByBookId_failure_bookNotFound() {
+        // given
+        when(jpaBookRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ApplicationException.class, () -> categoryService.getCategoryIdByBookId(1L));
     }
 }

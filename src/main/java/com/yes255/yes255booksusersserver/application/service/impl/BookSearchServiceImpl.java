@@ -116,7 +116,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         return result.map(BookIndexResponse::fromIndex);
     }
 
-    private List<BookIndex> fetchAuthorsAndTags(List<BookIndex> bookIndexList) {
+    public List<BookIndex> fetchAuthorsAndTags(List<BookIndex> bookIndexList) {
 
         List<BookIndex> result = new ArrayList<>();
 

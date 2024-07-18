@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -25,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class TagServiceImplTest {
+class TagServiceImplTest {
 
     @Mock
     private JpaTagRepository jpaTagRepository;
@@ -188,6 +191,36 @@ public class TagServiceImplTest {
     void deleteTag_failure_tagIdNull() {
         // then
         assertThrows(ApplicationException.class, () -> tagService.removeTag(null));
+    }
+
+    @DisplayName("모든 태그 조회 - 페이지 있음")
+    @Test
+    void getAllTags_withPageable() {
+        // given
+        Pageable pageable = Pageable.ofSize(2).withPage(0);
+
+        List<Tag> tags = List.of(
+                new Tag(1L, "Java"),
+                new Tag(2L, "Spring")
+        );
+        Page<Tag> tagPage = new PageImpl<>(tags, pageable, tags.size());
+
+        when(jpaTagRepository.findAll(pageable)).thenReturn(tagPage);
+
+        // when
+        Page<TagResponse> responses = tagService.getAllTags(pageable);
+
+        // then
+        assertNotNull(responses);
+        assertEquals(tags.size(), responses.getContent().size());
+        assertEquals(tagPage.getTotalElements(), responses.getTotalElements());
+    }
+
+    @DisplayName("모든 태그 조회 - Pageable이 null일 때 예외 발생")
+    @Test
+    void getAllTags_pageableNull() {
+        // then
+        assertThrows(NullPointerException.class, () -> tagService.getAllTags(null));
     }
 
 }

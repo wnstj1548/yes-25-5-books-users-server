@@ -23,10 +23,7 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponRes
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +67,7 @@ public class BookServiceImpl implements BookService {
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
         if(Objects.isNull(book) || book.isBookIsDeleted()) {
             throw new BookNotFoundException(
-                    ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 400, LocalDateTime.now())
+                    ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
             );
         }
 
@@ -175,7 +172,7 @@ public class BookServiceImpl implements BookService {
 
         List<BookCategory> bookCategoryList = jpaBookCategoryRepository.findByCategory(category);
 
-        Comparator comparator = getComparator(sortString);
+        Comparator<BookResponse> comparator = getComparator(sortString);
 
         List<BookResponse> bookList = bookCategoryList.stream()
                 .filter(bookCategory -> !bookCategory.getBook().isBookIsDeleted())
@@ -211,16 +208,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public BookResponse getBookByIsbn(String isbn) {
-
-        if(jpaBookRepository.findByBookIsbn(isbn).isPresent()) {
-
-            return toResponse(jpaBookRepository.findByBookIsbn(isbn).get());
-
-        } else {
-
-            return null;
-
-        }
+        return jpaBookRepository.findByBookIsbn(isbn).map(this::toResponse).orElse(null);
     }
 
     @Transactional
@@ -300,29 +288,14 @@ public class BookServiceImpl implements BookService {
                 .build();
     }
 
-    private Comparator getComparator(String sortString) {
+    private Comparator<BookResponse> getComparator(String sortString) {
 
-        Comparator comparator;
-
-        switch(sortString) {
-            case "low-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice);
-                break;
-            case "high-price":
-                comparator = Comparator.comparing(BookResponse::bookSellingPrice).reversed();
-                break;
-            case "grade" :
-                comparator = Comparator.comparing(BookResponse::grade);
-                break;
-            case "review":
-                comparator = Comparator.comparingInt(BookResponse::reviewCount).reversed();
-                break;
-            case "popularity":
-            default:
-                comparator = Comparator.comparingInt(BookResponse::hitsCount).reversed();
-                break;
-        }
-
-        return comparator;
+        return switch (sortString) {
+            case "low-price" -> Comparator.comparing(BookResponse::bookSellingPrice);
+            case "high-price" -> Comparator.comparing(BookResponse::bookSellingPrice).reversed();
+            case "grade" -> Comparator.comparing(BookResponse::grade);
+            case "review" -> Comparator.comparingInt(BookResponse::reviewCount).reversed();
+            default -> Comparator.comparingInt(BookResponse::hitsCount).reversed();
+        };
     }
 }

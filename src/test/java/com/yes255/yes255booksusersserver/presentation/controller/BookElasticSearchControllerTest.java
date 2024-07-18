@@ -14,8 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-public class BookElasticSearchControllerTest {
+class BookElasticSearchControllerTest {
 
     @Mock
     private BookSearchService bookSearchService;
@@ -222,5 +225,91 @@ public class BookElasticSearchControllerTest {
         assertEquals(page, responseEntity.getBody());
     }
 
+    @DisplayName("카테고리로 검색 - 성공")
+    @Test
+    void searchByCategory_success() {
+        String keyword = "fiction"; // 예시로 카테고리 키워드 설정
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<BookIndexResponse> bookIndexResponses = Collections.singletonList(
+                BookIndexResponse.builder()
+                        .bookId("37")
+                        .bookIsbn("9791198265173")
+                        .bookName("마음이 부는 곳")
+                        .bookDescription("**“바람이 분다.”**\n" +
+                                "\n" +
+                                "“바람은 어디서 왔지?”\n" +
+                                "“음, 바람은 마음에서 왔지.”\n" +
+                                "“마음이 분다.”\n" +
+                                "\n" +
+                                "이 책은 과거 여행을 많이 하던 당시 작가가 이국에서 만난 사람과 시간에 대한 기록입니다. 모로코 페즈라는 작은 소도시에서부터 사하라 사막까지. 「마음이 부는 곳」은 과거 제가 잃어버린 마음을 찾아 세계 각국을 떠돌아다니던 시절, 여행을 통해 종국에 “마음”을 발견하게 된 계기가 된 사건에 대한 기록입니다.\n" +
+                                "\n" +
+                                "“실은 그간 많은 글을 썼지만, 내면의 절반의 절반도 아직 보여 주지 못했다. 아직 보여주지 못한 풍경이 많다. 언젠가 한 번은 발설할 때가 있겠지, 그 이야기를 이제는 꺼내어보아도 좋겠지, 하는 마음. 오랜 서랍 속 깊숙이 잘 접어둔 지도를 펼쳐보듯 조심스럽고 떨리는 손으로 그것을 서서히 열어본다. 언젠가 꼭 해야 할 일. 다시금 흐트러진 길들을 배열해 기억의 지도를 완성하는 일. 이제는 쓸 수 있는 글, 써야만 하는 글, 그리고 이제는 써도 될 것 같은 글.” \\_ [본문 중에서]")
+                        .bookPublisher("홀로씨의 테이블")
+                        .bookPrice(new BigDecimal("12600.00"))
+                        .bookSellingPrice(new BigDecimal("11100.00"))
+                        .bookImage("http://image.toast.com/aaaacuf/yes25-5-images/heart.jpeg")
+                        .quantity(9999)
+                        .reviewCount(0)
+                        .hitsCount(13)
+                        .searchCount(0)
+                        .bookIsPackable(true)
+                        .authors(null)
+                        .tags(null)
+                        .build()
+        );
+
+        Page<BookIndexResponse> page = new PageImpl<>(bookIndexResponses);
+
+        when(bookSearchService.searchBookByCategoryName(anyString(), any(Pageable.class), anyString())).thenReturn(page);
+
+        ResponseEntity<Page<BookIndexResponse>> responseEntity = bookElasticSearchController.searchByCategoryName(keyword, pageable, "popularity");
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(page, responseEntity.getBody());
+    }
+
+    @DisplayName("제목, 설명, 태그, 작가로 검색 - 성공")
+    @Test
+    void searchAll_success() {
+        String keyword = "Spring"; // 예시로 검색 키워드 설정
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<BookIndexResponse> bookIndexResponses = Collections.singletonList(
+                BookIndexResponse.builder()
+                        .bookId("37")
+                        .bookIsbn("9791198265173")
+                        .bookName("마음이 부는 곳")
+                        .bookDescription("**“바람이 분다.”**\n" +
+                                "\n" +
+                                "“바람은 어디서 왔지?”\n" +
+                                "“음, 바람은 마음에서 왔지.”\n" +
+                                "“마음이 분다.”\n" +
+                                "\n" +
+                                "이 책은 과거 여행을 많이 하던 당시 작가가 이국에서 만난 사람과 시간에 대한 기록입니다. 모로코 페즈라는 작은 소도시에서부터 사하라 사막까지. 「마음이 부는 곳」은 과거 제가 잃어버린 마음을 찾아 세계 각국을 떠돌아다니던 시절, 여행을 통해 종국에 “마음”을 발견하게 된 계기가 된 사건에 대한 기록입니다.\n" +
+                                "\n" +
+                                "“실은 그간 많은 글을 썼지만, 내면의 절반의 절반도 아직 보여 주지 못했다. 아직 보여주지 못한 풍경이 많다. 언젠가 한 번은 발설할 때가 있겠지, 그 이야기를 이제는 꺼내어보아도 좋겠지, 하는 마음. 오랜 서랍 속 깊숙이 잘 접어둔 지도를 펼쳐보듯 조심스럽고 떨리는 손으로 그것을 서서히 열어본다. 언젠가 꼭 해야 할 일. 다시금 흐트러진 길들을 배열해 기억의 지도를 완성하는 일. 이제는 쓸 수 있는 글, 써야만 하는 글, 그리고 이제는 써도 될 것 같은 글.” \\_ [본문 중에서]")
+                        .bookPublisher("홀로씨의 테이블")
+                                        .bookPrice(new BigDecimal("12600.00"))
+                        .bookSellingPrice(new BigDecimal("11100.00"))
+                        .bookImage("http://image.toast.com/aaaacuf/yes25-5-images/heart.jpeg")
+                        .quantity(9999)
+                                        .reviewCount(0)
+                                        .hitsCount(13)
+                                        .searchCount(0)
+                                        .bookIsPackable(true)
+                                        .authors(null)
+                                        .tags(null)
+                                        .build()
+                        );
+        Page<BookIndexResponse> page = new PageImpl<>(bookIndexResponses);
+
+        when(bookSearchService.searchAll(anyString(), any(Pageable.class), anyString())).thenReturn(page);
+
+        ResponseEntity<Page<BookIndexResponse>> responseEntity = bookElasticSearchController.searchAll(keyword, pageable, "popularity");
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(page, responseEntity.getBody());
+    }
 
 }

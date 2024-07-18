@@ -29,7 +29,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 도서에 관련된 API 처리를 하는 RestController
@@ -126,10 +125,9 @@ public class BookController {
     @PostMapping("/books")
     public ResponseEntity<BookResponse> create(@RequestBody @Valid CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList, BindingResult bindingResult) {
 
-        if(bookService.getBookByIsbn(request.bookIsbn()) != null) {
+        BookResponse bookResponse = bookService.getBookByIsbn(request.bookIsbn());
 
-             BookResponse bookResponse = bookService.getBookByIsbn(request.bookIsbn());
-
+        if(bookResponse != null) {
              //삭제된 책일시 삭제 상태 업데이트 및 전체 수정
              if(bookResponse.bookIsDeleted()) {
 

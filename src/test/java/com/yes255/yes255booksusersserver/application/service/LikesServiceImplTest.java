@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class LikesServiceImplTest {
+class LikesServiceImplTest {
 
     @Mock
     private JpaLikesRepository jpaLikesRepository;
@@ -278,5 +278,13 @@ public class LikesServiceImplTest {
         // then
         ApplicationException exception = assertThrows(ApplicationException.class, () -> likesService.getLikeByBookIdAndUserId(1L, 1L));
         assertEquals(ErrorStatus.toErrorStatus(null, 404, LocalDateTime.now()).message(), exception.getMessage());
+    }
+
+    @DisplayName("유저 ID가 null일 때 좋아요 조회 - 실패")
+    @Test
+    void getLikeByBookIdAndUserId_failure_nullUserId() {
+        // then
+        ApplicationException exception = assertThrows(ApplicationException.class, () -> likesService.getLikeByBookIdAndUserId(1L, null));
+        assertEquals(ErrorStatus.toErrorStatus(null, 400, LocalDateTime.now()).message(), exception.getMessage());
     }
 }
