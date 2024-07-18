@@ -72,6 +72,16 @@ class BookAuthorServiceImplTest {
         assertEquals(testAuthor.getAuthorId(), responses.get(0).authorId());
     }
 
+    @DisplayName("책 ID로 책-작가 관계 조회 - 실패 (존재하지 않는 책)")
+    @Test
+    void getBookAuthorByBookId_failure_bookNotFound() {
+        // given
+        when(jpaBookRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ApplicationException.class, () -> bookAuthorService.getBookAuthorByBookId(2L));
+    }
+
     @DisplayName("작가 ID로 책-작가 관계 조회 - 성공")
     @Test
     void getBookAuthorByAuthorId_success() {
@@ -83,6 +93,16 @@ class BookAuthorServiceImplTest {
         assertEquals(1, responses.size());
         assertEquals(testBook.getBookId(), responses.get(0).bookId());
         assertEquals(testAuthor.getAuthorId(), responses.get(0).authorId());
+    }
+
+    @DisplayName("작가 ID로 책-작가 관계 조회 - 실패 (존재하지 않는 작가)")
+    @Test
+    void getBookAuthorByAuthorId_failure_authorNotFound() {
+        // given
+        when(jpaAuthorRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ApplicationException.class, () -> bookAuthorService.getBookAuthorByAuthorId(2L));
     }
 
     @DisplayName("책-작가 관계 생성 - 성공")

@@ -58,6 +58,7 @@ public class TagServiceImpl implements TagService {
         return jpaTagRepository.findAll().stream().map(TagResponse::fromEntity).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<TagResponse> getAllTags(Pageable pageable) {
 
