@@ -177,22 +177,22 @@ public class CouponUserServiceImpl implements CouponUserService {
 
     // 주문 서버로부터 쿠폰 사용 처리
     @Override
-    public void updateCouponState(Long userId, UpdateCouponRequest couponRequest) {
+    public void updateCouponState(Long userId, List<UpdateCouponRequest> couponRequests) {
 
-        CouponUser couponUser = couponUserRepository.findByUserCouponIdAndUserUserId(
-                couponRequest.couponId(), userId)
-            .orElseThrow(() -> new CouponUserException(
-                ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 400, LocalDateTime.now())));
+        for (UpdateCouponRequest couponRequest : couponRequests) {
+            CouponUser couponUser = couponUserRepository.findByUserCouponIdAndUserUserId(
+                    couponRequest.couponId(), userId)
+                .orElseThrow(() -> new CouponUserException(
+                    ErrorStatus.toErrorStatus("회원 쿠폰이 존재하지 않습니다.", 404, LocalDateTime.now())));
 
-        if (couponRequest.operationType().equals("use")) {
-            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.USED);
-            couponUser.updateCouponUsedAt(LocalDate.now());
-        } else if (couponRequest.operationType().equals("rollback")) {
-            couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.ACTIVE);
-            couponUser.updateCouponUsedAt(null);
+            if (couponRequest.operationType().equals("use")) {
+                couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.USED);
+                couponUser.updateCouponUsedAt(LocalDate.now());
+            } else if (couponRequest.operationType().equals("rollback")) {
+                couponUser.updateUserCouponStatus(CouponUser.UserCouponStatus.ACTIVE);
+                couponUser.updateCouponUsedAt(null);
+            }
         }
-
-        couponUserRepository.save(couponUser);
     }
 
     // 매일 자정에 쿠폰 만료 여부 체크
@@ -316,7 +316,7 @@ public class CouponUserServiceImpl implements CouponUserService {
 
         List<Long> couponIds = couponUsers.stream()
             .map(CouponUser::getCouponId)
-            .collect(Collectors.toList());
+            .toList();
 
         List<CouponInfoResponse> couponInfoResponses = couponAdaptor.getCouponsInfo(couponIds);
 
@@ -337,9 +337,12 @@ public class CouponUserServiceImpl implements CouponUserService {
                     .couponMinAmount(couponInfoResponse.couponMinAmount())
                     .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
                     .couponDiscountRate(couponInfoResponse.couponDiscountRate())
+                    .bookId(couponInfoResponse.bookId())
+                    .categoryIds(couponInfoResponse.categoryIds())
+                    .applyCouponToAllBooks(couponInfoResponse.applyCouponToAllBooks())
                     .build();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     // 회원의 가장 할인 금액이 높은 쿠폰 반환
