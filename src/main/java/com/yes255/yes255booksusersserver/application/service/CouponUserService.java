@@ -18,7 +18,7 @@ public interface CouponUserService {
 
     Page<CouponBoxResponse> getStateUserCoupons(Long userId, CouponUser.UserCouponStatus userCouponStatus, Pageable pageable);
 
-    void updateCouponState(Long useId, UpdateCouponRequest couponRequest);
+    void updateCouponState(Long useId, List<UpdateCouponRequest> couponRequests);
 
     void checkExpiredCoupon();
 

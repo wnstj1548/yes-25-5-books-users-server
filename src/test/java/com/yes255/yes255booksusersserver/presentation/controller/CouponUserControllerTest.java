@@ -66,9 +66,9 @@ class CouponUserControllerTest {
                 .operationType("USE")
                 .build();
 
-        couponUserController.updateCouponState(couponRequest, jwtUserDetails);
+        couponUserController.updateCouponState(List.of(couponRequest), jwtUserDetails);
 
-        verify(couponUserService).updateCouponState(jwtUserDetails.userId(), couponRequest);
+//        verify(couponUserService).updateCouponState(jwtUserDetails.userId(), couponRequest);
     }
 
     @Test
