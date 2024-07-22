@@ -75,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
         return new PageImpl<>(responses, pageable, categoryPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryResponse> getAllCategories() {
         return jpaCategoryRepository.findAll().stream().map(CategoryResponse::fromEntity).toList();
