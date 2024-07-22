@@ -1,6 +1,5 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.PointService;
 import com.yes255.yes255booksusersserver.application.service.UserAddressService;
 import com.yes255.yes255booksusersserver.common.exception.AddressException;
 import com.yes255.yes255booksusersserver.common.exception.UserAddressException;
@@ -37,7 +36,6 @@ public class UserAddressServiceImpl implements UserAddressService {
     private final JpaUserAddressRepository userAddressRepository;
     private final JpaAddressRepository addressRepository;
     private final JpaUserRepository userRepository;
-    private final PointService pointService;
 
     @Transactional
     @Override
@@ -77,13 +75,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                         .user(user)
                         .build());
 
-        return CreateUserAddressResponse.builder()
-                .addressZip(address.getAddressZip())
-                .addressRaw(address.getAddressRaw())
-                .addressName(userAddress.getAddressName())
-                .addressDetail(userAddress.getAddressDetail())
-                .addressBased(userAddress.isAddressBased())
-                .build();
+        return CreateUserAddressResponse.fromAddress(address, userAddress);
     }
 
     @Transactional
@@ -136,13 +128,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         userAddressRepository.save(userAddress);
 
-        return UpdateUserAddressResponse.builder()
-                .addressZip(checkAddress.getAddressZip())
-                .addressRaw(checkAddress.getAddressRaw())
-                .addressName(userAddress.getAddressName())
-                .addressDetail(userAddress.getAddressDetail())
-                .addressBased(userAddress.isAddressBased())
-                .build();
+        return UpdateUserAddressResponse.fromAddress(checkAddress, userAddress);
     }
 
     @Transactional(readOnly = true)
@@ -156,16 +142,7 @@ public class UserAddressServiceImpl implements UserAddressService {
             throw new UserAddressException(ErrorStatus.toErrorStatus("회원 주소를 찾을 수 없습니다.", 400, LocalDateTime.now()));
         }
 
-        return UserAddressResponse.builder()
-                .userAddressId(userAddressId)
-                .addressId(userAddress.getAddress().getAddressId())
-                .addressZip(userAddress.getAddress().getAddressZip())
-                .addressRaw(userAddress.getAddress().getAddressRaw())
-                .addressName(userAddress.getAddressName())
-                .addressDetail(userAddress.getAddressDetail())
-                .addressBased(userAddress.isAddressBased())
-                .userId(userId)
-                .build();
+        return UserAddressResponse.fromUserAddress(userAddress, userId);
     }
 
     @Transactional(readOnly = true)
@@ -174,16 +151,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         Page<UserAddress> userAddressList = userAddressRepository.findByUserUserId(userId, pageable);
 
-        return userAddressList.map(userAddress -> UserAddressResponse.builder()
-                .userAddressId(userAddress.getUserAddressId())
-                .addressId(userAddress.getAddress().getAddressId())
-                .addressZip(userAddress.getAddress().getAddressZip())
-                .addressRaw(userAddress.getAddress().getAddressRaw())
-                .addressName(userAddress.getAddressName())
-                .addressDetail(userAddress.getAddressDetail())
-                .addressBased(userAddress.isAddressBased())
-                .userId(userId)
-                .build());
+        return userAddressList.map(userAddress -> UserAddressResponse.fromUserAddress(userAddress, userId));
     }
 
     @Transactional

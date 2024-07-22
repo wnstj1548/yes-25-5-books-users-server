@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.presentation.dto.request.customer.CustomerRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.customer.CustomerResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.customer.NonMemberResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
