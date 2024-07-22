@@ -1,7 +1,5 @@
 package com.yes255.yes255booksusersserver.infrastructure.adaptor;
 
-import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
-import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponInfoResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ExpiredCouponUserResponse;
 import org.springframework.cloud.openfeign.FeignClient;

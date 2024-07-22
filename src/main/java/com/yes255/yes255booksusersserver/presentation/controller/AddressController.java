@@ -8,7 +8,6 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.address.Addre
 import com.yes255.yes255booksusersserver.presentation.dto.response.address.CreateAddressResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.address.UpdateAddressResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

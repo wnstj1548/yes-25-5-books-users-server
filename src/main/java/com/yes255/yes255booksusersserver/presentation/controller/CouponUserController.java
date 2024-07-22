@@ -4,7 +4,6 @@ import com.yes255.yes255booksusersserver.application.service.CouponUserService;
 import com.yes255.yes255booksusersserver.common.jwt.JwtUserDetails;
 import com.yes255.yes255booksusersserver.common.jwt.annotation.CurrentUser;
 import com.yes255.yes255booksusersserver.persistance.domain.CouponUser;
-import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.ReadMaximumDiscountCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.couponuser.UpdateCouponRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.CouponBoxResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.couponuser.ReadMaximumDiscountCouponResponse;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

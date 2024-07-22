@@ -14,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -32,15 +29,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         PointPolicy pointPolicy = pointPolicyRepository.save(policyRequest.toEntity());
 
-        return PointPolicyResponse.builder()
-                .pointPolicyId(pointPolicy.getPointPolicyId())
-                .pointPolicyName(policyRequest.pointPolicyName())
-                .pointPolicyApply(policyRequest.pointPolicyApply())
-                .pointPolicyCondition(policyRequest.pointPolicyCondition())
-                .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
-                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
-                .pointPolicyState(true)
-                .build();
+        return PointPolicyResponse.create(pointPolicy, policyRequest);
     }
 
     // 포인트 정책 단건 조회
@@ -51,17 +40,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
         PointPolicy pointPolicy = pointPolicyRepository.findById(pointPolicyId)
                 .orElseThrow(() -> new PointPolicyException(ErrorStatus.toErrorStatus("포인트 정책을 찾을 수 없습니다.", 400, LocalDateTime.now())));
 
-        return PointPolicyResponse.builder()
-                .pointPolicyId(pointPolicy.getPointPolicyId())
-                .pointPolicyName(pointPolicy.getPointPolicyName())
-                .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ? pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
-                .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
-                .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
-                .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
-                .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
-                .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ? pointPolicy.getPointPolicyUpdatedAt().toString() : null)
-                .pointPolicyState(pointPolicy.isPointPolicyState())
-                .build();
+        return PointPolicyResponse.find(pointPolicy);
     }
 
     // 포인트 정책 목록 조회
@@ -71,19 +50,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         Page<PointPolicy> pointPolicies = pointPolicyRepository.findAllByOrderByPointPolicyCreatedAtAscPointPolicyStateDesc(pageable);
 
-        return pointPolicies.map(pointPolicy -> PointPolicyResponse.builder()
-                .pointPolicyId(pointPolicy.getPointPolicyId())
-                .pointPolicyName(pointPolicy.getPointPolicyName())
-                .pointPolicyApply(pointPolicy.isPointPolicyApplyType() ?
-                        pointPolicy.getPointPolicyApplyAmount() : pointPolicy.getPointPolicyRate())
-                .pointPolicyCondition(pointPolicy.getPointPolicyCondition())
-                .pointPolicyConditionAmount(pointPolicy.getPointPolicyConditionAmount())
-                .pointPolicyApplyType(pointPolicy.isPointPolicyApplyType())
-                .pointPolicyCreatedAt(pointPolicy.getPointPolicyCreatedAt())
-                .pointPolicyUpdatedAt(pointPolicy.getPointPolicyUpdatedAt() != null ?
-                        pointPolicy.getPointPolicyUpdatedAt().toString() : null)
-                .pointPolicyState(pointPolicy.isPointPolicyState())
-                .build());
+        return pointPolicies.map(PointPolicyResponse::find);
     }
 
     @Override
@@ -112,14 +79,7 @@ public class PointPolicyServiceImpl implements PointPolicyService {
 
         pointPolicyRepository.save(pointPolicy);
 
-        return PointPolicyResponse.builder()
-                .pointPolicyId(pointPolicy.getPointPolicyId())
-                .pointPolicyName(policyRequest.pointPolicyName())
-                .pointPolicyApply(policyRequest.pointPolicyApply())
-                .pointPolicyCondition(policyRequest.pointPolicyCondition())
-                .pointPolicyApplyType(policyRequest.pointPolicyApplyType())
-                .pointPolicyConditionAmount(policyRequest.pointPolicyConditionAmount())
-                .build();
+        return PointPolicyResponse.update(pointPolicy, policyRequest);
     }
 
     @Override
