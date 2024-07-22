@@ -52,12 +52,12 @@ public class CouponUserController {
 
     @Operation(summary = "회원 쿠폰 상태 수정", description = "회원 쿠폰의 상태를 수정합니다.")
     @PatchMapping("/user-coupons")
-    public ResponseEntity<Void> updateCouponState(@RequestBody UpdateCouponRequest couponRequest,
+    public ResponseEntity<Void> updateCouponState(@RequestBody List<UpdateCouponRequest> couponRequests,
                                                   @CurrentUser JwtUserDetails jwtUserDetails) {
 
         Long userId = jwtUserDetails.userId();
 
-        couponUserService.updateCouponState(userId, couponRequest);
+        couponUserService.updateCouponState(userId, couponRequests);
 
         return ResponseEntity.ok().build();
     }

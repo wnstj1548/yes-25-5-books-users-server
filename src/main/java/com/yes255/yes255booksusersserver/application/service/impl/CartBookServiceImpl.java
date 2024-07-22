@@ -6,13 +6,15 @@ import com.yes255.yes255booksusersserver.common.exception.CartBookException;
 import com.yes255.yes255booksusersserver.common.exception.CartException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
+import com.yes255.yes255booksusersserver.persistance.domain.BookCategory;
+import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.CreateCartBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookOrderRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.request.cartbook.UpdateCartBookRequest;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.CreateCartBookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.DeleteCartBookResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.cartbook.UpdateCartBookResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartBookServiceImpl implements CartService {
 
     private final JpaBookRepository bookRepository;
+    private final JpaBookCategoryRepository bookCategoryRepository;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -132,7 +135,12 @@ public class CartBookServiceImpl implements CartService {
                 .orElseThrow(() -> new BookNotFoundException(
                     ErrorStatus.toErrorStatus("도서를 찾을 수 없습니다.", 404, LocalDateTime.now())));
 
-            CartBookResponse cartBookResponse = CartBookResponse.of(book, quantity);
+            List<BookCategory> bookCategories = bookCategoryRepository.findByBook(book);
+            List<Long> categoryIds = bookCategories.stream()
+                .map(bookCategory -> bookCategory.getCategory().getCategoryId())
+                .toList();
+
+            CartBookResponse cartBookResponse = CartBookResponse.of(book, quantity, categoryIds);
             cartBookResponses.add(cartBookResponse);
         }
 
