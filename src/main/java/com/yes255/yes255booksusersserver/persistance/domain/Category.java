@@ -12,6 +12,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "category")
+@NamedEntityGraph(
+        name = "Category.withSubCategories",
+        attributeNodes = @NamedAttributeNode("subCategories")
+)
 public class Category {
 
     @Id
