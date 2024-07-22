@@ -29,7 +29,7 @@ public class BookIndex {
     @Field(name = "book_name", type = FieldType.Text, analyzer = "korean")
     private String bookName;
 
-    @Field(name = "book_description", type = FieldType.Text, analyzer = "korean")
+    @Field(name = "book_description", type = FieldType.Text, analyzer = "synonym_analyzer")
     private String bookDescription;
 
     @Field(name = "book_publisher", type = FieldType.Text)

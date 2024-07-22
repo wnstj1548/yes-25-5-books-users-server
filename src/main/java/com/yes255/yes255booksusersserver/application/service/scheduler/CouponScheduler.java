@@ -21,9 +21,4 @@ public class CouponScheduler {
         couponUserService.deleteExpiredCoupons();
     }
 
-//    // 매일 1시 실행
-//    @Scheduled(cron = "0 0 1 * * ?")
-//    public void deleteExpiredCoupons() {
-//        couponUserService.deleteExpiredCoupons();
-//    }
 }

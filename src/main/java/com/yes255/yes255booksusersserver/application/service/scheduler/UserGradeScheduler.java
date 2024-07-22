@@ -11,7 +11,6 @@ public class UserGradeScheduler {
 
     private final UserGradeService userGradeService;
 
-    // 매달 1일 마다 확인
     @Scheduled(cron = "0 0 0 1 * ?")
     public void checkMonthlyGrades() {
         userGradeService.updateMonthlyGrades();

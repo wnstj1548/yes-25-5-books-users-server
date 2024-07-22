@@ -11,7 +11,6 @@ public class UserStateScheduler {
 
     private final UserStateService userStateService;
 
-    // 매일 자정 실행
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkInActiveUser() {
         userStateService.updateUserStateByUser();
