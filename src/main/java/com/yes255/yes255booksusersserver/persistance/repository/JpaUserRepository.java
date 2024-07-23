@@ -25,7 +25,7 @@ public interface JpaUserRepository extends JpaRepository<User, Long> {
     Boolean existsByUserEmail(String userEmail);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.customer LEFT JOIN FETCH u.provider " +
-            "LEFT JOIN FETCH u.userState LEFT JOIN FETCH u.userGrade LEFT JOIN FETCH u.userAddresses " +
-            "LEFT JOIN FETCH u.points WHERE MONTH(u.userBirth) = :month")
+            "LEFT JOIN FETCH u.userState LEFT JOIN FETCH u.userGrade " +
+            "WHERE MONTH(u.userBirth) = :month")
     List<User> findUsersByBirthMonth(@Param("month") int month);
 }
