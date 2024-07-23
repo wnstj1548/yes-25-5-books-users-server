@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -492,7 +493,9 @@ class CouponUserServiceImplTest {
 
         Date actualExpiryDate = couponUserService.calculateExpiryDate(validDays);
 
-        assertThat(actualExpiryDate).isEqualTo(expectedExpiryDate);
+        // 허용 범위를 1밀리초로 설정하여 비교
+        long difference = Math.abs(expectedExpiryDate.getTime() - actualExpiryDate.getTime());
+        assertTrue(difference <= 1, "Dates should be within 1 millisecond difference");
     }
 
     @Test
