@@ -24,35 +24,28 @@ public class BirthdayCouponScheduler {
 
     @Scheduled(cron = "0 0 0 1 * *")
     public void scheduleBirthdayCoupons() {
-        log.info("Scheduler started - Birthday coupon scheduler triggered");
-
         LocalDate today = LocalDate.now();
         int currentMonth = today.getMonthValue();
 
-        log.info("Current month: {}", currentMonth);
-
         List<User> usersWithBirthdayThisMonth = userRepository.findUsersByBirthMonth(currentMonth);
 
-        log.info("Number of users with birthday this month: {}", usersWithBirthdayThisMonth.size());
         if (usersWithBirthdayThisMonth.isEmpty()) {
             log.info("No users with birthday this month");
-        } else {
-            for (User user : usersWithBirthdayThisMonth) {
-                String redisKey = "birthday_coupon_issued_" + user.getUserId();
-                Boolean isCouponAlreadyIssued = redisTemplate.hasKey(redisKey);
-
-                if (Boolean.TRUE.equals(isCouponAlreadyIssued)) {
-                    log.info("Birthday coupon already issued for user: {}", user.getUserId());
-                    continue;
-                }
-
-                log.info("Sending birthday coupon for user: {}", user.getUserId());
-                messageProducer.sendBirthdayCouponMessage(user.getUserId());
-
-                redisTemplate.opsForValue().set(redisKey, "true", 31, TimeUnit.DAYS);
-            }
+            return;
         }
 
-        log.info("Scheduler finished - Birthday coupon scheduler completed");
+        for (User user : usersWithBirthdayThisMonth) {
+            String redisKey = "birthday_coupon_issued_" + user.getUserId();
+            Boolean isCouponAlreadyIssued = redisTemplate.hasKey(redisKey);
+
+            if (Boolean.TRUE.equals(isCouponAlreadyIssued)) {
+                continue;
+            }
+
+            messageProducer.sendBirthdayCouponMessage(user.getUserId());
+            redisTemplate.opsForValue().set(redisKey, "true", 31, TimeUnit.DAYS);
+        }
+
+        log.info("Birthday coupon scheduler completed for month: {}", currentMonth);
     }
 }
