@@ -22,23 +22,22 @@ public class BirthdayCouponScheduler {
     private final MessageProducer messageProducer;
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void scheduleBirthdayCoupons() {
         log.info("Scheduler started - Birthday coupon scheduler triggered");
 
         LocalDate today = LocalDate.now();
-        int month = today.getMonthValue();
-        int day = today.getDayOfMonth();
+        int currentMonth = today.getMonthValue();
 
-        log.info("Today's date: month={}, day={}", month, day);
+        log.info("Current month: {}", currentMonth);
 
-        List<User> usersWithBirthdayToday = userRepository.findUsersByBirthMonthAndDay(month, day);
+        List<User> usersWithBirthdayThisMonth = userRepository.findUsersByBirthMonth(currentMonth);
 
-        log.info("Number of users with birthday today: {}", usersWithBirthdayToday.size());
-        if (usersWithBirthdayToday.isEmpty()) {
-            log.info("No users with birthday today");
+        log.info("Number of users with birthday this month: {}", usersWithBirthdayThisMonth.size());
+        if (usersWithBirthdayThisMonth.isEmpty()) {
+            log.info("No users with birthday this month");
         } else {
-            for (User user : usersWithBirthdayToday) {
+            for (User user : usersWithBirthdayThisMonth) {
                 String redisKey = "birthday_coupon_issued_" + user.getUserId();
                 Boolean isCouponAlreadyIssued = redisTemplate.hasKey(redisKey);
 
