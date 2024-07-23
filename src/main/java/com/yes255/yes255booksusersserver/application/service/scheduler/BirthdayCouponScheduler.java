@@ -41,7 +41,6 @@ public class BirthdayCouponScheduler {
             if (Boolean.TRUE.equals(isCouponAlreadyIssued)) {
                 continue;
             }
-
             messageProducer.sendBirthdayCouponMessage(user.getUserId());
             redisTemplate.opsForValue().set(redisKey, "true", 31, TimeUnit.DAYS);
         }
