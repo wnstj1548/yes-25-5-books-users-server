@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "orderAdaptor", url = "${api.order-payment}/orders")
 public interface OrderAdaptor {

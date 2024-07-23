@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -31,14 +28,6 @@ public class Address {
         this.addressZip = addressZip;
         this.addressRaw = addressRaw;
 
-    }
-
-    public void updateAddressZip(String addressZip) {
-        this.addressZip = addressZip;
-    }
-
-    public void updateAddressRaw(String addressRaw) {
-        this.addressRaw = addressRaw;
     }
 }
 

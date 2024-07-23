@@ -102,22 +102,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
             .map(couponUser -> {
                 CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
-                return CouponBoxResponse.builder()
-                    .userCouponId(couponUser.getUserCouponId())
-                    .userCouponUsedAt(couponUser.getUserCouponUsedAt())
-                    .userCouponStatus(couponUser.getUserCouponStatus())
-                    .userCouponType(couponUser.getUserCouponType())
-                    .CouponExpiredAt(couponUser.getCouponExpiredAt())
-                    .couponId(couponUser.getCouponId())
-                    .userId(couponUser.getUser().getUserId())
-                    .couponName(couponInfoResponse.couponName())
-                    .couponMinAmount(couponInfoResponse.couponMinAmount())
-                    .couponMaxAmount(couponInfoResponse.couponMaxAmount())
-                    .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
-                    .couponDiscountRate(couponInfoResponse.couponDiscountRate())
-                    .couponCreatedAt(couponInfoResponse.couponCreatedAt())
-                    .couponCode(couponInfoResponse.couponCode())
-                    .build();
+                return CouponBoxResponse.fromCouponInfo(couponUser, couponInfoResponse);
             })
             .collect(Collectors.toList());
 
@@ -153,22 +138,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
             .map(couponUser -> {
                 CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
-                return CouponBoxResponse.builder()
-                    .userCouponId(couponUser.getUserCouponId())
-                    .userCouponUsedAt(couponUser.getUserCouponUsedAt())
-                    .userCouponStatus(couponUser.getUserCouponStatus())
-                    .userCouponType(couponUser.getUserCouponType())
-                    .couponId(couponUser.getCouponId())
-                    .CouponExpiredAt(couponUser.getCouponExpiredAt())
-                    .userId(couponUser.getUser().getUserId())
-                    .couponName(couponInfoResponse.couponName())
-                    .couponMinAmount(couponInfoResponse.couponMinAmount())
-                    .couponMaxAmount(couponInfoResponse.couponMaxAmount())
-                    .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
-                    .couponDiscountRate(couponInfoResponse.couponDiscountRate())
-                    .couponCreatedAt(couponInfoResponse.couponCreatedAt())
-                    .couponCode(couponInfoResponse.couponCode())
-                    .build();
+                return CouponBoxResponse.fromCouponInfo(couponUser, couponInfoResponse);
             })
             .collect(Collectors.toList());
 
@@ -329,18 +299,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
             .map(couponUser -> {
                 CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
-                return ReadUserCouponResponse.builder()
-                    .userCouponId(couponUser.getUserCouponId())
-                    .CouponExpiredAt(couponUser.getCouponExpiredAt())
-                    .couponId(couponUser.getCouponId())
-                    .couponName(couponInfoResponse.couponName())
-                    .couponMinAmount(couponInfoResponse.couponMinAmount())
-                    .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
-                    .couponDiscountRate(couponInfoResponse.couponDiscountRate())
-                    .bookId(couponInfoResponse.bookId())
-                    .categoryIds(couponInfoResponse.categoryIds())
-                    .applyCouponToAllBooks(couponInfoResponse.applyCouponToAllBooks())
-                    .build();
+                return ReadUserCouponResponse.fromCouponUser(couponUser, couponInfoResponse);
             })
             .toList();
     }
@@ -377,16 +336,7 @@ public class CouponUserServiceImpl implements CouponUserService {
             .sorted(Comparator.comparing(CouponUser::getCouponExpiredAt))
             .map(couponUser -> {
                 CouponInfoResponse couponInfoResponse = couponInfoMap.get(couponUser.getCouponId());
-                return CouponBoxResponse.builder()
-                    .couponId(couponUser.getCouponId())
-                    .CouponExpiredAt(couponUser.getCouponExpiredAt())
-                    .couponName(couponInfoResponse.couponName())
-                    .couponMinAmount(couponInfoResponse.couponMinAmount())
-                    .couponMaxAmount(couponInfoResponse.couponMaxAmount())
-                    .couponDiscountAmount(couponInfoResponse.couponDiscountAmount())
-                    .couponDiscountRate(couponInfoResponse.couponDiscountRate())
-                    .couponDiscountType(couponInfoResponse.couponDiscountType())
-                    .build();
+                return CouponBoxResponse.fromCouponUser(couponUser, couponInfoResponse);
             })
             .toList();
 

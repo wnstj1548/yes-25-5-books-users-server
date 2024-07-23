@@ -9,9 +9,7 @@ import com.yes255.yes255booksusersserver.common.exception.ValidationFailedExcept
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.presentation.dto.request.*;
-import com.yes255.yes255booksusersserver.presentation.dto.response.AuthorResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.validation.BindingResult;
@@ -33,7 +30,6 @@ import org.springframework.validation.BindingResult;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -179,6 +175,75 @@ class BookControllerTest {
         // then
         assertNotNull(exception);
     }
+
+    @DisplayName("책 생성 - 삭제된 책 복원")
+    @Test
+    void create_restoreDeletedBook() throws ParseException {
+        // given
+        CreateBookRequest request = new CreateBookRequest("1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "Publisher",
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), 100, "image.jpg", true);
+        List<Long> categoryIdList = List.of(1L, 2L);
+        List<Long> tagIdList = List.of(1L, 2L);
+
+        BookResponse existingDeletedBook = new BookResponse(1L, "1234567890", "Test Book", "Description", "bookAuthor1, bookAuthor2", "index", "Publisher",
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true, 4.4, true);
+
+        when(bookService.getBookByIsbn("1234567890")).thenReturn(existingDeletedBook);
+
+        UpdateBookRequest updateBookRequest = UpdateBookRequest.fromCreateBookRequest(request, existingDeletedBook.bookId());
+        BookResponse updatedBookResponse = new BookResponse(1L, "1234567890", "Updated Test Book", "Description", "bookAuthor1, bookAuthor2", "index", "Publisher",
+                sdf.parse("2020-01-01"), new BigDecimal("20.00"), new BigDecimal("15.99"), "image.jpg", 100, 0, 0, 0, true, 4.4, false);
+
+        when(bookService.updateBook(updateBookRequest)).thenReturn(updatedBookResponse);
+
+        // Mock bookCategoryService responses
+        when(bookCategoryService.getBookCategoryByBookId(1L)).thenReturn(Arrays.asList(
+                new BookCategoryResponse(1L, 1L, 1L),
+                new BookCategoryResponse(2L, 1L, 2L)
+        ));
+
+        // Mock bookTagService responses
+        when(bookTagService.getBookTagByBookId(1L)).thenReturn(Arrays.asList(
+                new BookTagResponse(1L, 1L, 1L),
+                new BookTagResponse(2L, 1L, 2L)
+        ));
+
+        // Mock bookAuthorService responses
+        when(bookAuthorService.getBookAuthorByBookId(1L)).thenReturn(Arrays.asList(
+                new BookAuthorResponse(1L, 1L, 1L),
+                new BookAuthorResponse(2L, 1L, 2L)
+        ));
+
+        // Mock authorService responses
+        when(authorService.getAuthorByName("bookAuthor1")).thenReturn(null);
+        when(authorService.createAuthor(any(CreateAuthorRequest.class))).thenReturn(new AuthorResponse(1L, "bookAuthor1"));
+        when(authorService.getAuthorByName("bookAuthor2")).thenReturn(null);
+        when(authorService.createAuthor(any(CreateAuthorRequest.class))).thenReturn(new AuthorResponse(2L, "bookAuthor2"));
+
+        // when
+        ResponseEntity<BookResponse> responseEntity = bookController.create(request, categoryIdList, tagIdList, mock(BindingResult.class));
+
+        // then
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(updatedBookResponse, responseEntity.getBody());
+
+        verify(bookService).updateBookIsDeleteFalse(1L);
+        verify(bookService).updateBook(updateBookRequest);
+
+        verify(bookCategoryService).removeBookCategory(1L);
+        verify(bookCategoryService).removeBookCategory(2L);
+        verify(bookCategoryService).createBookCategory(1L, 1L);
+        verify(bookCategoryService).createBookCategory(1L, 2L);
+
+        verify(bookTagService).removeBookTag(1L);
+        verify(bookTagService).removeBookTag(2L);
+        verify(bookTagService, times(2)).createBookTag(any(CreateBookTagRequest.class));
+
+        verify(bookAuthorService).removeBookAuthor(1L);
+        verify(bookAuthorService).removeBookAuthor(2L);
+        verify(bookAuthorService, times(2)).createBookAuthor(any(CreateBookAuthorRequest.class));
+    }
+
 
     @DisplayName("책 업데이트 - 성공")
     @Test

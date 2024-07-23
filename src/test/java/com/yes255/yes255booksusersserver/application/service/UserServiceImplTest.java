@@ -138,7 +138,7 @@ public class UserServiceImplTest {
                 .build();
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(testUser);
-        when(passwordEncoder.matches(password, testUser.getUserPassword())).thenReturn(true);
+        when(passwordEncoder.matches(request.password(), testUser.getUserPassword())).thenReturn(true);
 
         LoginUserResponse response = userService.findLoginUserByEmailByPassword(request);
 
@@ -178,7 +178,7 @@ public class UserServiceImplTest {
                 .build();
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(testUser);
-        when(passwordEncoder.matches(password, testUser.getUserPassword())).thenReturn(false);
+        when(passwordEncoder.matches(request.password(), testUser.getUserPassword())).thenReturn(false);
 
         UserException exception = assertThrows(UserException.class,
                 () -> userService.findLoginUserByEmailByPassword(request));
@@ -200,9 +200,11 @@ public class UserServiceImplTest {
         // 탈퇴한 회원을 설정
         User withdrawnUser = User.builder()
                 .userState(UserState.builder().userStateName("WITHDRAWAL").build())
+                .userPassword(password)
                 .build();
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(withdrawnUser);
+        when(passwordEncoder.matches(request.password(), withdrawnUser.getUserPassword())).thenReturn(true);
 
         UserException exception = assertThrows(UserException.class,
                 () -> userService.findLoginUserByEmailByPassword(request));
@@ -224,9 +226,11 @@ public class UserServiceImplTest {
         // 휴면 상태의 회원 설정
         User inactiveUser = User.builder()
                 .userState(UserState.builder().userStateName("INACTIVE").build())
+                .userPassword(password)
                 .build();
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(inactiveUser);
+        when(passwordEncoder.matches(request.password(), inactiveUser.getUserPassword())).thenReturn(true);
 
         ApplicationException exception = assertThrows(ApplicationException.class,
                 () -> userService.findLoginUserByEmailByPassword(request));
@@ -254,6 +258,7 @@ public class UserServiceImplTest {
                 .build();
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(inactiveUser);
+        when(passwordEncoder.matches(request.password(), inactiveUser.getUserPassword())).thenReturn(true);
 
         doNothing().when(inactiveStateService).updateInActiveState(inactiveUser.getUserId());
 

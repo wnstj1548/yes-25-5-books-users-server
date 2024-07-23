@@ -12,6 +12,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.BookIndexResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -147,33 +148,37 @@ public class BookSearchServiceImpl implements BookSearchService {
         return result;
     }
 
-    @Scheduled(cron = "0 30 * * * ?")
+    @Scheduled(cron = "0 56 * * * ?")
     public void syncBook() {
         log.info("book sync start");
-        List<BookIndex> bookDeletedList = jpaBookRepository.findByBookIsDeletedTrue().stream().map(BookIndex::fromBook).toList();
+        LocalDateTime lastBookSyncTime = LocalDateTime.now().minusHours(1);
+        List<BookIndex> bookDeletedList = jpaBookRepository.findByBookIsDeletedTrueAndLastModifiedAfter(lastBookSyncTime).stream().map(BookIndex::fromBook).toList();
         bookElasticSearchRepository.deleteAll(bookDeletedList);
-        List<BookIndex> bookIndexList = jpaBookRepository.findByBookIsDeletedFalse().stream().map(BookIndex::fromBook).toList();
+        List<BookIndex> bookIndexList = jpaBookRepository.findByBookIsDeletedFalseAndLastModifiedAfter(lastBookSyncTime).stream().map(BookIndex::fromBook).toList();
         bookElasticSearchRepository.saveAll(fetchAuthorsAndTags(bookIndexList));
     }
 
-    @Scheduled(cron = "0 29 * * * ?")
+    @Scheduled(cron = "0 55 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
-        List<TagIndex> tagIndexList = jpaTagRepository.findAll().stream().map(TagIndex::fromTag).toList();
+        LocalDateTime lastTagSyncTime = LocalDateTime.now().minusHours(1);
+        List<TagIndex> tagIndexList = jpaTagRepository.findByLastModifiedAfter(lastTagSyncTime).stream().map(TagIndex::fromTag).toList();
         tagElasticSearchRepository.saveAll(tagIndexList);
     }
 
-    @Scheduled(cron = "0 29 * * * ?")
+    @Scheduled(cron = "0 55 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
-        List<AuthorIndex> authorIndexList = jpaAuthorRepository.findAll().stream().map(AuthorIndex::fromAuthor).toList();
+        LocalDateTime lastAuthorSyncTime = LocalDateTime.now().minusHours(1);
+        List<AuthorIndex> authorIndexList = jpaAuthorRepository.findByLastModifiedAfter(lastAuthorSyncTime).stream().map(AuthorIndex::fromAuthor).toList();
         authorElasticSearchRepository.saveAll(authorIndexList);
     }
 
-    @Scheduled(cron = "0 29 * * * ?")
+    @Scheduled(cron = "0 55 * * * ?")
     public void syncCategory() {
         log.info("category sync start");
-        List<CategoryIndex> categoryIndexList = jpaCategoryRepository.findAll().stream().map(CategoryIndex::fromCategory).toList();
+        LocalDateTime lastCategorySyncTime = LocalDateTime.now().minusHours(1);
+        List<CategoryIndex> categoryIndexList = jpaCategoryRepository.findByLastModifiedAfter(lastCategorySyncTime).stream().map(CategoryIndex::fromCategory).toList();
         categoryElasticSearchRepository.saveAll(categoryIndexList);
     }
 

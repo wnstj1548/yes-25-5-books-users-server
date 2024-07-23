@@ -6,8 +6,6 @@ import com.yes255.yes255booksusersserver.presentation.dto.response.pointpolicy.P
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface PointPolicyService {
 
     // 포인트 정책 작성 (적립 금액)

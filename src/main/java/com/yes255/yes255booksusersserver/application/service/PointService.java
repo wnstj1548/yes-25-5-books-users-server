@@ -10,7 +10,7 @@ public interface PointService {
     PointResponse findPointByUserId(Long userId);
 
     // 구매시 포인트 업데이트하고 현재 포인트 반환
-    UpdatePointResponse updatePointByUserId(Long UserId, UpdatePointRequest pointRequest);
+    UpdatePointResponse updatePointByUserId(Long userId, UpdatePointRequest pointRequest);
 
     void updatePointByRefund(Long userId, UpdateRefundRequest updateRefundRequest);
 }

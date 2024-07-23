@@ -94,6 +94,7 @@ public class LikesServiceImpl implements LikesService {
         return jpaLikesRepository.existsByUserAndBook(user, book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public LikesResponse getLikeByBookIdAndUserId(Long bookId, Long userId) {
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("책을 찾을 수 없습니다.", 404, LocalDateTime.now())));

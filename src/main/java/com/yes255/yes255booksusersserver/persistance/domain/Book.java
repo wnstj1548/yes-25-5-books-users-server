@@ -1,6 +1,8 @@
 package com.yes255.yes255booksusersserver.persistance.domain;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -9,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -18,6 +23,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "book")
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
 
     @Id
@@ -75,6 +81,10 @@ public class Book {
     @OneToMany(mappedBy = "book", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Review> reviews = new ArrayList<>();
 
+    @LastModifiedDate
+    @Column(name = "last_modified")
+    private LocalDateTime lastModified;
+
     @Builder
     public Book(Long bookId, String bookIsbn, String bookName, String bookDescription,
                 String bookPublisher, Date bookPublishDate,
@@ -96,6 +106,7 @@ public class Book {
         this.searchCount = searchCount;
         this.bookIsPackable = bookIsPackable;
         this.bookIsDeleted = bookIsDeleted;
+        this.lastModified = LocalDateTime.now();
     }
 
     public void updateAll(Book book) {
