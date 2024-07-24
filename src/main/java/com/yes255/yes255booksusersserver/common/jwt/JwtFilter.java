@@ -3,8 +3,7 @@ package com.yes255.yes255booksusersserver.common.jwt;
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.common.exception.JwtException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.infrastructure.adaptor.AuthAdaptor;
-import com.yes255.yes255booksusersserver.presentation.dto.response.user.JwtAuthResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.LoginUserResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +25,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final CustomerService customerService;
-    private final AuthAdaptor authAdaptor;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -48,20 +46,19 @@ public class JwtFilter extends OncePerRequestFilter {
         //토큰이 있으면 받고 없으면 바로 리턴
         if (path.matches("/books/likes/\\d+/exist") || path.matches("/users/coupons/claim")) {
             try {
-                String token = getToken(request);
-                String uuid = jwtProvider.getUserNameFromToken(token);
-                JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
+                String token = getAccessToken(request);
+                LoginUserResponse user = jwtProvider.getLoginUserFromToken(token);
 
-                JwtUserDetails jwtUserDetails = JwtUserDetails.of(jwtAuthResponse.customerId(),
-                        jwtAuthResponse.role(), token);
+                JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.userId(),
+                        user.userRole(), token);
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         jwtUserDetails, null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.userRole()))
                 );
 
                 response.setHeader("Authorization", "Bearer " + token);
-                response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
+                response.setHeader("Refresh-Token", request.getHeader("Refresh-Token"));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 filterChain.doFilter(request, response);
@@ -83,27 +80,26 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = getToken(request);
-        String uuid = jwtProvider.getUserNameFromToken(token);
-        JwtAuthResponse jwtAuthResponse = authAdaptor.getUserInfoByUUID(uuid);
+        String token = getAccessToken(request);
+        LoginUserResponse user = jwtProvider.getLoginUserFromToken(token);
 
-        JwtUserDetails jwtUserDetails = JwtUserDetails.of(jwtAuthResponse.customerId(),
-                jwtAuthResponse.role(), token);
+        JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.userId(),
+                user.userRole(), token);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 jwtUserDetails, null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + jwtAuthResponse.role()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.userRole()))
         );
 
         response.setHeader("Authorization", "Bearer " + token);
-        response.setHeader("Refresh-Token", jwtAuthResponse.refreshJwt());
+        response.setHeader("Refresh-Token", request.getHeader("Refresh-Token"));
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
     }
 
-    private String getToken(HttpServletRequest request) {
+    private String getAccessToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
