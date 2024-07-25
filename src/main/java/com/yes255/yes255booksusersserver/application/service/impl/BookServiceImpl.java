@@ -295,6 +295,7 @@ public class BookServiceImpl implements BookService {
             case "high-price" -> Comparator.comparing(BookResponse::bookSellingPrice).reversed();
             case "grade" -> Comparator.comparing(BookResponse::grade);
             case "review" -> Comparator.comparingInt(BookResponse::reviewCount).reversed();
+            case "new-product" -> Comparator.comparing(BookResponse::bookPublishDate).reversed();
             default -> Comparator.comparingInt(BookResponse::hitsCount).reversed();
         };
     }

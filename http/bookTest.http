@@ -53,3 +53,7 @@ Content-Type: application/json
 ###
 GET localhost:8061/books/5/addHitsCount
 Content-Type: application/json
+
+###
+GET localhost:8061/books/search?query=조선
+Content-Type: application/json

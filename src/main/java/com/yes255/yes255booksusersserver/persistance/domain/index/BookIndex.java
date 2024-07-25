@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -74,6 +75,10 @@ public class BookIndex {
     @Field(name = "categories", type = FieldType.Text, analyzer = "korean")
     private List<String> categories;
 
+    @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
+    private Date publishDate;
+
+
     public static BookIndex updateAuthorsAndTagsAndCategory(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags, List<CategoryIndex> categories) {
         return BookIndex.builder()
                 .bookId(book.getBookId())
@@ -94,6 +99,7 @@ public class BookIndex {
                 .authors(authors.stream().map(AuthorIndex::getAuthorName).toList())
                 .tags(tags.stream().map(TagIndex::getTagName).toList())
                 .categories(categories.stream().map(CategoryIndex::getCategoryName).toList())
+                .publishDate(book.getPublishDate())
                 .build();
     }
 
@@ -114,6 +120,7 @@ public class BookIndex {
                 .bookIsPackable(book.isBookIsPackable())
                 .bookIsDeleted(book.isBookIsDeleted())
                 .grade(book.getReviews().stream().mapToDouble(Review::getRating).average().orElse(0))
+                .publishDate(book.getBookPublishDate())
                 .build();
     }
 }
