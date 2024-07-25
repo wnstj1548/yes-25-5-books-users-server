@@ -148,7 +148,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         return result;
     }
 
-    @Scheduled(cron = "0 56 * * * ?")
+    @Scheduled(cron = "0 38 * * * ?")
     public void syncBook() {
         log.info("book sync start");
         LocalDateTime lastBookSyncTime = LocalDateTime.now().minusHours(1);
@@ -158,7 +158,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         bookElasticSearchRepository.saveAll(fetchAuthorsAndTags(bookIndexList));
     }
 
-    @Scheduled(cron = "0 55 * * * ?")
+    @Scheduled(cron = "0 37 * * * ?")
     public void syncTag() {
         log.info("tag sync start");
         LocalDateTime lastTagSyncTime = LocalDateTime.now().minusHours(1);
@@ -166,7 +166,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         tagElasticSearchRepository.saveAll(tagIndexList);
     }
 
-    @Scheduled(cron = "0 55 * * * ?")
+    @Scheduled(cron = "0 37 * * * ?")
     public void syncAuthor() {
         log.info("author sync start");
         LocalDateTime lastAuthorSyncTime = LocalDateTime.now().minusHours(1);
@@ -174,7 +174,7 @@ public class BookSearchServiceImpl implements BookSearchService {
         authorElasticSearchRepository.saveAll(authorIndexList);
     }
 
-    @Scheduled(cron = "0 55 * * * ?")
+    @Scheduled(cron = "0 37 * * * ?")
     public void syncCategory() {
         log.info("category sync start");
         LocalDateTime lastCategorySyncTime = LocalDateTime.now().minusHours(1);
@@ -195,6 +195,12 @@ public class BookSearchServiceImpl implements BookSearchService {
                 break;
             case "review":
                 sort = Sort.by(Sort.Order.desc("reviewCount"));
+                break;
+            case "grade":
+                sort = Sort.by(Sort.Order.desc("grade"));
+                break;
+            case "new-product":
+                sort = Sort.by(Sort.Order.desc("publishDate"));
                 break;
             case "popularity":
             default:
