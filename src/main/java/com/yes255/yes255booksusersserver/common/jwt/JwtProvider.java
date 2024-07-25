@@ -2,6 +2,7 @@ package com.yes255.yes255booksusersserver.common.jwt;
 
 import com.yes255.yes255booksusersserver.common.exception.JwtException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.presentation.dto.response.JwtAuthResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -14,7 +15,6 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import com.yes255.yes255booksusersserver.presentation.dto.response.LoginUserResponse;
 
 @Component
 public class JwtProvider {
@@ -57,7 +57,7 @@ public class JwtProvider {
                 .getPayload();
     }
 
-    public LoginUserResponse getLoginUserFromToken(String token) {
+    public JwtAuthResponse getJwtAuthFromToken(String token) {
         try {
             Claims claims = parseToken(token);
 
@@ -65,7 +65,10 @@ public class JwtProvider {
             String userRole = claims.get("userRole", String.class);
             String loginStatusName = claims.get("loginStatus", String.class);
 
-            return new LoginUserResponse(userId, userRole, loginStatusName);
+            return JwtAuthResponse.builder()
+                    .customerId(userId)
+                    .role(userRole)
+                    .loginStateName(loginStatusName).build();
         } catch (ExpiredJwtException e) {
             throw new JwtException(ErrorStatus.toErrorStatus("JWT token is expired", 401, LocalDateTime.now()));
         } catch (Exception e) {

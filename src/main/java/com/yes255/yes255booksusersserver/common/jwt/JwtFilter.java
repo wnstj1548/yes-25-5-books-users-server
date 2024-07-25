@@ -3,7 +3,7 @@ package com.yes255.yes255booksusersserver.common.jwt;
 import com.yes255.yes255booksusersserver.application.service.CustomerService;
 import com.yes255.yes255booksusersserver.common.exception.JwtException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
-import com.yes255.yes255booksusersserver.presentation.dto.response.LoginUserResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.response.JwtAuthResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,14 +47,14 @@ public class JwtFilter extends OncePerRequestFilter {
         if (path.matches("/books/likes/\\d+/exist") || path.matches("/users/coupons/claim")) {
             try {
                 String token = getAccessToken(request);
-                LoginUserResponse user = jwtProvider.getLoginUserFromToken(token);
+                JwtAuthResponse user = jwtProvider.getJwtAuthFromToken(token);
 
-                JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.userId(),
-                        user.userRole(), token);
+                JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.customerId(),
+                        user.role(), token);
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         jwtUserDetails, null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.userRole()))
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.role()))
                 );
 
                 response.setHeader("Authorization", "Bearer " + token);
@@ -81,14 +81,14 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String token = getAccessToken(request);
-        LoginUserResponse user = jwtProvider.getLoginUserFromToken(token);
+        JwtAuthResponse user = jwtProvider.getJwtAuthFromToken(token);
 
-        JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.userId(),
-                user.userRole(), token);
+        JwtUserDetails jwtUserDetails = JwtUserDetails.of(user.customerId(),
+                user.role(), token);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 jwtUserDetails, null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.userRole()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.role()))
         );
 
         response.setHeader("Authorization", "Bearer " + token);
