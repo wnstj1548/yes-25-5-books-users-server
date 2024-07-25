@@ -8,19 +8,19 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 public interface BookElasticSearchRepository extends ElasticsearchRepository<BookIndex, String> {
 
-    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_name\": \"*?0*\"}}]}}")
+    @Query("{\"bool\": { \"must\": [ {\"match\": {\"book_name\": \"?0\"}}]}}")
     Page<BookIndex> findByBookNameContainsIgnoreCase(String keyword, Pageable pageable);
 
-    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"book_description\": \"*?0*\"}}]}}")
+    @Query("{\"bool\": { \"must\": [ {\"match\": {\"book_description\": \"?0\"}}]}}")
     Page<BookIndex> findByBookDescriptionContainsIgnoreCase(String bookDescription, Pageable pageable);
 
-    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"authors\": \"*?0*\"}}]}}")
+    @Query("{\"bool\": { \"must\": [ {\"match\": {\"authors\": \"?0\"}}]}}")
     Page<BookIndex> findByAuthorsContainingIgnoreCase(String authorName, Pageable pageable);
 
-    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"tags\": \"*?0*\"}}]}}")
+    @Query("{\"bool\": { \"must\": [ {\"match\": {\"tags\": \"?0\"}}]}}")
     Page<BookIndex> findByTagsContainingIgnoreCase(String tagName, Pageable pageable);
 
-    @Query("{\"bool\": { \"must\": [ {\"wildcard\": {\"categories\": \"*?0*\"}}]}}")
+    @Query("{\"bool\": { \"must\": [ {\"match\": {\"categories\": \"?0\"}}]}}")
     Page<BookIndex> findByCategoriesContainingIgnoreCase(String categoryName, Pageable pageable);
 
     @Query("{\"multi_match\": {" +
