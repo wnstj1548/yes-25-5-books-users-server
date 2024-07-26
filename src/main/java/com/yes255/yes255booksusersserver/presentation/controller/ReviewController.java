@@ -57,14 +57,16 @@ public class ReviewController {
     @GetMapping("/books/{bookId}")
     public ResponseEntity<Page<ReadReviewResponse>> getReviews(@PathVariable Long bookId,
         Pageable pageable) {
-        return ResponseEntity.ok(reviewService.getReviewsByPaging(bookId, pageable));
+        return ResponseEntity.ok()
+            .body(reviewService.getReviewsByPaging(bookId, pageable));
     }
 
     @Operation(summary = "도서 리뷰 평점 조회", description = "특정 도서의 리뷰 평점을 조회합니다.")
     @GetMapping("/books/{bookId}/ratings")
     public ResponseEntity<List<ReadReviewRatingResponse>> getReviewRatings(
         @PathVariable Long bookId) {
-        return ResponseEntity.ok(reviewService.getReviewRatingsByBookId(bookId));
+        return ResponseEntity.ok()
+            .body(reviewService.getReviewRatingsByBookId(bookId));
     }
 
     @Operation(summary = "리뷰 수정", description = "특정 회원의 리뷰를 수정합니다.")
