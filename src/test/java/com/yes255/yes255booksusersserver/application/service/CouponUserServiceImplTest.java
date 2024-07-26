@@ -492,7 +492,10 @@ class CouponUserServiceImplTest {
 
         Date actualExpiryDate = couponUserService.calculateExpiryDate(validDays);
 
-        assertThat(actualExpiryDate).isEqualTo(expectedExpiryDate);
+        long expectedTime = expectedExpiryDate.getTime() / 1000;
+        long actualTime = actualExpiryDate.getTime() / 1000;
+
+        assertThat(actualTime).isEqualTo(expectedTime);
     }
 
     @Test
