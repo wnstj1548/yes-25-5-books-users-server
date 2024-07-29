@@ -2,7 +2,9 @@ package com.yes255.yes255booksusersserver.common.jwt;
 
 import com.yes255.yes255booksusersserver.common.exception.JwtException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
+import com.yes255.yes255booksusersserver.presentation.dto.response.JwtAuthResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -26,11 +28,12 @@ public class JwtProvider {
 
     public boolean isValidToken(String token) {
         try {
-            Jws<Claims> claimJets = Jwts.parserBuilder().setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token);
+            Jws<Claims> claimJets = Jwts.parser()
+                                    .verifyWith(secretKey)
+                                    .build()
+                                    .parseSignedClaims(token);
 
-            Claims claims = claimJets.getBody();
+            Claims claims = claimJets.getPayload();
 
             if (claims.getExpiration().before(new Date())) {
                 throw new JwtException(
@@ -46,12 +49,30 @@ public class JwtProvider {
         }
     }
 
-    public String getUserNameFromToken(String token) {
-        return (String) Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+    private Claims parseToken(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public JwtAuthResponse getJwtAuthFromToken(String token) {
+        try {
+            Claims claims = parseToken(token);
+
+            Long userId = claims.get("userId", Long.class);
+            String userRole = claims.get("userRole", String.class);
+            String loginStatusName = claims.get("loginStatus", String.class);
+
+            return JwtAuthResponse.builder()
+                    .customerId(userId)
+                    .role(userRole)
+                    .loginStateName(loginStatusName).build();
+        } catch (ExpiredJwtException e) {
+            throw new JwtException(ErrorStatus.toErrorStatus("JWT token is expired", 401, LocalDateTime.now()));
+        } catch (Exception e) {
+            throw new JwtException(ErrorStatus.toErrorStatus("Invalid JWT token", 401, LocalDateTime.now()));
+        }
     }
 }
