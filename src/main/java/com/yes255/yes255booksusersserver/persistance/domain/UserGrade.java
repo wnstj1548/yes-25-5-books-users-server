@@ -21,7 +21,7 @@ public class UserGrade {
     @Column(nullable = false, length = 10)
     private String userGradeName;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "point_policy_id")
     private PointPolicy pointPolicy;
 

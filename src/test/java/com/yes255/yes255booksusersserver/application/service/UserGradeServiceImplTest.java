@@ -148,7 +148,7 @@ class UserGradeServiceImplTest {
 
     @Test
     @DisplayName("매달 1일 회원 등급 갱신 - 성공")
-    void testUpdateMonthlyGrades() {
+    void testUpdateMonthlyGrades_Success() {
         OrderLogResponse orderLogResponse = new OrderLogResponse(1L, new BigDecimal("2000"));
 
         UserGrade pointPolicyGrade = UserGrade.builder()
@@ -160,12 +160,24 @@ class UserGradeServiceImplTest {
 
         when(userGradeLogRepository.findFirstByUserUserIdOrderByUserGradeUpdatedAtDesc(anyLong()))
                 .thenReturn(Optional.of(UserGradeLog.builder().userGradeUpdatedAt(LocalDate.now().minusMonths(3)).build()));
-        when(userRepository.findById(orderLogResponse.customerId())).thenReturn(Optional.of(testUser));
         when(userGradeRepository.findByPointPolicyPointPolicyState(true)).thenReturn(new ArrayList<>(List.of(testUserGrade, pointPolicyGrade)));
         when(orderAdaptor.getOrderLogs(any())).thenReturn(Collections.singletonList(orderLogResponse));
+        when(userRepository.findByUserIdIn(anyList())).thenReturn(Collections.singletonList(testUser));
 
         userGradeService.updateMonthlyGrades();
 
         verify(userTotalPureAmountRepository, times(1)).save(any());
+        verify(userRepository, times(1)).save(testUser);
+        verify(userGradeLogRepository, times(1)).save(any(UserGradeLog.class));
+    }
+
+    @Test
+    @DisplayName("매달 1일 회원 등급 갱신 - 실패 (회원 미존재)")
+    void testUpdateMonthlyGrades_UserNotFound() {
+        OrderLogResponse orderLogResponse = new OrderLogResponse(1L, new BigDecimal("2000"));
+
+        when(orderAdaptor.getOrderLogs(any())).thenReturn(Collections.singletonList(orderLogResponse));
+
+        assertThrows(UserException.class, () -> userGradeService.updateMonthlyGrades());
     }
 }

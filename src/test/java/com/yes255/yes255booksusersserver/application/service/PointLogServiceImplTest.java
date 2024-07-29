@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class PointLogServiceImplTest {
+class PointLogServiceImplTest {
 
     @Mock
     private JpaPointLogRepository pointLogRepository;

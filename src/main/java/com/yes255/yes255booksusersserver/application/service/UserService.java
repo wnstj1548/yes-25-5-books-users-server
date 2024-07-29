@@ -16,13 +16,15 @@ public interface UserService {
 
     UserResponse findUserByUserId(Long userId);
 
-    List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest, Pageable pageable);
+    List<FindUserResponse> findAllUserEmailByUserNameByUserPhone(FindEmailRequest emailRequest);
 
     UserResponse createUser(CreateUserRequest userRequest);
 
     UpdateUserResponse updateUser(Long userId, UpdateUserRequest userRequest);
 
     void deleteUser(Long userId, DeleteUserRequest userRequest);
+
+    boolean checkUserPassword(Long userId, CheckPasswordRequest passwordRequest);
 
     void updateLastLoginDate(Long userId);
 

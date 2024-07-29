@@ -247,7 +247,7 @@ class CouponUserServiceImplTest {
 
         Page<CouponBoxResponse> response = couponUserService.getStateUserCoupons(1L, CouponUser.UserCouponStatus.ACTIVE, PageRequest.of(0, 10));
 
-        assertThat(response.getTotalElements()).isEqualTo(0);
+        assertThat(response.getTotalElements()).isZero();
     }
 
     @Test

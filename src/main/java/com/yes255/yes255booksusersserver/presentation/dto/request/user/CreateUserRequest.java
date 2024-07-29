@@ -10,7 +10,6 @@ import lombok.Builder;
 public record CreateUserRequest(String userName,
                                 LocalDate userBirth,
                                 String userEmail,
-                                @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "유효한 전화번호 형식이 아닙니다. 010-1234-5678 형식을 따라야 합니다.")
                                 String userPhone,
                                 String userPassword,
                                 String userConfirmPassword,
@@ -22,43 +21,26 @@ public record CreateUserRequest(String userName,
         }
 
         if ("PAYCO".equals(providerName)) {
-            if (!isValidPaycoId(userEmail)) {
-                throw new IllegalArgumentException("PAYCO 식별 ID 형식이 아닙니다.");
-            }
             userPassword = userEmail;
             userConfirmPassword = userEmail;
         }
         else {
+            if (!isValidPhone(userPhone)) {
+                throw new IllegalArgumentException("유효한 전화번호 형식이 아닙니다. 010-1234-5678 형식을 따라야 합니다.");
+            }
             if (!isValidEmail(userEmail)) {
                 throw new IllegalArgumentException("유효한 이메일 형식이 아닙니다. yes255@shop.net 형식을 따라야 합니다.");
             }
         }
     }
 
+    private static boolean isValidPhone(String phone) {
+        String phoneRegex = "^010-\\d{4}-\\d{4}$";
+        return java.util.regex.Pattern.matches(phoneRegex, phone);
+    }
+
     private static boolean isValidEmail(String email) {
         String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         return java.util.regex.Pattern.compile(emailRegex).matcher(email).matches();
     }
-
-    private static boolean isValidPaycoId(String id) {
-        // PAYCO ID의 구체적인 형식에 맞춰 정규식을 조정할 수 있습니다.
-        //String paycoIdRegex = "^[a-z; ]{6,30}$";
-        //return java.util.regex.Pattern.compile(paycoIdRegex).matcher(id).matches();
-        return true;
-    }
-
-    public User toEntity(Customer customer, Provider provider, UserState userState, UserGrade userGrade) {
-        return User.builder()
-                .customer(customer)
-                .userName(userName)
-                .userBirth(userBirth)
-                .userEmail(userEmail)
-                .userPhone(userPhone)
-                .provider(provider)
-                .userState(userState)
-                .userGrade(userGrade)
-                .userPassword(userPassword)
-                .build();
-    }
 }
-

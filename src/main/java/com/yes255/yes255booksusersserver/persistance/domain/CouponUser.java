@@ -39,7 +39,7 @@ public class CouponUser {
     @Column(nullable = false)
     private Long couponId;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

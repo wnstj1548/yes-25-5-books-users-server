@@ -6,7 +6,6 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Builder
 public record ReadUserCouponResponse(Long userCouponId, Date CouponExpiredAt, Long couponId, String couponName,
