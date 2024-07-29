@@ -12,11 +12,7 @@ import com.yes255.yes255booksusersserver.application.service.impl.UserServiceImp
 import com.yes255.yes255booksusersserver.application.service.queue.producer.MessageProducer;
 import com.yes255.yes255booksusersserver.common.exception.*;
 import com.yes255.yes255booksusersserver.infrastructure.adaptor.CouponAdaptor;
-import com.yes255.yes255booksusersserver.persistance.domain.Customer;
-import com.yes255.yes255booksusersserver.persistance.domain.Provider;
-import com.yes255.yes255booksusersserver.persistance.domain.User;
-import com.yes255.yes255booksusersserver.persistance.domain.UserGrade;
-import com.yes255.yes255booksusersserver.persistance.domain.UserState;
+import com.yes255.yes255booksusersserver.persistance.domain.*;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCustomerRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointLogRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaPointPolicyRepository;
@@ -28,15 +24,10 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserGradeRepo
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserStateRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPureAmountRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.CreateUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.DeleteUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindEmailRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.FindPasswordRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.LoginUserRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdatePasswordRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.user.UpdateUserRequest;
+import com.yes255.yes255booksusersserver.presentation.dto.request.user.*;
 import com.yes255.yes255booksusersserver.presentation.dto.response.user.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -49,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -316,10 +306,10 @@ public class UserServiceImplTest {
                 .phone(userPhone)
                 .build();
 
-        when(userRepository.findAllByUserNameAndUserPhone(userName, userPhone, Pageable.unpaged()))
+        when(userRepository.findAllByUserNameAndUserPhone(userName, userPhone))
                 .thenReturn(Collections.singletonList(testUser));
 
-        List<FindUserResponse> responses = userService.findAllUserEmailByUserNameByUserPhone(request, Pageable.unpaged());
+        List<FindUserResponse> responses = userService.findAllUserEmailByUserNameByUserPhone(request);
 
         assertFalse(responses.isEmpty());
         assertEquals(testUser.getUserEmail(), responses.getFirst().userEmail());
@@ -336,11 +326,11 @@ public class UserServiceImplTest {
                 .phone(userPhone)
                 .build();
 
-        when(userRepository.findAllByUserNameAndUserPhone(userName, userPhone, Pageable.unpaged()))
+        when(userRepository.findAllByUserNameAndUserPhone(userName, userPhone))
                 .thenReturn(null);
 
         UserException exception = assertThrows(UserException.class,
-                () -> userService.findAllUserEmailByUserNameByUserPhone(request, Pageable.unpaged()));
+                () -> userService.findAllUserEmailByUserNameByUserPhone(request));
 
         assertEquals("회원이 존재 하지 않습니다.", exception.getErrorStatus().message());
     }
@@ -389,15 +379,30 @@ public class UserServiceImplTest {
                 .userPassword("encodedPassword")
                 .build();
 
+        Point testPoint = Point.builder()
+                .pointCurrent(BigDecimal.ZERO)
+                .user(testUser)
+                .build();
+
+        PointPolicy testPolicy = PointPolicy.builder()
+                .pointPolicyName("SIGN-UP")
+                .pointPolicyApplyAmount(BigDecimal.valueOf(1000))
+                .pointPolicyCondition("SIGN-UP")
+                .build();
+
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
         when(providerRepository.findByProviderName("LOCAL")).thenReturn(provider);
         when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(userState);
         when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(userGrade);
         when(passwordEncoder.encode(request.userPassword())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(pointPolicyRepository.findByPointPolicyName("SIGN-UP")).thenReturn(testPolicy);
+        when(pointRepository.save(any(Point.class))).thenReturn(testPoint);
+
 
         // Stubbing behavior for messageProducer
         doNothing().when(messageProducer).sendWelcomeCouponMessage(testUser.getUserId());
+
 
         // When
         UserResponse response = userService.createUser(request);
@@ -409,6 +414,127 @@ public class UserServiceImplTest {
         assertEquals("010-1234-5678", response.userPhone());
         assertNotNull(response.userRegisterDate());
         assertNotNull(response.userPassword()); // Assuming you need to assert this
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 성공 (PAYCO)")
+    void testCreateUserWithPAYCO() {
+        // Given
+        CreateUserRequest request = CreateUserRequest.builder()
+                .userName("PAYCO User")
+                .userBirth(LocalDate.of(2000, 1, 1))
+                .userEmail("payco@example.com")
+                .userPhone("010-1234-5678")
+                .providerName("PAYCO")
+                .build();
+
+        Customer customer = Customer.builder()
+                .userRole("MEMBER")
+                .build();
+
+        Provider provider = Provider.builder()
+                .providerId(1L)
+                .providerName("PAYCO")
+                .build();
+
+        UserState userState = UserState.builder()
+                .userStateId(1L)
+                .userStateName("ACTIVE")
+                .build();
+
+        UserGrade userGrade = UserGrade.builder()
+                .userGradeId(1L)
+                .userGradeName("NORMAL")
+                .build();
+
+        User testUser = User.builder()
+                .userName(request.userName())
+                .userBirth(request.userBirth())
+                .userEmail(request.userEmail())
+                .userPhone(request.userPhone())
+                .provider(provider)
+                .userState(userState)
+                .userGrade(userGrade)
+                .userPassword("encodedPassword")
+                .build();
+
+        Point testPoint = Point.builder()
+                .pointCurrent(BigDecimal.ZERO)
+                .user(testUser)
+                .build();
+
+        PointPolicy testPolicy = PointPolicy.builder()
+                .pointPolicyName("SIGN-UP")
+                .pointPolicyApplyAmount(BigDecimal.valueOf(1000))
+                .pointPolicyCondition("SIGN-UP")
+                .build();
+
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+        when(providerRepository.findByProviderName("PAYCO")).thenReturn(provider);
+        when(userStateRepository.findByUserStateName("ACTIVE")).thenReturn(userState);
+        when(userGradeRepository.findByUserGradeName("NORMAL")).thenReturn(userGrade);
+        when(passwordEncoder.encode(request.userPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(pointPolicyRepository.findByPointPolicyName("SIGN-UP")).thenReturn(testPolicy);
+        when(pointRepository.save(any(Point.class))).thenReturn(testPoint);
+
+        doNothing().when(messageProducer).sendWelcomeCouponMessage(testUser.getUserId());
+
+        // When
+        UserResponse response = userService.createUser(request);
+
+        // Then
+        assertNotNull(response);
+        assertEquals("PAYCO User", response.userName());
+        assertEquals("payco@example.com", response.userEmail());
+        assertEquals("010-1234-5678", response.userPhone());
+        assertNotNull(response.userRegisterDate());
+        assertNotNull(response.userPassword());
+
+        verify(pointPolicyRepository).findByPointPolicyName("SIGN-UP");
+        verify(pointRepository).save(testPoint);
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (유효하지 않은 이메일)")
+    void testCreateUserWithInvalidEmail() {
+
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            // Given
+            userService.createUser(CreateUserRequest.builder()
+                    .userName("Test User")
+                    .userBirth(LocalDate.of(2000, 1, 1))
+                    .userEmail("invalid-email") // 유효하지 않은 이메일
+                    .userPhone("010-1234-5678")
+                    .userPassword("password123")
+                    .userConfirmPassword("password123")
+                    .providerName("LOCAL")
+                    .build());
+        });
+
+        assertEquals("유효한 이메일 형식이 아닙니다. yes255@shop.net 형식을 따라야 합니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원 가입 - 실패 (유효하지 않은 전화번호)")
+    void testCreateUserWithInvalidPhone() {
+
+        // When & Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            // Given
+            userService.createUser(CreateUserRequest.builder()
+                    .userName("Test User")
+                    .userBirth(LocalDate.of(2000, 1, 1))
+                    .userEmail("test@example.com")
+                    .userPhone("012-345-6789") // 유효하지 않은 전화번호
+                    .userPassword("password123")
+                    .userConfirmPassword("password123")
+                    .providerName("LOCAL")
+                    .build());
+        });
+
+        assertEquals("유효한 전화번호 형식이 아닙니다. 010-1234-5678 형식을 따라야 합니다.", exception.getMessage());
     }
 
     @Test
@@ -667,7 +793,7 @@ public class UserServiceImplTest {
                 .email(userEmail)
                 .password(password)
                 .build();
-        
+
 
         when(userRepository.findByUserEmail(userEmail)).thenReturn(testUser);
         when(passwordEncoder.matches(password, testUser.getUserPassword())).thenReturn(true);
@@ -777,5 +903,52 @@ public class UserServiceImplTest {
         verify(userStateRepository).findByUserStateName("ACTIVE");
         assertNotNull(testUser.getUserLastLoginDate());
         assertEquals(activeState, testUser.getUserState());
+    }
+
+    @Test
+    @DisplayName("회원 수정 페이지 진입 전 비밀번호 검증 - 성공")
+    void testCheckUserPassword_ValidPassword() {
+        CheckPasswordRequest validPasswordRequest = CheckPasswordRequest.builder()
+                .password("encodedPassword")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(validPasswordRequest.password(), testUser.getUserPassword())).thenReturn(true);
+
+        boolean result = userService.checkUserPassword(1L, validPasswordRequest);
+
+        assertTrue(result);
+    }
+
+
+    @Test
+    @DisplayName("회원 수정 페이지 진입 전 비밀번호 검증 - 실패 (비밀번호 불일치)")
+    void testCheckUserPassword_InvalidPassword() {
+        CheckPasswordRequest invalidPasswordRequest = CheckPasswordRequest.builder()
+                .password("invalidPassword")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(invalidPasswordRequest.password(), testUser.getUserPassword())).thenReturn(false);
+
+        boolean result = userService.checkUserPassword(1L, invalidPasswordRequest);
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("회원 수정 페이지 진입 전 비밀번호 검증 - 실패 (회원이 존재하지 않음)")
+    void testCheckUserPassword_UserNotFound() {
+        CheckPasswordRequest validPasswordRequest = CheckPasswordRequest.builder()
+                .password("encodedPassword")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        UserException exception = assertThrows(UserException.class, () -> {
+            userService.checkUserPassword(1L, validPasswordRequest);
+        });
+
+        assertEquals("회원이 존재 하지 않습니다.", exception.getErrorStatus().message());
     }
 }

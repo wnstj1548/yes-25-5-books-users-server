@@ -2,7 +2,6 @@ package com.yes255.yes255booksusersserver.persistance.repository;
 
 import com.yes255.yes255booksusersserver.persistance.domain.User;
 import com.yes255.yes255booksusersserver.persistance.domain.UserState;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +11,7 @@ import java.util.stream.Collectors;
 
 public interface JpaUserRepository extends JpaRepository<User, Long> {
 
-    List<User> findAllByUserNameAndUserPhone(String userName, String userPhone, Pageable pageable);
+    List<User> findAllByUserNameAndUserPhone(String userName, String userPhone);
 
     User findByUserEmailAndUserPassword(String username, String password);
 
@@ -32,4 +31,6 @@ public interface JpaUserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE FUNCTION('MONTH', u.userBirth) = :month AND FUNCTION('DAY', u.userBirth) = :day")
     List<User> findUsersByBirthMonthAndDay(@Param("month") int month, @Param("day") int day);
+
+    List<User> findByUserIdIn(List<Long> userIds);
 }

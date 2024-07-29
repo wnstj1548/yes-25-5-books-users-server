@@ -58,14 +58,12 @@ public class UserController {
      * 이메일을 찾습니다.
      *
      * @param emailRequest 이메일 찾기 요청 데이터
-     * @param pageable     페이지네이션 정보
      * @return ResponseEntity<List<FindUserResponse>> 찾은 이메일 목록과 상태 코드 200(OK)
      */
     @Operation(summary = "이메일 찾기", description = "이메일(아이디)을 찾기 위해 회원 이름과 이메일을 통해 이메일 목록을 조회합니다.")
     @PostMapping("/users/find/email")
-    public ResponseEntity<List<FindUserResponse>> findAllByUserNameByUserPhone(@RequestBody FindEmailRequest emailRequest,
-                                                                               Pageable pageable) {
-        return new ResponseEntity<>(userService.findAllUserEmailByUserNameByUserPhone(emailRequest, pageable)
+    public ResponseEntity<List<FindUserResponse>> findAllByUserNameByUserPhone(@RequestBody FindEmailRequest emailRequest) {
+        return new ResponseEntity<>(userService.findAllUserEmailByUserNameByUserPhone(emailRequest)
                 , HttpStatus.OK);
     }
 
@@ -80,11 +78,6 @@ public class UserController {
     public ResponseEntity<Boolean> findPassword(@RequestBody FindPasswordRequest passwordRequest) {
         return new ResponseEntity<>(userService.findUserPasswordByEmailByName(passwordRequest), HttpStatus.OK);
     }
-
-    // todo : 비밀번호 설정
-//    @Operation(summary = "비밀번호 설정", description = "비밀번호를 재설정합니다.")
-//    @PostMapping("/auth/setPassword")
-
 
     /**
      * 회원 조회를 처리합니다.
@@ -135,6 +128,16 @@ public class UserController {
         userService.deleteUser(userId, userRequest);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "비밀번호 확인", description = "특정 회원이 회원 정보 수정 전에 비밀번호를 확인합니다.")
+    @PostMapping("/users/verify/password")
+    public ResponseEntity<Boolean> checkPassword(@RequestBody CheckPasswordRequest passwordRequest,
+                                                 @CurrentUser JwtUserDetails jwtUserDetails) {
+
+        Long userId = jwtUserDetails.userId();
+
+        return ResponseEntity.ok(userService.checkUserPassword(userId, passwordRequest));
     }
 
     @Operation(summary = "이메일 중복 체크", description = "회원가입 시 이메일 중복을 확인합니다.")

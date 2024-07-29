@@ -17,7 +17,6 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaUserTotalPure
 import com.yes255.yes255booksusersserver.presentation.dto.response.OrderLogResponse;
 import com.yes255.yes255booksusersserver.presentation.dto.response.usergrade.UserGradeResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -112,10 +113,21 @@ public class UserGradeServiceImpl implements UserGradeService {
         // 주문 서버로부터 3개월 치 순수 금액 내역 반환
         List<OrderLogResponse> orderLogResponses = orderAdaptor.getOrderLogs(LocalDate.now());
 
+        // 주문 기록이 있는 모든 회원의 ID를 저장
+        List<Long> userIds = orderLogResponses.stream()
+                .map(OrderLogResponse::customerId)
+                .toList();
+
+        Map<Long, User> userMap = userRepository.findByUserIdIn(userIds).stream()
+                .collect(Collectors.toMap(User::getUserId, user -> user));
+
         for (OrderLogResponse orderLogResponse : orderLogResponses) {
 
-            User user = userRepository.findById(orderLogResponse.customerId())
-                    .orElseThrow(() -> new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now())));
+            User user = userMap.get(orderLogResponse.customerId());
+
+            if (Objects.isNull(user)) {
+                throw new UserException(ErrorStatus.toErrorStatus("회원이 존재하지 않습니다.", 400, LocalDateTime.now()));
+            }
 
             updateUserGrade(user, orderLogResponse.purePrice(), currentDate);
 
