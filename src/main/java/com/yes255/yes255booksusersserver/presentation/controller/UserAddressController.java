@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * 회원 주소 관련 API를 제공하는 UserAddressController
  */

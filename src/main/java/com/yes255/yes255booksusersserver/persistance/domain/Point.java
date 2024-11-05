@@ -22,7 +22,7 @@ public class Point {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pointCurrent;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 

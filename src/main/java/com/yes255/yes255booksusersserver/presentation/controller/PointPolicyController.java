@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * 포인트 정책 관련 API를 제공하는 PointPolicyController
  */

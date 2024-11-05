@@ -39,6 +39,7 @@ class UserControllerTest {
     private UpdateUserRequest updateUserRequest;
     private DeleteUserRequest deleteUserRequest;
     private UnlockDormantRequest unlockDormantRequest;
+    private CheckPasswordRequest checkPasswordRequest;
     private JwtUserDetails jwtUserDetails;
 
     @BeforeEach
@@ -92,6 +93,12 @@ class UserControllerTest {
                 .build();
 
         unlockDormantRequest = UnlockDormantRequest.from("user@example.com");
+
+
+        checkPasswordRequest = CheckPasswordRequest.builder()
+                .password("password")
+                .build();
+
     }
 
     @Test
@@ -132,10 +139,10 @@ class UserControllerTest {
                 .build();
         List<FindUserResponse> responses = List.of(findUserResponse);
 
-        when(userService.findAllUserEmailByUserNameByUserPhone(any(FindEmailRequest.class), any()))
+        when(userService.findAllUserEmailByUserNameByUserPhone(any(FindEmailRequest.class)))
                 .thenReturn(responses);
 
-        ResponseEntity<List<FindUserResponse>> response = userController.findAllByUserNameByUserPhone(findEmailRequest, null);
+        ResponseEntity<List<FindUserResponse>> response = userController.findAllByUserNameByUserPhone(findEmailRequest);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(responses);
@@ -209,5 +216,29 @@ class UserControllerTest {
         ResponseEntity<Void> response = userController.unLockDormantState(unlockDormantRequest);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("비밀번호 확인 - 성공")
+    void testCheckPassword_Success() {
+        when(userService.checkUserPassword(anyLong(), any(CheckPasswordRequest.class)))
+                .thenReturn(true);
+
+        ResponseEntity<Boolean> response = userController.checkPassword(checkPasswordRequest, jwtUserDetails);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isTrue();
+    }
+
+    @Test
+    @DisplayName("비밀번호 확인 - 실패")
+    void testCheckPassword_Failure() {
+        when(userService.checkUserPassword(anyLong(), any(CheckPasswordRequest.class)))
+                .thenReturn(false);
+
+        ResponseEntity<Boolean> response = userController.checkPassword(checkPasswordRequest, jwtUserDetails);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isFalse();
     }
 }

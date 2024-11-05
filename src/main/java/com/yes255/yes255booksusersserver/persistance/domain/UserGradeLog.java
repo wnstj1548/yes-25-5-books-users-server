@@ -21,11 +21,11 @@ public class UserGradeLog {
     @NotNull(message = "회원 등급 변동 일자는 필수입니다.")
     private LocalDate userGradeUpdatedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_grade_id")
     private UserGrade userGrade;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

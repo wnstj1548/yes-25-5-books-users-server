@@ -26,11 +26,11 @@ public class UserAddress {
     @Column(name = "address_based", nullable = false)
     private boolean addressBased;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

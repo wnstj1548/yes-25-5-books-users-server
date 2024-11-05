@@ -31,7 +31,7 @@ public class PointLog {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal pointLogAmount;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "point_id")
     private Point point;
 

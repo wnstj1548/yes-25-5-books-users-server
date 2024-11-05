@@ -44,7 +44,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @ExtendWith(MockitoExtension.class)
-public class CartBookServiceImplTest {
+class CartBookServiceImplTest {
 
     @Mock
     private JpaBookRepository bookRepository;

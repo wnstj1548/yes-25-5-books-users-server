@@ -228,7 +228,7 @@ class CategoryServiceImplTest {
 
         // then
         CategoryNotFoundException exception = assertThrows(CategoryNotFoundException.class, () -> categoryService.removeCategory(testCategory.getCategoryId()));
-        assertEquals(null, exception.getMessage());
+        assertNull(exception.getMessage());
         verify(jpaCategoryRepository, never()).deleteById(anyLong());
     }
 

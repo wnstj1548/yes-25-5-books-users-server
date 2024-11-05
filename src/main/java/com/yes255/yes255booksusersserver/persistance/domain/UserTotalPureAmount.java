@@ -27,7 +27,7 @@ public class UserTotalPureAmount {
     @Column(nullable = false)
     private LocalDate userTotalPureAmountRecordedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 

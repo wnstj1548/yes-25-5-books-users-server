@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CouponScheduler {
 
-    final public CouponUserService couponUserService;
+    public final CouponUserService couponUserService;
 
     // 매일 자정 실행
     @Scheduled(cron = "0 0 0 * * ?")

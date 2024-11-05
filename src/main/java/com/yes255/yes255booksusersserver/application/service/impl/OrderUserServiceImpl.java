@@ -87,6 +87,7 @@ public class OrderUserServiceImpl implements OrderUserService {
         );
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ReadUserInfoResponse getUserInfo(Long userId) {
 
