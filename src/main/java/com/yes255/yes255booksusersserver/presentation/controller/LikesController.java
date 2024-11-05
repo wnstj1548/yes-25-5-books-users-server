@@ -93,11 +93,7 @@ public class LikesController {
             throw new ApplicationException(ErrorStatus.toErrorStatus("로그인한 회원만 좋아요를 할 수 있습니다.", 400, LocalDateTime.now()));
         }
 
-        if(!likesService.isExistByBookIdAndUserId(bookId, jwtUserDetails.userId())) {
-            return ResponseEntity.ok(likesService.createLike(bookId, jwtUserDetails.userId()));
-        }
-
-        return ResponseEntity.ok(likesService.updateLikeStatus(bookId, jwtUserDetails.userId()));
+        return ResponseEntity.ok(likesService.click(bookId, jwtUserDetails.userId()));
     }
 
     @Operation(summary = "좋아요 검색", description = "책의 아이디와 토큰에 들어있는 유저로 좋아요를 조회합니다.")

@@ -40,10 +40,6 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
-    private final BookCategoryService bookCategoryService;
-    private final BookTagService bookTagService;
-    private final AuthorService authorService;
-    private final BookAuthorService bookAuthorService;
 
     /**
      * 모든 책을 가져옵니다.
@@ -125,96 +121,11 @@ public class BookController {
     @PostMapping("/books")
     public ResponseEntity<BookResponse> create(@RequestBody @Valid CreateBookRequest request, @RequestParam(value = "categoryIdList") List<Long> categoryIdList, @RequestParam(value = "tagIdList", required = false) List<Long> tagIdList, BindingResult bindingResult) {
 
-        BookResponse bookResponse = bookService.getBookByIsbn(request.bookIsbn());
-
-        if(bookResponse != null) {
-             //삭제된 책일시 삭제 상태 업데이트 및 전체 수정
-             if(bookResponse.bookIsDeleted()) {
-
-                 bookService.updateBookIsDeleteFalse(bookResponse.bookId());
-
-                 UpdateBookRequest updateBookRequest = UpdateBookRequest.fromCreateBookRequest(request, bookResponse.bookId());
-
-                 List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(updateBookRequest.bookId());
-                 List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(updateBookRequest.bookId());
-                 List<BookAuthorResponse> bookAuthorList = bookAuthorService.getBookAuthorByBookId(updateBookRequest.bookId());
-
-                 for(BookCategoryResponse bookCategory : bookCategoryList) {
-                     bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
-                 }
-
-                 for(BookTagResponse bookTag : bookTagList) {
-                     bookTagService.removeBookTag(bookTag.bookTagId());
-                 }
-
-                 for(BookAuthorResponse bookAuthor : bookAuthorList) {
-                     bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
-                 }
-
-                 BookResponse response = bookService.updateBook(updateBookRequest);
-                 categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
-
-                 if(tagIdList != null) {
-                     for(Long tagId : tagIdList) {
-                         bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
-                     }
-                 }
-
-                 List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
-                         .map(String::trim)
-                         .distinct()
-                         .toList();
-
-                 for(String authorString : authorStringList) {
-
-                     if(authorService.isExistAuthorByName(authorString)) {
-                         bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
-                     } else {
-                         AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
-                         bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
-                     }
-                 }
-
-                 return ResponseEntity.ok(response);
-
-             } else {
-                 throw new ApplicationException(ErrorStatus.toErrorStatus("이미 존재하는 책입니다.", 400, LocalDateTime.now()));
-             }
-
-        }
-
         if (bindingResult.hasErrors()) {
             throw new ValidationFailedException(bindingResult);
         }
 
-        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
-                .map(String::trim)
-                .distinct()
-                .toList();
-
-        BookResponse response = bookService.createBook(request);
-
-        for(String authorString : authorStringList) {
-
-            if(authorService.isExistAuthorByName(authorString)) {
-                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
-            } else {
-                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
-                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
-            }
-        }
-
-        for(Long categoryId : categoryIdList) {
-            bookCategoryService.createBookCategory(response.bookId(), categoryId);
-        }
-
-        if(tagIdList != null) {
-            for(Long tagId : tagIdList) {
-                bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
-            }
-        }
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(bookService.createBook(request, categoryIdList, tagIdList));
     }
 
     /**
@@ -241,47 +152,7 @@ public class BookController {
             throw new ValidationFailedException(bindingResult);
         }
 
-        List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(request.bookId());
-        List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(request.bookId());
-        List<BookAuthorResponse> bookAuthorList = bookAuthorService.getBookAuthorByBookId(request.bookId());
-
-        for(BookCategoryResponse bookCategory : bookCategoryList) {
-            bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
-        }
-
-        for(BookTagResponse bookTag : bookTagList) {
-            bookTagService.removeBookTag(bookTag.bookTagId());
-        }
-
-        for(BookAuthorResponse bookAuthor : bookAuthorList) {
-            bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
-        }
-
-        BookResponse response = bookService.updateBook(request);
-        categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
-
-        if(tagIdList != null) {
-            for(Long tagId : tagIdList) {
-                bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
-            }
-        }
-
-        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
-                .map(String::trim)
-                .distinct()
-                .toList();
-
-        for(String authorString : authorStringList) {
-
-            if(authorService.isExistAuthorByName(authorString)) {
-                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
-            } else {
-                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
-                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
-            }
-        }
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(bookService.updateBook(request, categoryIdList, tagIdList));
     }
 
     /**
@@ -305,41 +176,7 @@ public class BookController {
             throw new ApplicationException(ErrorStatus.toErrorStatus("책 리스트와 수량 리스트의 개수가 다릅니다.", 400, LocalDateTime.now()));
         }
 
-        List<BookResponse> updatedBookList = new ArrayList<>();
-
-        for(int i = 0; i< request.bookIdList().size(); i++) {
-
-            BookResponse book = bookService.getBook(request.bookIdList().get(i));
-
-            Integer updatedQuantity;
-
-            if(request.operationType() == OperationType.DECREASE) {
-                if(request.quantityList().get(i) > book.bookQuantity()) {
-                    throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
-                }
-                updatedQuantity = book.bookQuantity() - request.quantityList().get(i);
-            } else {
-                updatedQuantity = request.quantityList().get(i) + book.bookQuantity();
-            }
-
-            UpdateBookRequest updatedBook = UpdateBookRequest.builder()
-                    .bookId(book.bookId())
-                    .bookIsbn(book.bookIsbn())
-                    .bookName(book.bookName())
-                    .bookDescription(book.bookDescription())
-                    .bookPublisher(book.bookPublisher())
-                    .bookPublishDate(book.bookPublishDate())
-                    .bookPrice(book.bookPrice())
-                    .bookSellingPrice(book.bookSellingPrice())
-                    .imageURL(book.bookImage())
-                    .quantity(updatedQuantity)
-                    .bookIsPackable(book.bookIsPackable())
-                    .build();
-
-            updatedBookList.add(bookService.updateBook(updatedBook));
-        }
-
-        return ResponseEntity.ok(updatedBookList);
+        return ResponseEntity.ok(bookService.updateQuantity(request));
     }
 
     /**

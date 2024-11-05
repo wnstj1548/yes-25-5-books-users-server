@@ -1,8 +1,10 @@
 package com.yes255.yes255booksusersserver.application.service.impl;
 
-import com.yes255.yes255booksusersserver.application.service.BookService;
+import com.yes255.yes255booksusersserver.application.service.*;
 import com.yes255.yes255booksusersserver.common.exception.ApplicationException;
 import com.yes255.yes255booksusersserver.common.exception.BookNotFoundException;
+import com.yes255.yes255booksusersserver.common.exception.QuantityInsufficientException;
+import com.yes255.yes255booksusersserver.common.exception.ValidationFailedException;
 import com.yes255.yes255booksusersserver.common.exception.payload.ErrorStatus;
 import com.yes255.yes255booksusersserver.persistance.domain.Book;
 import com.yes255.yes255booksusersserver.persistance.domain.BookAuthor;
@@ -11,17 +13,16 @@ import com.yes255.yes255booksusersserver.persistance.domain.BookTag;
 import com.yes255.yes255booksusersserver.persistance.domain.Category;
 import com.yes255.yes255booksusersserver.persistance.domain.Likes;
 import com.yes255.yes255booksusersserver.persistance.domain.Review;
+import com.yes255.yes255booksusersserver.persistance.domain.enumtype.OperationType;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookAuthorRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaBookTagRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaCategoryRepository;
 import com.yes255.yes255booksusersserver.persistance.repository.JpaLikesRepository;
-import com.yes255.yes255booksusersserver.presentation.dto.request.CreateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.request.UpdateBookRequest;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookCouponResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookOrderResponse;
-import com.yes255.yes255booksusersserver.presentation.dto.response.BookResponse;
+import com.yes255.yes255booksusersserver.presentation.dto.request.*;
+import com.yes255.yes255booksusersserver.presentation.dto.response.*;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,8 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
 @RequiredArgsConstructor
@@ -44,18 +47,106 @@ public class BookServiceImpl implements BookService {
     private final JpaBookTagRepository jpaBookTagRepository;
     private final JpaBookAuthorRepository jpaBookAuthorRepository;
     private final JpaLikesRepository jpaLikesRepository;
+    private final BookCategoryService bookCategoryService;
+    private final BookTagService bookTagService;
+    private final BookAuthorService bookAuthorService;
+    private final AuthorService authorService;
+
 
     @Transactional
     @Override
-    public BookResponse createBook(CreateBookRequest createBookRequest) {
+    public BookResponse createBook(CreateBookRequest request, List<Long> categoryIdList, List<Long> tagIdList) {
 
-        if(Objects.isNull(createBookRequest)) {
+        if(Objects.isNull(request)) {
             throw new ApplicationException(
                     ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())
             );
         }
 
-        Book book = jpaBookRepository.save(createBookRequest.toEntity());
+        BookResponse bookResponse = getBookByIsbn(request.bookIsbn());
+
+        if(bookResponse != null) {
+            //삭제된 책일시 삭제 상태 업데이트 및 전체 수정
+            if(bookResponse.bookIsDeleted()) {
+
+                updateBookIsDeleteFalse(bookResponse.bookId());
+
+                UpdateBookRequest updateBookRequest = UpdateBookRequest.fromCreateBookRequest(request, bookResponse.bookId());
+
+                List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(updateBookRequest.bookId());
+                List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(updateBookRequest.bookId());
+                List<BookAuthorResponse> bookAuthorList = bookAuthorService.getBookAuthorByBookId(updateBookRequest.bookId());
+
+                for(BookCategoryResponse bookCategory : bookCategoryList) {
+                    bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
+                }
+
+                for(BookTagResponse bookTag : bookTagList) {
+                    bookTagService.removeBookTag(bookTag.bookTagId());
+                }
+
+                for(BookAuthorResponse bookAuthor : bookAuthorList) {
+                    bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
+                }
+
+                BookResponse response = updateBook(updateBookRequest);
+                categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
+
+                if(tagIdList != null) {
+                    for(Long tagId : tagIdList) {
+                        bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
+                    }
+                }
+
+                List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
+                        .map(String::trim)
+                        .distinct()
+                        .toList();
+
+                for(String authorString : authorStringList) {
+
+                    if(authorService.isExistAuthorByName(authorString)) {
+                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
+                    } else {
+                        AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
+                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
+                    }
+                }
+
+                return response;
+
+            } else {
+                throw new ApplicationException(ErrorStatus.toErrorStatus("이미 존재하는 책입니다.", 400, LocalDateTime.now()));
+            }
+
+        }
+
+        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
+                .map(String::trim)
+                .distinct()
+                .toList();
+
+        Book book = jpaBookRepository.save(request.toEntity());
+
+        for(String authorString : authorStringList) {
+
+            if(authorService.isExistAuthorByName(authorString)) {
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(book.getBookId(), authorService.getAuthorByName(authorString).authorId()));
+            } else {
+                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(book.getBookId(), createAuthorResponse.authorId()));
+            }
+        }
+
+        for(Long categoryId : categoryIdList) {
+            bookCategoryService.createBookCategory(book.getBookId(), categoryId);
+        }
+
+        if(tagIdList != null) {
+            for(Long tagId : tagIdList) {
+                bookTagService.createBookTag(new CreateBookTagRequest(book.getBookId(), tagId));
+            }
+        }
 
         return toResponse(book);
     }
@@ -65,6 +156,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse getBook(long bookId) {
 
         Book book = jpaBookRepository.findById(bookId).orElseThrow(() -> new ApplicationException(ErrorStatus.toErrorStatus("요청 값이 비어있습니다.", 400, LocalDateTime.now())));
+
         if(Objects.isNull(book) || book.isBookIsDeleted()) {
             throw new BookNotFoundException(
                     ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
@@ -106,16 +198,57 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
+    public BookResponse updateBook(UpdateBookRequest request, List<Long> categoryIdList, List<Long> tagIdList) {
 
-        Book existingBook = jpaBookRepository.findById(updateBookRequest.bookId())
+        List<BookCategoryResponse> bookCategoryList = bookCategoryService.getBookCategoryByBookId(request.bookId());
+        List<BookTagResponse> bookTagList = bookTagService.getBookTagByBookId(request.bookId());
+        List<BookAuthorResponse> bookAuthorList = bookAuthorService.getBookAuthorByBookId(request.bookId());
+
+        for(BookCategoryResponse bookCategory : bookCategoryList) {
+            bookCategoryService.removeBookCategory(bookCategory.bookCategoryId());
+        }
+
+        for(BookTagResponse bookTag : bookTagList) {
+            bookTagService.removeBookTag(bookTag.bookTagId());
+        }
+
+        for(BookAuthorResponse bookAuthor : bookAuthorList) {
+            bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
+        }
+
+        Book existingBook = jpaBookRepository.findById(request.bookId())
                 .orElseThrow(() -> new BookNotFoundException(
                 ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
                 ));
 
-        existingBook.updateAll(updateBookRequest.toEntity());
+        existingBook.updateAll(request.toEntity());
 
-        return toResponse(existingBook);
+        BookResponse response = toResponse(existingBook);
+
+        categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
+
+        if(tagIdList != null) {
+            for(Long tagId : tagIdList) {
+                bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
+            }
+        }
+
+        List<String> authorStringList = Arrays.stream(request.bookAuthor().split(","))
+                .map(String::trim)
+                .distinct()
+                .toList();
+
+        for(String authorString : authorStringList) {
+
+            if(authorService.isExistAuthorByName(authorString)) {
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
+            } else {
+                AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
+                bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
+            }
+        }
+
+        return response;
     }
 
     @Transactional
@@ -221,6 +354,58 @@ public class BookServiceImpl implements BookService {
 
         book.updateBookIsDeleted(false);
 
+    }
+
+    @Transactional
+    @Override
+    public List<BookResponse> updateQuantity(UpdateBookQuantityRequest request) {
+
+        if(request.bookIdList().size() != request.quantityList().size()) {
+            throw new ApplicationException(ErrorStatus.toErrorStatus("책 리스트와 수량 리스트의 개수가 다릅니다.", 400, LocalDateTime.now()));
+        }
+
+        List<BookResponse> updatedBookList = new ArrayList<>();
+
+        for(int i = 0; i< request.bookIdList().size(); i++) {
+
+            BookResponse book = getBook(request.bookIdList().get(i));
+
+            Integer updatedQuantity;
+
+            if(request.operationType() == OperationType.DECREASE) {
+                if(request.quantityList().get(i) > book.bookQuantity()) {
+                    throw new QuantityInsufficientException(ErrorStatus.toErrorStatus("주문 한 수량이 재고보다 많습니다.", 400, LocalDateTime.now()));
+                }
+                updatedQuantity = book.bookQuantity() - request.quantityList().get(i);
+            } else {
+                updatedQuantity = request.quantityList().get(i) + book.bookQuantity();
+            }
+
+            UpdateBookRequest updatedBook = UpdateBookRequest.builder()
+                    .bookId(book.bookId())
+                    .bookIsbn(book.bookIsbn())
+                    .bookName(book.bookName())
+                    .bookDescription(book.bookDescription())
+                    .bookPublisher(book.bookPublisher())
+                    .bookPublishDate(book.bookPublishDate())
+                    .bookPrice(book.bookPrice())
+                    .bookSellingPrice(book.bookSellingPrice())
+                    .imageURL(book.bookImage())
+                    .quantity(updatedQuantity)
+                    .bookIsPackable(book.bookIsPackable())
+                    .build();
+
+            Book existingBook = jpaBookRepository.findById(updatedBook.bookId())
+                    .orElseThrow(() -> new BookNotFoundException(
+                            ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                    ));
+
+            existingBook.updateAll(updatedBook.toEntity());
+
+            updatedBookList.add(toResponse(existingBook));
+        }
+
+        return updatedBookList;
     }
 
 

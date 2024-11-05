@@ -11,4 +11,5 @@ public interface LikesService {
     LikesResponse updateLikeStatus(Long bookId, Long userId);
     boolean isExistByBookIdAndUserId(Long bookId, Long userId);
     LikesResponse getLikeByBookIdAndUserId(Long bookId, Long userId);
+    LikesResponse click(Long bookId, Long userId);
 }

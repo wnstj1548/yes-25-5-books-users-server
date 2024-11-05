@@ -11,6 +11,7 @@ import com.yes255.yes255booksusersserver.persistance.repository.JpaLikesReposito
 import com.yes255.yes255booksusersserver.persistance.repository.JpaUserRepository;
 import com.yes255.yes255booksusersserver.presentation.dto.response.LikesResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +105,17 @@ public class LikesServiceImpl implements LikesService {
                 .orElseThrow(() -> new ApplicationException(
                         ErrorStatus.toErrorStatus("해당 좋아요를 찾을 수 없습니다.", 404, LocalDateTime.now())
                 )));
+    }
+
+    @Transactional
+    @Override
+    public LikesResponse click(Long bookId, Long userId) {
+
+        if(!isExistByBookIdAndUserId(bookId, userId)) {
+            return createLike(bookId, userId);
+        }
+
+        return updateLikeStatus(bookId, userId);
     }
 
 }

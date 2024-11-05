@@ -57,3 +57,11 @@ Content-Type: application/json
 ###
 GET localhost:8061/books/search?query=조선
 Content-Type: application/json
+
+###
+GET https://mayo-api.store/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI&userId=asdfff
+Content-Type: text/event-stream
+
+###
+GET https://mayo-api.store/sse/reservations-new?storeId=VQtTGTCc13EWulU5sZmI&userId=asdf
+Content-Type: application/json
