@@ -89,12 +89,18 @@ public class BookServiceImpl implements BookService {
                     bookAuthorService.removeBookAuthor(bookAuthor.bookAuthorId());
                 }
 
-                BookResponse response = updateBook(updateBookRequest);
-                categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(response.bookId(), categoryId));
+                Book existingBook = jpaBookRepository.findById(bookResponse.bookId())
+                        .orElseThrow(() -> new BookNotFoundException(
+                                ErrorStatus.toErrorStatus("알맞은 책을 찾을 수 없습니다.", 404, LocalDateTime.now())
+                        ));
+
+                existingBook.updateAll(request.toEntity());
+
+                categoryIdList.forEach(categoryId -> bookCategoryService.createBookCategory(existingBook.getBookId(), categoryId));
 
                 if(tagIdList != null) {
                     for(Long tagId : tagIdList) {
-                        bookTagService.createBookTag(new CreateBookTagRequest(response.bookId(), tagId));
+                        bookTagService.createBookTag(new CreateBookTagRequest(existingBook.getBookId(), tagId));
                     }
                 }
 
@@ -106,14 +112,14 @@ public class BookServiceImpl implements BookService {
                 for(String authorString : authorStringList) {
 
                     if(authorService.isExistAuthorByName(authorString)) {
-                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), authorService.getAuthorByName(authorString).authorId()));
+                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(existingBook.getBookId(), authorService.getAuthorByName(authorString).authorId()));
                     } else {
                         AuthorResponse createAuthorResponse = authorService.createAuthor(new CreateAuthorRequest(authorString));
-                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(response.bookId(), createAuthorResponse.authorId()));
+                        bookAuthorService.createBookAuthor(new CreateBookAuthorRequest(existingBook.getBookId(), createAuthorResponse.authorId()));
                     }
                 }
 
-                return response;
+                return toResponse(existingBook);
 
             } else {
                 throw new ApplicationException(ErrorStatus.toErrorStatus("이미 존재하는 책입니다.", 400, LocalDateTime.now()));
