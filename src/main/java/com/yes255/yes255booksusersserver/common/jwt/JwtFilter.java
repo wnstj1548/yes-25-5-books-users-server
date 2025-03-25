@@ -32,13 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         //토큰 필요없는 거
-        if ("/users".equals(path) || "/users/sign-up".equals(path) ||
-                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
-                "/users/check-email".equals(path) || path.startsWith("/books/search") ||
-                 path.startsWith("/books/categories") || path.startsWith("/books/category")
-                || path.startsWith("/books/books/category")
-                || "/users/dormant".equals(path) || "/users/find-email".equals(path)
-                || path.matches("/books/likes/book/\\d") || path.startsWith("/users/cart-books")) {
+        if (isWhiteList(path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -97,6 +91,16 @@ public class JwtFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
+    }
+
+    private static boolean isWhiteList(String path) {
+        return "/users".equals(path) || "/users/sign-up".equals(path) ||
+                "/users/find/email".equals(path) || "/user/find/password".equals(path) ||
+                "/users/check-email".equals(path) || path.startsWith("/books/search") ||
+                path.startsWith("/books/categories") || path.startsWith("/books/category")
+                || path.startsWith("/books/books/category")
+                || "/users/dormant".equals(path) || "/users/find-email".equals(path)
+                || path.matches("/books/likes/book/\\d") || path.startsWith("/users/cart-books");
     }
 
     private String getAccessToken(HttpServletRequest request) {

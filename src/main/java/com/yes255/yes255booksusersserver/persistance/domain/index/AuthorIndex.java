@@ -8,9 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
 @Document(indexName = "yes255_author")
 public class AuthorIndex {
@@ -21,6 +19,12 @@ public class AuthorIndex {
 
     @Field(name = "author_name", type = FieldType.Text)
     private String authorName;
+
+    @Builder
+    public AuthorIndex(String authorId, String authorName) {
+        this.authorId = authorId;
+        this.authorName = authorName;
+    }
 
     public static AuthorIndex fromAuthor(Author author) {
         return AuthorIndex.builder()

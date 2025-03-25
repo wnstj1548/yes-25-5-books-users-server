@@ -11,9 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
 @Document(indexName = "yes255_book", createIndex = true)
 @Setting(settingPath = "/" +
@@ -78,6 +76,28 @@ public class BookIndex {
     @Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
     private Date publishDate;
 
+    @Builder
+    public BookIndex(String bookId, String bookIsbn, String bookName, String bookDescription, String bookPublisher, BigDecimal bookPrice, BigDecimal bookSellingPrice, String bookImage, Integer quantity, Integer reviewCount, Integer hitsCount, Integer searchCount, boolean bookIsPackable, boolean bookIsDeleted, Double grade, List<String> authors, List<String> tags, List<String> categories, Date publishDate) {
+        this.bookId = bookId;
+        this.bookIsbn = bookIsbn;
+        this.bookName = bookName;
+        this.bookDescription = bookDescription;
+        this.bookPublisher = bookPublisher;
+        this.bookPrice = bookPrice;
+        this.bookSellingPrice = bookSellingPrice;
+        this.bookImage = bookImage;
+        this.quantity = quantity;
+        this.reviewCount = reviewCount;
+        this.hitsCount = hitsCount;
+        this.searchCount = searchCount;
+        this.bookIsPackable = bookIsPackable;
+        this.bookIsDeleted = bookIsDeleted;
+        this.grade = grade;
+        this.authors = authors;
+        this.tags = tags;
+        this.categories = categories;
+        this.publishDate = publishDate;
+    }
 
     public static BookIndex updateAuthorsAndTagsAndCategory(BookIndex book, List<AuthorIndex> authors, List<TagIndex> tags, List<CategoryIndex> categories) {
         return BookIndex.builder()

@@ -8,9 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
 @Document(indexName = "yes255_category")
 public class CategoryIndex {
@@ -21,6 +19,12 @@ public class CategoryIndex {
 
     @Field(name = "category_name", type = FieldType.Text)
     private String categoryName;
+
+    @Builder
+    public CategoryIndex(String categoryId, String categoryName) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+    }
 
     public static CategoryIndex fromCategory(Category category) {
         return CategoryIndex.builder()

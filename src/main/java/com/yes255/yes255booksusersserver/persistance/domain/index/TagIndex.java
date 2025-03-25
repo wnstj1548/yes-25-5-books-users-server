@@ -8,9 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @ToString
 @Document(indexName = "yes255_tags")
 public class TagIndex {
@@ -21,6 +19,12 @@ public class TagIndex {
 
     @Field(name = "tag_name", type = FieldType.Text)
     private String tagName;
+
+    @Builder
+    public TagIndex(String tagId, String tagName) {
+        this.tagId = tagId;
+        this.tagName = tagName;
+    }
 
     public static TagIndex fromTag(Tag tag) {
         return TagIndex.builder()
